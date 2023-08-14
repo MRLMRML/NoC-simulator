@@ -29,5 +29,9 @@
 //// PE cycle 
 //#define CHANNEL
 
-// 
+//// Flit size
 #define FLIT_SIZE 16 // bytes
+
+// Virtual channel
+#define VC_NUMBER 2
+#define BUFFER_SIZE 4

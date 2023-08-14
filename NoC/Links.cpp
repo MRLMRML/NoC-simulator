@@ -33,23 +33,40 @@ void Links::runOneStep()
 	// transfer one element in Port pair
 	for (auto& connection : m_connections)
 	{
-		if (!connection.first->outBuffer.empty())
+		if (!connection.first->outFlitBuffer.empty())
 		{
-			connection.second->inBuffer.push_back(connection.first->outBuffer.front());
-			log(" Links: packet transferred (LHS port outBuffer -> RHS port inBuffer)");
+			connection.second->inFlitBuffer.push_back(connection.first->outFlitBuffer.front());
+			log(" Links: flit transferred (LHS -> RHS)");
 		}
-		if (!connection.second->outBuffer.empty())
+
+		if (!connection.second->outCreditBuffer.empty())
 		{
-			connection.first->inBuffer.push_back(connection.second->outBuffer.front());
-			log(" Links: packet transferred (LHS port inBuffer <- RHS port outBuffer)");
+			connection.first->inCreditBuffer.push_back(connection.second->outCreditBuffer.front());
+			log(" Links: credit transferred (LHS <- RHS)");
+		}
+
+		if (!connection.second->outFlitBuffer.empty())
+		{
+			connection.first->inFlitBuffer.push_back(connection.second->outFlitBuffer.front());
+			log(" Links: flit transferred (LHS <- RHS)");
+		}
+
+		if (!connection.first->outCreditBuffer.empty())
+		{
+			connection.second->inCreditBuffer.push_back(connection.first->outCreditBuffer.front());
+			log(" Links: credit transferred (LHS <- RHS)");
 		}
 	}
 
 	for (auto& connection : m_connections)
 	{
-		if (!connection.first->outBuffer.empty())
-			connection.first->outBuffer.pop_front();
-		if (!connection.second->outBuffer.empty())
-			connection.second->outBuffer.pop_front();
+		if (!connection.first->outFlitBuffer.empty())
+			connection.first->outFlitBuffer.pop_front();
+		if (!connection.second->outCreditBuffer.empty())
+			connection.second->outCreditBuffer.pop_front();
+		if (!connection.second->outFlitBuffer.empty())
+			connection.second->outFlitBuffer.pop_front();
+		if (!connection.first->outCreditBuffer.empty())
+			connection.first->outCreditBuffer.pop_front();
 	}
 }

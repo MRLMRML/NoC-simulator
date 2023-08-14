@@ -1,6 +1,6 @@
 #include "Port.h"
 
-bool Port::isEmpty()
+bool Port::areEmpty()
 {
-	return (outBuffer.empty() && inBuffer.empty());
+	return (outFlitBuffer.empty() && inFlitBuffer.empty());
 }

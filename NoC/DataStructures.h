@@ -1,6 +1,7 @@
 #pragma once
 #include "Parameters.h"
 #include <vector>
+#include <array>
 #include <deque>
 #include <iostream>
 
@@ -84,7 +85,8 @@ std::ostream& operator<<(std::ostream& stream, const FlitType& flitType);
 struct Flit
 {
 	// HeadFlit
-	Flit(const FlitType flitType,
+	Flit(const int virtualChannel,
+		const FlitType flitType,
 		const int destination,
 		const int xID,
 		const PacketType RWQB,
@@ -92,6 +94,7 @@ struct Flit
 		const int SID,
 		const int SEQID)
 		:
+		virtualChannel{ virtualChannel },
 		flitType{ flitType },
 		destination{ destination },
 		xID{ xID },
@@ -101,24 +104,28 @@ struct Flit
 		SEQID{ SEQID } {}
 
 	// BodyFlit
-	Flit(const FlitType flitType,
+	Flit(const int virtualChannel,
+		const FlitType flitType,
 		const int xID,
 		const int MID,
 		const int SEQID)
 		:
+		virtualChannel{ virtualChannel },
 		flitType{ flitType },
 		xID{ xID },
 		MID{ MID },
 		SEQID{ SEQID } {}
 
 	// TailFlit
-	Flit(const FlitType flitType,
+	Flit(const int virtualChannel,
+		const FlitType flitType,
 		const int xID,
 		const int MID,
 		const int SEQID,
 		const int AxADDR,
 		const std::vector<DATA_PRECISION> xDATA)
 		:
+		virtualChannel{ virtualChannel },
 		flitType{ flitType },
 		xID{ xID },
 		MID{ MID },
@@ -127,9 +134,11 @@ struct Flit
 		xDATA{ xDATA } {}
 
 	// HeadTailFlit
-	Flit(const FlitType flitType,
+	Flit(const int virtualChannel,
+		const FlitType flitType,
 		const Packet packet)
 		:
+		virtualChannel{ virtualChannel },
 		flitType{ flitType },
 		destination{ packet.destination },
 		xID{ packet.xID },
@@ -140,6 +149,7 @@ struct Flit
 		AxADDR{ packet.AxADDR },
 		xDATA{ packet.xDATA } {}
 
+	int virtualChannel{};
 	FlitType flitType{};
 	int destination{};
 	int xID{};
@@ -153,10 +163,10 @@ struct Flit
 
 std::ostream& operator<<(std::ostream& stream, const Flit& flit);
 
-//struct FlitReorderBufferLine
-//{
-//	
-//};
+struct Credit
+{
+	bool credit{};
+};
 
 enum class PEType
 {
