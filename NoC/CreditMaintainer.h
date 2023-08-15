@@ -13,6 +13,10 @@ public:
 		}
 	}
 
+	void decreaseCredit(const int virtualChannelIndex);
+	void increaseCredit(const int virtualChannelIndex);
+	int checkCredit(const int virtualChannelIndex);
+
 private:
 	std::array<int, VC_NUMBER> m_creditMaintainer{};
 };

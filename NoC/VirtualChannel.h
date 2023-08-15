@@ -7,10 +7,11 @@ class VirtualChannel
 public:
 	VirtualChannel() = default;
 
-	void pushFlit();
+	void pushbackFlit(const Flit flit);
 
-	void popFlit();
+	void popfrontFlit();
+
 
 private:
-	std::vector<Flit> m_virtualChannel{};
+	std::deque<Flit> m_virtualChannel{};
 };

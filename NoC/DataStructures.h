@@ -1,5 +1,6 @@
 #pragma once
 #include "Parameters.h"
+#include "Log.h"
 #include <vector>
 #include <array>
 #include <deque>

@@ -136,6 +136,8 @@
     <ClInclude Include="Parameters.h" />
     <ClInclude Include="Router.h" />
     <ClInclude Include="Port.h" />
+    <ClInclude Include="RouterPort.h" />
+    <ClInclude Include="TerminalPort.h" />
     <ClInclude Include="VirtualChannel.h" />
   </ItemGroup>
   <ItemGroup>
@@ -145,6 +147,8 @@
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="Port.cpp" />
     <ClCompile Include="Router.cpp" />
+    <ClCompile Include="RouterPort.cpp" />
+    <ClCompile Include="TerminalPort.cpp" />
     <ClCompile Include="VirtualChannel.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

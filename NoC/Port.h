@@ -1,11 +1,12 @@
 #pragma once
 #include "DataStructures.h"
-#include "VirtualChannel.h"
-#include "CreditMaintainer.h"
 
 class Port
 {
 public:
+	Port() = default;
+	virtual ~Port() = default;
+
 	// Input port
 	std::deque<Flit> outFlitBuffer;
 	std::deque<Credit> inCreditBuffer;
@@ -14,9 +15,11 @@ public:
 	std::deque<Flit> inFlitBuffer;
 	std::deque<Credit> outCreditBuffer;
 
-	bool areEmpty();
+	bool isEmpty();
+
+	Direction computeRoute(const Direction port, Flit flit);
+
+	virtual void runOneStep() {}
 
 private:
-	std::array<VirtualChannel, VC_NUMBER> m_virtualChannels{};
-	CreditMaintainer m_creditMaintainer{};
 };
