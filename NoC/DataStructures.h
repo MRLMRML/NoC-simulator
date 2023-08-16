@@ -86,7 +86,8 @@ std::ostream& operator<<(std::ostream& stream, const FlitType& flitType);
 struct Flit
 {
 	// HeadFlit
-	Flit(const int virtualChannel,
+	Flit(const Direction port,
+		const int virtualChannel,
 		const FlitType flitType,
 		const int destination,
 		const int xID,
@@ -95,6 +96,7 @@ struct Flit
 		const int SID,
 		const int SEQID)
 		:
+		port{ port }, 
 		virtualChannel{ virtualChannel },
 		flitType{ flitType },
 		destination{ destination },
@@ -105,12 +107,14 @@ struct Flit
 		SEQID{ SEQID } {}
 
 	// BodyFlit
-	Flit(const int virtualChannel,
+	Flit(const Direction port,
+		const int virtualChannel,
 		const FlitType flitType,
 		const int xID,
 		const int MID,
 		const int SEQID)
 		:
+		port{ port },
 		virtualChannel{ virtualChannel },
 		flitType{ flitType },
 		xID{ xID },
@@ -118,7 +122,8 @@ struct Flit
 		SEQID{ SEQID } {}
 
 	// TailFlit
-	Flit(const int virtualChannel,
+	Flit(const Direction port,
+		const int virtualChannel,
 		const FlitType flitType,
 		const int xID,
 		const int MID,
@@ -126,6 +131,7 @@ struct Flit
 		const int AxADDR,
 		const std::vector<DATA_PRECISION> xDATA)
 		:
+		port{ port },
 		virtualChannel{ virtualChannel },
 		flitType{ flitType },
 		xID{ xID },
@@ -135,10 +141,12 @@ struct Flit
 		xDATA{ xDATA } {}
 
 	// HeadTailFlit
-	Flit(const int virtualChannel,
+	Flit(const Direction port,
+		const int virtualChannel,
 		const FlitType flitType,
 		const Packet packet)
 		:
+		port{ port },
 		virtualChannel{ virtualChannel },
 		flitType{ flitType },
 		destination{ packet.destination },
@@ -150,6 +158,7 @@ struct Flit
 		AxADDR{ packet.AxADDR },
 		xDATA{ packet.xDATA } {}
 
+	Direction port{};
 	int virtualChannel{};
 	FlitType flitType{};
 	int destination{};

@@ -133,6 +133,7 @@
     <ClInclude Include="DataStructures.h" />
     <ClInclude Include="Links.h" />
     <ClInclude Include="Log.h" />
+    <ClInclude Include="Network.h" />
     <ClInclude Include="Parameters.h" />
     <ClInclude Include="Router.h" />
     <ClInclude Include="Port.h" />
