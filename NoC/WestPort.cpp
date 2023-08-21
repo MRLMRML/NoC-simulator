@@ -1,5 +1,14 @@
 #include "WestPort.h"
 
+void WestPort::receiveFlit()
+{
+	if (!m_inFlitBuffer.empty())
+	{
+		m_virtualChannels.at(m_inFlitBuffer.front().virtualChannel).pushbackFlit(m_inFlitBuffer.front());
+		m_inFlitBuffer.pop_front();
+	}
+}
+
 void WestPort::computeRoute()
 {
 	for (auto& virtualChannel : m_virtualChannels)

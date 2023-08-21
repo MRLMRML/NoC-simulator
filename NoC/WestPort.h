@@ -7,6 +7,8 @@ class WestPort : public Port
 public:
 	WestPort() { m_portType = PortType::WestPort; }
 
+	void receiveFlit();
+
 	void computeRoute() override;
 
 private:

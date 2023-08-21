@@ -7,6 +7,8 @@ class SouthPort : public Port
 public:
 	SouthPort() { m_portType = PortType::SouthPort; }
 
+	void receiveFlit();
+
 	void computeRoute() override;
 
 private:

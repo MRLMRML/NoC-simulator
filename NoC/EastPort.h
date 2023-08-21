@@ -6,6 +6,8 @@ class EastPort : public Port
 {
 public:
 	EastPort() { m_portType = PortType::EastPort; }
+	
+	void receiveFlit();
 
 	void computeRoute() override;
 

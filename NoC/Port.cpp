@@ -2,10 +2,6 @@
 
 bool Port::isEmpty()
 {
-	return (outFlitBuffer.empty() && inFlitBuffer.empty());
+	return (m_outFlitBuffer.empty() && m_inFlitBuffer.empty());
 }
 
-void Port::receiveFlit()
-{
-
-}

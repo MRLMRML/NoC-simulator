@@ -1,5 +1,14 @@
 #include "NorthPort.h"
 
+void NorthPort::receiveFlit()
+{
+	if (!m_inFlitBuffer.empty())
+	{
+		m_virtualChannels.at(m_inFlitBuffer.front().virtualChannel).pushbackFlit(m_inFlitBuffer.front());
+		m_inFlitBuffer.pop_front();
+	}
+}
+
 void NorthPort::computeRoute()
 {
 	for (auto& virtualChannel : m_virtualChannels)

@@ -7,29 +7,23 @@ void VirtualChannel::pushbackFlit(Flit flit)
 	
 	m_buffer.push_back(flit);
 
-	// set VC fields by HeadFlit/HeadTailFlit 
-	// or set BodyFlit/TailFlit by VC fields
-	if (flit.flitType == FlitType::HeadFlit 
-		|| flit.flitType == FlitType::HeadTailFlit)
-	{
-		m_port = flit.port;
-		m_virtualChannel = flit.virtualChannel;
-	}
-	else
-	{
-		flit.port = m_port;
-		flit.virtualChannel = m_virtualChannel;
-	}
+	//// set BodyFlit/TailFlit by VC fields
+	//if (flit.flitType == FlitType::BodyFlit 
+	//	|| flit.flitType == FlitType::TailFlit)
+	//{
+	//	flit.port = m_portRouted;
+	//	flit.virtualChannel = m_virtualChannel;
+	//}
 }
 
 void VirtualChannel::popfrontFlit()
 {
-	if (m_buffer.front().flitType == FlitType::HeadTailFlit 
-		|| m_buffer.front().flitType == FlitType::TailFlit)
-	{
-		m_port = PortType::X;
-		m_virtualChannel = -1;
-	}
+	//if (m_buffer.front().flitType == FlitType::HeadTailFlit 
+	//	|| m_buffer.front().flitType == FlitType::TailFlit)
+	//{
+	//	m_port = PortType::X;
+	//	m_virtualChannel = -1;
+	//}
 
 	m_buffer.pop_front();
 }

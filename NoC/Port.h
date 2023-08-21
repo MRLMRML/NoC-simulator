@@ -9,16 +9,15 @@ public:
 	virtual ~Port() = default;
 
 	// Input port
-	std::deque<Flit> outFlitBuffer;
-	std::deque<Credit> inCreditBuffer;
+	std::deque<Flit> m_outFlitBuffer;
+	std::deque<Credit> m_inCreditBuffer;
 
 	// Output port
-	std::deque<Flit> inFlitBuffer;
-	std::deque<Credit> outCreditBuffer;
+	std::deque<Flit> m_inFlitBuffer;
+	std::deque<Credit> m_outCreditBuffer;
 
 	bool isEmpty();
 
-	void receiveFlit();
 	virtual void computeRoute() {};
 
 public:

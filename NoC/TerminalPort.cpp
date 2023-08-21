@@ -2,10 +2,10 @@
 
 void TerminalPort::computeRoute()
 {
-	if (!inFlitBuffer.empty())
+	if (!m_inFlitBuffer.empty())
 	{
-		if (inFlitBuffer.front().flitType != FlitType::HeadFlit ||
-			inFlitBuffer.front().flitType != FlitType::HeadTailFlit)
+		if (m_inFlitBuffer.front().flitType != FlitType::HeadFlit ||
+			m_inFlitBuffer.front().flitType != FlitType::HeadTailFlit)
 		{
 			throw std::runtime_error{ " Terminal port routing error: not head flit " };
 		}
@@ -14,7 +14,7 @@ void TerminalPort::computeRoute()
 		// lookup mapping table and find the routerID by flit.destination
 		for (auto& mappingTableLine : m_mappingTable)
 		{
-			if (mappingTableLine.NID == inFlitBuffer.front().destination)
+			if (mappingTableLine.NID == m_inFlitBuffer.front().destination)
 			{
 				destination = mappingTableLine.routerID;
 				break;
