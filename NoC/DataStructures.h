@@ -32,16 +32,17 @@ struct MemoryLine
 	std::vector<DATA_PRECISION> data{};
 };
 
-enum class Direction
+enum class PortType
 {
-	N,
-	S,
-	W,
-	E,
-	X
+	NorthPort,
+	SouthPort,
+	WestPort,
+	EastPort,
+	TerminalPort,
+	Unselected
 };
 
-std::ostream& operator<<(std::ostream& stream, const Direction& direction);
+std::ostream& operator<<(std::ostream& stream, const PortType& portType);
 
 enum class PacketType
 {
@@ -86,7 +87,7 @@ std::ostream& operator<<(std::ostream& stream, const FlitType& flitType);
 struct Flit
 {
 	// HeadFlit
-	Flit(const Direction port,
+	Flit(const PortType port,
 		const int virtualChannel,
 		const FlitType flitType,
 		const int destination,
@@ -107,7 +108,7 @@ struct Flit
 		SEQID{ SEQID } {}
 
 	// BodyFlit
-	Flit(const Direction port,
+	Flit(const PortType port,
 		const int virtualChannel,
 		const FlitType flitType,
 		const int xID,
@@ -122,7 +123,7 @@ struct Flit
 		SEQID{ SEQID } {}
 
 	// TailFlit
-	Flit(const Direction port,
+	Flit(const PortType port,
 		const int virtualChannel,
 		const FlitType flitType,
 		const int xID,
@@ -141,7 +142,7 @@ struct Flit
 		xDATA{ xDATA } {}
 
 	// HeadTailFlit
-	Flit(const Direction port,
+	Flit(const PortType port,
 		const int virtualChannel,
 		const FlitType flitType,
 		const Packet packet)
@@ -158,7 +159,7 @@ struct Flit
 		AxADDR{ packet.AxADDR },
 		xDATA{ packet.xDATA } {}
 
-	Direction port{};
+	PortType port{};
 	int virtualChannel{};
 	FlitType flitType{};
 	int destination{};

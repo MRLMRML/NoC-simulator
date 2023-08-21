@@ -5,6 +5,7 @@ class Port
 {
 public:
 	Port() = default;
+	Port(const PortType portType) : m_portType{ portType } {}
 	virtual ~Port() = default;
 
 	// Input port
@@ -17,9 +18,13 @@ public:
 
 	bool isEmpty();
 
-	Direction computeRoute(const Direction port, Flit flit);
+	void receiveFlit();
+	virtual void computeRoute() {};
 
-	virtual void runOneStep() {}
+public:
+	RouterID m_routerID{};
+	PortType m_portType{PortType::Unselected};
+	std::vector<MappingTableLine> m_mappingTable{};
 
 private:
 };

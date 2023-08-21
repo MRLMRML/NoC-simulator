@@ -2,10 +2,25 @@
 
 void Router::runOneStep()
 {
-	// arbitration??
-	m_northPort.runOneStep();
-	m_southPort.runOneStep();
-	m_westPort.runOneStep();
-	m_eastPort.runOneStep();
-	m_terminalPort.runOneStep();
+	receiveFlit();
+	computeRoute();
+	allocateVirtualChannel();
+	allocateSwitchAndTraverseSwitch();
+}
+
+void Router::receiveFlit()
+{
+	m_northPort.receiveFlit();
+	m_southPort.receiveFlit();
+	m_westPort.receiveFlit();
+	m_eastPort.receiveFlit();
+}
+
+void Router::computeRoute()
+{
+	m_northPort.computeRoute();
+	m_southPort.computeRoute();
+	m_westPort.computeRoute();
+	m_eastPort.computeRoute();
+	m_terminalPort.computeRoute();
 }

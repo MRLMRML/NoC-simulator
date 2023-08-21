@@ -27,7 +27,7 @@ void VirtualChannel::popfrontFlit()
 	if (m_buffer.front().flitType == FlitType::HeadTailFlit 
 		|| m_buffer.front().flitType == FlitType::TailFlit)
 	{
-		m_port = Direction::X;
+		m_port = PortType::X;
 		m_virtualChannel = -1;
 	}
 

@@ -1,23 +1,26 @@
 #include "DataStructures.h"
 
-std::ostream& operator<<(std::ostream& stream, const Direction& direction)
+std::ostream& operator<<(std::ostream& stream, const PortType& portType)
 {
-	switch (direction)
+	switch (portType)
 	{
-	case Direction::N:
-		stream << "N";
+	case PortType::NorthPort:
+		stream << "NorthPort";
 		break;
-	case Direction::S:
-		stream << "S";
+	case PortType::SouthPort:
+		stream << "SouthPort";
 		break;
-	case Direction::W:
-		stream << "W";
+	case PortType::WestPort:
+		stream << "WestPort";
 		break;
-	case Direction::E:
-		stream << "E";
+	case PortType::EastPort:
+		stream << "EastPort";
 		break;
-	case Direction::X:
-		stream << "X";
+	case PortType::TerminalPort:
+		stream << "TerminalPort";
+		break;
+	case PortType::Unselected:
+		stream << "Unselected";
 		break;
 	}
 	return stream;
