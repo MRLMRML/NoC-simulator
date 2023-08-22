@@ -5,8 +5,9 @@ class Port
 {
 public:
 	Port() = default;
-	Port(const PortType portType) : m_portType{ portType } {}
 	virtual ~Port() = default;
+
+	bool isEmpty();
 
 	// Input port
 	std::deque<Flit> m_outFlitBuffer;
@@ -16,14 +17,6 @@ public:
 	std::deque<Flit> m_inFlitBuffer;
 	std::deque<Credit> m_outCreditBuffer;
 
-	bool isEmpty();
-
-	virtual void computeRoute() {};
-
-public:
-	RouterID m_routerID{};
-	PortType m_portType{PortType::Unselected};
-	std::vector<MappingTableLine> m_mappingTable{};
 
 private:
 };

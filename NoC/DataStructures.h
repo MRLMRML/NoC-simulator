@@ -44,6 +44,21 @@ enum class PortType
 
 std::ostream& operator<<(std::ostream& stream, const PortType& portType);
 
+enum class VirtualChannelState
+{
+	I,
+	R,
+	V,
+	A,
+	T
+};
+
+enum class DownstreamVirtualChannelState
+{
+	I,
+	A
+};
+
 enum class PacketType
 {
 	ReadRequest,

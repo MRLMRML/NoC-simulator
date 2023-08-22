@@ -131,34 +131,30 @@
   <ItemGroup>
     <ClInclude Include="CreditMaintainer.h" />
     <ClInclude Include="DataStructures.h" />
-    <ClInclude Include="EastPort.h" />
     <ClInclude Include="Links.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="Parameters.h" />
     <ClInclude Include="Router.h" />
     <ClInclude Include="Port.h" />
-    <ClInclude Include="NorthPort.h" />
-    <ClInclude Include="SouthPort.h" />
+    <ClInclude Include="RouterPort.h" />
     <ClInclude Include="TerminalPort.h" />
     <ClInclude Include="VirtualChannel.h" />
-    <ClInclude Include="WestPort.h" />
+    <ClInclude Include="VirtualChannelPriorityTable.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CreditMaintainer.cpp" />
     <ClCompile Include="DataStructures.cpp" />
-    <ClCompile Include="EastPort.cpp" />
     <ClCompile Include="Links.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="Port.cpp" />
     <ClCompile Include="Router.cpp" />
-    <ClCompile Include="NorthPort.cpp" />
-    <ClCompile Include="SouthPort.cpp" />
+    <ClCompile Include="RouterPort.cpp" />
     <ClCompile Include="TerminalPort.cpp" />
     <ClCompile Include="VirtualChannel.cpp" />
-    <ClCompile Include="WestPort.cpp" />
+    <ClCompile Include="VirtualChannelPriorityTable.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

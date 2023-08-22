@@ -1,22 +1,30 @@
 #pragma once
 #include "DataStructures.h"
-#include "NorthPort.h"
-#include "SouthPort.h"
-#include "WestPort.h"
-#include "EastPort.h"
 #include "TerminalPort.h"
+#include "RouterPort.h"
+#include "CreditMaintainer.h"
+#include "VirtualChannelPriorityTable.h"
 
 class Router
 {
 public:
-	Router() = default;
+	Router()
+	{
+		initiateVCPT();
+	}
 
 	void runOneStep();
 
-	void receiveFlit();
-
+	// RC
 	void computeRoute();
+	void routeNorthPort();
+	void routeSouthPort();
+	void routeWestPort();
+	void routeEastPort();
+	void routeTerminalPort();
 
+	// VA
+	void initiateVCPT();
 	void allocateVirtualChannel();
 
 	void allocateSwitchAndTraverseSwitch();
@@ -24,15 +32,22 @@ public:
 	void compensateCycle();
 
 public:
-	NorthPort m_northPort{};
-	SouthPort m_southPort{};
-	WestPort m_westPort{};
-	EastPort m_eastPort{};
+	RouterPort m_northPort{};
+	RouterPort m_southPort{};
+	RouterPort m_westPort{};
+	RouterPort m_eastPort{};
 	TerminalPort m_terminalPort{};
 
+	// RC
 	RouterID m_routerID{};
 	int m_NID{ -1 }; // not every router has valid m_NID!
-	//std::vector<MappingTableLine> m_mappingTable{};
+	std::vector<MappingTableLine> m_mappingTable{};
 
+	// VA
+	VirtualChannelPriorityTable m_VCPT{};
+	// SA/ST
+
+	// Credit
+	CreditMaintainer m_creditMaintainer{};
 private:
 };

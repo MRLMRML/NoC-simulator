@@ -20,6 +20,10 @@ public:
 	PortType m_portRouted{PortType::Unselected};
 	int m_virtualChannel{-1}; // -1 is idle
 
+	// States
+	VirtualChannelState m_virtualChannelState{ VirtualChannelState::I };
+	DownstreamVirtualChannelState m_DownstreamVirtualChannelState{ DownstreamVirtualChannelState::I };
+
 	int m_virtualChannelPriority{};
 	int m_switchPriority{};
 private:

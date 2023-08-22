@@ -81,11 +81,7 @@ void Network::updateMappingTables()
 {
 	for (auto& router : m_routers)
 	{
-		router.m_northPort.m_mappingTable = m_mappingTable;
-		router.m_southPort.m_mappingTable = m_mappingTable;
-		router.m_westPort.m_mappingTable = m_mappingTable;
-		router.m_eastPort.m_mappingTable = m_mappingTable;
-		router.m_terminalPort.m_mappingTable = m_mappingTable;
+		router.m_mappingTable = m_mappingTable;
 	}
 }
 

@@ -39,22 +39,16 @@
     <ClInclude Include="CreditMaintainer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NorthPort.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="TerminalPort.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Network.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SouthPort.h">
+    <ClInclude Include="RouterPort.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="EastPort.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WestPort.h">
+    <ClInclude Include="VirtualChannelPriorityTable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -80,25 +74,19 @@
     <ClCompile Include="CreditMaintainer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NorthPort.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="TerminalPort.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SouthPort.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EastPort.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="WestPort.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Network.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RouterPort.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VirtualChannelPriorityTable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
