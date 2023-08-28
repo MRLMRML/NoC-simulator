@@ -6,10 +6,18 @@ class RouterPort : public Port
 {
 public:
 	RouterPort() = default;
-	//RouterPort(const PortType portType) : Port{ portType } {}
 
 	void receiveFlit();
 
+	// Input units
+	// Virtual channels
 	std::array<VirtualChannel, VC_NUMBER> m_virtualChannels{};
+
+	// Output units
+	// Downstream virtual channel states
+	std::array<VirtualChannelState, VC_NUMBER> m_downstreamVirtualChannelStates{}; // either I or A
+	std::array<PortType, VC_NUMBER> m_portRouted{};
+	std::array<int, VC_NUMBER> m_virtualChannelAllocated{};
+
 private:
 };

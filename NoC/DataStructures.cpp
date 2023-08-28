@@ -4,6 +4,9 @@ std::ostream& operator<<(std::ostream& stream, const PortType& portType)
 {
 	switch (portType)
 	{
+	case PortType::Unselected:
+		stream << "Unselected";
+		break;
 	case PortType::NorthPort:
 		stream << "NorthPort";
 		break;
@@ -19,8 +22,28 @@ std::ostream& operator<<(std::ostream& stream, const PortType& portType)
 	case PortType::TerminalPort:
 		stream << "TerminalPort";
 		break;
-	case PortType::Unselected:
-		stream << "Unselected";
+	}
+	return stream;
+}
+
+std::ostream& operator<<(std::ostream& stream, const VirtualChannelState& virtualChannelState)
+{
+	switch (virtualChannelState)
+	{
+	case VirtualChannelState::I:
+		stream << "Idle";
+		break;
+	case VirtualChannelState::R:
+		stream << "Route computation";
+		break;
+	case VirtualChannelState::V:
+		stream << "Virtual channel allocation";
+		break;
+	case VirtualChannelState::A:
+		stream << "Active";
+		break;
+	case VirtualChannelState::T:
+		stream << "Terminate";
 		break;
 	}
 	return stream;

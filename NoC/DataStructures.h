@@ -34,30 +34,26 @@ struct MemoryLine
 
 enum class PortType
 {
+	Unselected,
 	NorthPort,
 	SouthPort,
 	WestPort,
 	EastPort,
-	TerminalPort,
-	Unselected
+	TerminalPort
 };
 
 std::ostream& operator<<(std::ostream& stream, const PortType& portType);
 
 enum class VirtualChannelState
 {
-	I,
-	R,
-	V,
-	A,
-	T
+	I, // Idle, virtual channel is empty; also used in downstream
+	R, // Routing
+	V, // Virtual channel allocation
+	A, // Active, virtual channel is occupied; also used in downstream
+	T  // Terminate
 };
 
-enum class DownstreamVirtualChannelState
-{
-	I,
-	A
-};
+std::ostream& operator<<(std::ostream& stream, const VirtualChannelState& virtualChannelState);
 
 enum class PacketType
 {

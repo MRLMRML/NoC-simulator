@@ -7,14 +7,19 @@ public:
 	TerminalPort() = default;
 
 public:
-	//PortType m_portType{PortType::Unselected};
-	//std::deque<Flit> m_buffer{};
-	PortType m_portRouted{ PortType::Unselected };
-	//int m_virtualChannel{ -1 }; // -1 is idle
+	// States
+	VirtualChannelState m_virtualChannelState{}; // I(default) -> R -> V -> A
 
-	VirtualChannelState m_virtualChannelState{ VirtualChannelState::R };
+	// Fields
+	PortType m_portRouted{}; // Unselected (default)
+	int m_virtualChannelAllocated{ -1 }; // -1 is default
 
+	// Priorities
 	int m_virtualChannelPriority{}; // not real VC in terminal port
 	int m_switchPriority{};
+
+	// Downstream virtual channel states, needed in terminal port
+	std::array<VirtualChannelState, VC_NUMBER> m_DownstreamVirtualChannelStates{}; // either I or A
+
 private:
 };

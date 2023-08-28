@@ -14,7 +14,7 @@ void Router::computeRoute()
 	routeSouthPort();
 	routeWestPort();
 	routeEastPort();
-	routeTerminalPort();
+	routeTerminalPort();	
 }
 
 void Router::initiateVCPT()
