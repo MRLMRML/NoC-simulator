@@ -3,14 +3,14 @@
 #include "TerminalPort.h"
 #include "RouterPort.h"
 #include "CreditMaintainer.h"
-#include "VirtualChannelPriorityTable.h"
+//#include "VirtualChannelPriorityTable.h"
 
 class Router
 {
 public:
 	Router()
 	{
-		initiateVCPT();
+		initiatePriorities();
 	}
 
 	void runOneStep();
@@ -24,9 +24,13 @@ public:
 	void routeTerminalPort();
 
 	// VA
-	void initiateVCPT();
+	void initiatePriorities();
+	//RouterPort convertPortTypeToPort(const PortType portType);
 	void allocateVirtualChannel();
+	void allocateRouterPortVirtualChannel(const PortType portType);
+	void allocateTerminalPortVirtualChannel();
 
+	// SA/ST
 	void allocateSwitchAndTraverseSwitch();
 
 	void compensateCycle();
@@ -44,10 +48,10 @@ public:
 	std::vector<MappingTableLine> m_mappingTable{};
 
 	// VA
-	VirtualChannelPriorityTable m_VCPT{};
+	//VirtualChannelPriorityTable m_VCPT{};
 	// SA/ST
 
 	// Credit
-	CreditMaintainer m_creditMaintainer{};
+	CreditMaintainer m_creditMaintainer{}; // ???
 private:
 };

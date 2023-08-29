@@ -7,19 +7,20 @@ public:
 	TerminalPort() = default;
 
 public:
-	// States
+
+	// Input units
 	VirtualChannelState m_virtualChannelState{}; // I(default) -> R -> V -> A
+	PortType m_outputPortRouted{}; // Unselected (default)
+	int m_outputVirtualChannelAllocated{ -1 }; // -1 is default
+	int m_virtualChannelPriority{};
+	//int m_switchPriority{};
 
-	// Fields
-	PortType m_portRouted{}; // Unselected (default)
-	int m_virtualChannelAllocated{ -1 }; // -1 is default
 
-	// Priorities
-	int m_virtualChannelPriority{}; // not real VC in terminal port
-	int m_switchPriority{};
-
-	// Downstream virtual channel states, needed in terminal port
-	std::array<VirtualChannelState, VC_NUMBER> m_DownstreamVirtualChannelStates{}; // either I or A
+	// Output units
+	std::array<VirtualChannelState, VC_NUMBER> m_downstreamVirtualChannelStates{}; // either I or A
+	std::array<PortType, VC_NUMBER> m_inputPortRouted{};
+	std::array<int, VC_NUMBER> m_inputVirtualChannelAllocated{};
+	int m_inputVirtualChannelPriority{};
 
 private:
 };

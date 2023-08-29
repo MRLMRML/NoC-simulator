@@ -7,7 +7,6 @@ void Router::runOneStep()
 	allocateSwitchAndTraverseSwitch();
 }
 
-
 void Router::computeRoute()
 {
 	routeNorthPort();
@@ -15,17 +14,6 @@ void Router::computeRoute()
 	routeWestPort();
 	routeEastPort();
 	routeTerminalPort();	
-}
-
-void Router::initiateVCPT()
-{
-	
-}
-
-
-void Router::allocateVirtualChannel()
-{
-	for 
 }
 
 void Router::routeNorthPort()
@@ -59,23 +47,23 @@ void Router::routeNorthPort()
 			{
 				if (destination.y == m_routerID.y)
 				{
-					virtualChannel.m_portRouted = PortType::TerminalPort;
+					virtualChannel.m_outputPortRouted = PortType::TerminalPort;
 					log(" North port: routed to terminal port ");
 				}
 				else
 				{
-					virtualChannel.m_portRouted = PortType::SouthPort;
+					virtualChannel.m_outputPortRouted = PortType::SouthPort;
 					log(" North port: routed to south port ");
 				}
 			}
 			else if (destination.x < m_routerID.x)
 			{
-				virtualChannel.m_portRouted = PortType::WestPort;
+				virtualChannel.m_outputPortRouted = PortType::WestPort;
 				log(" North port: routed to west port ");
 			}
 			else
 			{
-				virtualChannel.m_portRouted = PortType::EastPort;
+				virtualChannel.m_outputPortRouted = PortType::EastPort;
 				log(" North port: routed to east port ");
 			}
 #endif
@@ -85,12 +73,12 @@ void Router::routeNorthPort()
 			{
 				if (destination.y == m_routerID.y)
 				{
-					virtualChannel.m_portRouted = PortType::TerminalPort;
+					virtualChannel.m_outputPortRouted = PortType::TerminalPort;
 					log(" North port: routed to terminal port ");
 				}
 				else
 				{
-					virtualChannel.m_portRouted = PortType::SouthPort;
+					virtualChannel.m_outputPortRouted = PortType::SouthPort;
 					log(" North port: routed to south port ");
 				}
 			}
@@ -98,12 +86,12 @@ void Router::routeNorthPort()
 			{
 				if ((m_routerID.x - destination.x) > (NETWORK_DIMENSION_X / 2))
 				{
-					virtualChannel.m_portRouted = PortType::EastPort; // TORUS
+					virtualChannel.m_outputPortRouted = PortType::EastPort; // TORUS
 					log(" North port: routed to east port ");
 				}
 				else
 				{
-					virtualChannel.m_portRouted = PortType::WestPort;
+					virtualChannel.m_outputPortRouted = PortType::WestPort;
 					log(" North port: routed to west port ");
 				}
 			}
@@ -111,12 +99,12 @@ void Router::routeNorthPort()
 			{
 				if ((destination.x - m_routerID.x) > (NETWORK_DIMENSION_X / 2))
 				{
-					virtualChannel.m_portRouted = PortType::WestPort; // TORUS
+					virtualChannel.m_outputPortRouted = PortType::WestPort; // TORUS
 					log(" North port: routed to west port ");
 				}
 				else
 				{
-					virtualChannel.m_portRouted = PortType::EastPort;
+					virtualChannel.m_outputPortRouted = PortType::EastPort;
 					log(" North port: routed to east port ");
 				}
 			}
@@ -157,23 +145,23 @@ void Router::routeSouthPort()
 			{
 				if (destination.y == m_routerID.y)
 				{
-					virtualChannel.m_portRouted = PortType::TerminalPort;
+					virtualChannel.m_outputPortRouted = PortType::TerminalPort;
 					log(" South port: routed to terminal port ");
 				}
 				else
 				{
-					virtualChannel.m_portRouted = PortType::NorthPort;
+					virtualChannel.m_outputPortRouted = PortType::NorthPort;
 					log(" South port: routed to north port ");
 				}
 			}
 			else if (destination.x < m_routerID.x)
 			{
-				virtualChannel.m_portRouted = PortType::WestPort;
+				virtualChannel.m_outputPortRouted = PortType::WestPort;
 				log(" South port: routed to west port ");
 			}
 			else
 			{
-				virtualChannel.m_portRouted = PortType::EastPort;
+				virtualChannel.m_outputPortRouted = PortType::EastPort;
 				log(" South port: routed to east port ");
 			}
 #endif
@@ -183,12 +171,12 @@ void Router::routeSouthPort()
 			{
 				if (destination.y == m_routerID.y)
 				{
-					virtualChannel.m_portRouted = PortType::TerminalPort;
+					virtualChannel.m_outputPortRouted = PortType::TerminalPort;
 					log(" South port: routed to terminal port ");
 				}
 				else
 				{
-					virtualChannel.m_portRouted = PortType::NorthPort;
+					virtualChannel.m_outputPortRouted = PortType::NorthPort;
 					log(" South port: routed to north port ");
 				}
 			}
@@ -196,12 +184,12 @@ void Router::routeSouthPort()
 			{
 				if ((m_routerID.x - destination.x) > (NETWORK_DIMENSION_X / 2))
 				{
-					virtualChannel.m_portRouted = PortType::EastPort; // TORUS
+					virtualChannel.m_outputPortRouted = PortType::EastPort; // TORUS
 					log(" South port: routed to east port ");
 				}
 				else
 				{
-					virtualChannel.m_portRouted = PortType::WestPort;
+					virtualChannel.m_outputPortRouted = PortType::WestPort;
 					log(" South port: routed to west port ");
 				}
 			}
@@ -209,12 +197,12 @@ void Router::routeSouthPort()
 			{
 				if ((destination.x - m_routerID.x) > (NETWORK_DIMENSION_X / 2))
 				{
-					virtualChannel.m_portRouted = PortType::WestPort; // TORUS
+					virtualChannel.m_outputPortRouted = PortType::WestPort; // TORUS
 					log(" South port: routed to west port ");
 				}
 				else
 				{
-					virtualChannel.m_portRouted = PortType::EastPort;
+					virtualChannel.m_outputPortRouted = PortType::EastPort;
 					log(" South port: routed to east port ");
 				}
 			}
@@ -255,23 +243,23 @@ void Router::routeWestPort()
 			{
 				if (destination.y == m_routerID.y)
 				{
-					virtualChannel.m_portRouted = PortType::TerminalPort;
+					virtualChannel.m_outputPortRouted = PortType::TerminalPort;
 					log(" West port: routed to terminal port ");
 				}
 				else if (destination.y < m_routerID.y)
 				{
-					virtualChannel.m_portRouted = PortType::NorthPort;
+					virtualChannel.m_outputPortRouted = PortType::NorthPort;
 					log(" West port: routed to north port ");
 				}
 				else
 				{
-					virtualChannel.m_portRouted = PortType::SouthPort;
+					virtualChannel.m_outputPortRouted = PortType::SouthPort;
 					log(" West port: routed to south port ");
 				}
 			}
 			else
 			{
-				virtualChannel.m_portRouted = PortType::EastPort;
+				virtualChannel.m_outputPortRouted = PortType::EastPort;
 				log(" West port: routed to east port ");
 			}
 #endif
@@ -281,19 +269,19 @@ void Router::routeWestPort()
 			{
 				if (destination.y == m_routerID.y)
 				{
-					virtualChannel.m_portRouted = PortType::TerminalPort;
+					virtualChannel.m_outputPortRouted = PortType::TerminalPort;
 					log(" West port: routed to terminal port ");
 				}
 				else if (destination.y < m_routerID.y)
 				{
 					if ((m_routerID.y - destination.y) > (NETWORK_DIMENSION_Y / 2))
 					{
-						virtualChannel.m_portRouted = PortType::SouthPort; // TORUS
+						virtualChannel.m_outputPortRouted = PortType::SouthPort; // TORUS
 						log(" West port: routed to south port ");
 					}
 					else
 					{
-						virtualChannel.m_portRouted = PortType::NorthPort;
+						virtualChannel.m_outputPortRouted = PortType::NorthPort;
 						log(" West port: routed to north port ");
 					}
 				}
@@ -301,19 +289,19 @@ void Router::routeWestPort()
 				{
 					if ((destination.y - m_routerID.y) > (NETWORK_DIMENSION_Y / 2))
 					{
-						virtualChannel.m_portRouted = PortType::NorthPort; //TORUS
+						virtualChannel.m_outputPortRouted = PortType::NorthPort; //TORUS
 						log(" West port: routed to north port ");
 					}
 					else
 					{
-						virtualChannel.m_portRouted = PortType::SouthPort;
+						virtualChannel.m_outputPortRouted = PortType::SouthPort;
 						log(" West port: routed to south port ");
 					}
 				}
 			}
 			else
 			{
-				virtualChannel.m_portRouted = PortType::EastPort;
+				virtualChannel.m_outputPortRouted = PortType::EastPort;
 				log(" West port: routed to east port ");
 			}
 #endif
@@ -353,23 +341,23 @@ void Router::routeEastPort()
 			{
 				if (destination.y == m_routerID.y)
 				{
-					virtualChannel.m_portRouted = PortType::TerminalPort;
+					virtualChannel.m_outputPortRouted = PortType::TerminalPort;
 					log(" East port: routed to terminal port ");
 				}
 				else if (destination.y < m_routerID.y)
 				{
-					virtualChannel.m_portRouted = PortType::NorthPort;
+					virtualChannel.m_outputPortRouted = PortType::NorthPort;
 					log(" East port: routed to north port ");
 				}
 				else
 				{
-					virtualChannel.m_portRouted = PortType::SouthPort;
+					virtualChannel.m_outputPortRouted = PortType::SouthPort;
 					log(" East port: routed to south port ");
 				}
 			}
 			else
 			{
-				virtualChannel.m_portRouted = PortType::WestPort;
+				virtualChannel.m_outputPortRouted = PortType::WestPort;
 				log(" East port: routed to west port ");
 			}
 #endif
@@ -379,19 +367,19 @@ void Router::routeEastPort()
 			{
 				if (destination.y == m_routerID.y)
 				{
-					virtualChannel.m_portRouted = PortType::TerminalPort;
+					virtualChannel.m_outputPortRouted = PortType::TerminalPort;
 					log(" East port: routed to terminal port ");
 				}
 				else if (destination.y < m_routerID.y)
 				{
 					if ((m_routerID.y - destination.y) > (NETWORK_DIMENSION_Y / 2))
 					{
-						virtualChannel.m_portRouted = PortType::SouthPort; // TORUS
+						virtualChannel.m_outputPortRouted = PortType::SouthPort; // TORUS
 						log(" East port: routed to south port ");
 					}
 					else
 					{
-						virtualChannel.m_portRouted = PortType::NorthPort;
+						virtualChannel.m_outputPortRouted = PortType::NorthPort;
 						log(" East port: routed to north port ");
 					}
 				}
@@ -399,19 +387,19 @@ void Router::routeEastPort()
 				{
 					if ((destination.y - m_routerID.y) > (NETWORK_DIMENSION_Y / 2))
 					{
-						virtualChannel.m_portRouted = PortType::NorthPort; // TORUS
+						virtualChannel.m_outputPortRouted = PortType::NorthPort; // TORUS
 						log(" East port: routed to north port ");
 					}
 					else
 					{
-						virtualChannel.m_portRouted = PortType::SouthPort;
+						virtualChannel.m_outputPortRouted = PortType::SouthPort;
 						log(" East port: routed to south port ");
 					}
 				}
 			}
 			else
 			{
-				virtualChannel.m_portRouted = PortType::WestPort;
+				virtualChannel.m_outputPortRouted = PortType::WestPort;
 				log(" East port: routed to west port ");
 			}
 #endif
@@ -447,23 +435,23 @@ void Router::routeTerminalPort()
 		{
 			if (destination.y < m_routerID.y)
 			{
-				m_terminalPort.m_portRouted = PortType::NorthPort;
+				m_terminalPort.m_outputPortRouted = PortType::NorthPort;
 				log(" Terminal port: routed to north port ");
 			}
 			else
 			{
-				m_terminalPort.m_portRouted = PortType::SouthPort;
+				m_terminalPort.m_outputPortRouted = PortType::SouthPort;
 				log(" Terminal port: routed to south port ");
 			}
 		}
 		else if (destination.x < m_routerID.x)
 		{
-			m_terminalPort.m_portRouted = PortType::WestPort;
+			m_terminalPort.m_outputPortRouted = PortType::WestPort;
 			log(" Terminal port: routed to west port ");
 		}
 		else
 		{
-			m_terminalPort.m_portRouted = PortType::EastPort;
+			m_terminalPort.m_outputPortRouted = PortType::EastPort;
 			log(" Terminal port: routed to east port ");
 		}
 #endif
@@ -475,12 +463,12 @@ void Router::routeTerminalPort()
 			{
 				if ((m_routerID.y - destination.y) > (NETWORK_DIMENSION_Y / 2))
 				{
-					m_terminalPort.m_portRouted = PortType::SouthPort; // TORUS
+					m_terminalPort.m_outputPortRouted = PortType::SouthPort; // TORUS
 					log(" Terminal port: routed to south port ");
 				}
 				else
 				{
-					m_terminalPort.m_portRouted = PortType::NorthPort;
+					m_terminalPort.m_outputPortRouted = PortType::NorthPort;
 					log(" Terminal port: routed to north port ");
 				}
 			}
@@ -488,12 +476,12 @@ void Router::routeTerminalPort()
 			{
 				if ((destination.y - m_routerID.y) > (NETWORK_DIMENSION_Y / 2))
 				{
-					m_terminalPort.m_portRouted = PortType::NorthPort; // TORUS
+					m_terminalPort.m_outputPortRouted = PortType::NorthPort; // TORUS
 					log(" Terminal port: routed to north port ");
 				}
 				else
 				{
-					m_terminalPort.m_portRouted = PortType::SouthPort;
+					m_terminalPort.m_outputPortRouted = PortType::SouthPort;
 					log(" Terminal port: routed to south port ");
 				}
 			}
@@ -502,12 +490,12 @@ void Router::routeTerminalPort()
 		{
 			if ((m_routerID.x - destination.x) > (NETWORK_DIMENSION_X / 2))
 			{
-				m_terminalPort.m_portRouted = PortType::EastPort; // TORUS
+				m_terminalPort.m_outputPortRouted = PortType::EastPort; // TORUS
 				log(" Terminal port: routed to east port ");
 			}
 			else
 			{
-				m_terminalPort.m_portRouted = PortType::WestPort;
+				m_terminalPort.m_outputPortRouted = PortType::WestPort;
 				log(" Terminal port: routed to west port ");
 			}
 		}
@@ -515,16 +503,91 @@ void Router::routeTerminalPort()
 		{
 			if ((destination.x - m_routerID.x) > (NETWORK_DIMENSION_X / 2))
 			{
-				m_terminalPort.m_portRouted = PortType::WestPort; // TORUS
+				m_terminalPort.m_outputPortRouted = PortType::WestPort; // TORUS
 				log(" Terminal port: routed to west port ");
 			}
 			else
 			{
-				m_terminalPort.m_portRouted = PortType::EastPort;
+				m_terminalPort.m_outputPortRouted = PortType::EastPort;
 				log(" Terminal port: routed to east port ");
 			}
 		}
 #endif
 	}
 	m_terminalPort.m_virtualChannelState = VirtualChannelState::V; // R -> V
+}
+
+void Router::initiatePriorities()
+{
+	int virtualChannelPriority{};
+
+	m_terminalPort.m_virtualChannelPriority = virtualChannelPriority;
+
+	for (int i{}; i < BUFFER_SIZE; ++i)
+	{
+		virtualChannelPriority++;
+		m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority = virtualChannelPriority;
+	}
+
+	for (int i{}; i < BUFFER_SIZE; ++i)
+	{
+		virtualChannelPriority++;
+		m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority = virtualChannelPriority;
+	}
+
+	for (int i{}; i < BUFFER_SIZE; ++i)
+	{
+		virtualChannelPriority++;
+		m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority = virtualChannelPriority;
+	}
+
+	for (int i{}; i < BUFFER_SIZE; ++i)
+	{
+		virtualChannelPriority++;
+		m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority = virtualChannelPriority;
+	}
+}
+
+//Port Router::convertPortTypeToPort(const PortType portType)
+//{
+//	switch (portType)
+//	{
+//		case PortType::Unselected:
+//			throw std::runtime_error{ " Port type conversion error: unselected " };
+//			break;
+//		case PortType::NorthPort:
+//			return m_northPort;
+//		case PortType::SouthPort:
+//			return m_southPort;
+//		case PortType::WestPort:
+//			return m_westPort;
+//		case PortType::EastPort:
+//			return m_eastPort;
+//		case PortType::TerminalPort:
+//			return m_terminalPort;
+//	}
+//}
+
+void Router::allocateVirtualChannel()
+{
+	// allocate terminal port
+	if (m_terminalPort.m_virtualChannelState == VirtualChannelState::V)
+	{
+		m_terminalPort.m_outputPortRouted
+	}
+
+	// allocate north port
+	// allocate south port
+	// allocate west port
+	// allocate east port
+}
+
+void Router::allocateRouterPortVirtualChannel(const PortType portType)
+{
+	for (auto& virtualChannel : convertPortTypeToPort(portType).)
+}
+
+void Router::allocateTerminalPortVirtualChannel()
+{
+
 }
