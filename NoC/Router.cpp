@@ -923,33 +923,34 @@ void Router::allocateVirtualChannel()
 				// meaning states are either A or V;
 				// do the following round-robin arbitration based on virtual channel priority
 				// with DVCS set to V;
-				for (int i{}; i < m_southPort.m_downstreamVirtualChannelStates.size(); ++i)
+				for (int j{}; j < m_southPort.m_downstreamVirtualChannelStates.size(); ++j)
 				{
-					if (m_southPort.m_downstreamVirtualChannelStates.at(i)
+					if (m_southPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::V)
 					{
 						// find the item with the lowest virtual channel priority (maximum) 
 						// and in V state; record priority and index;
 						int priority{};
 						int index{};
-						for (int j{}; j < m_southPort.m_downstreamVirtualChannelStates.size(); ++j)
+						for (int k{}; k < m_southPort.m_downstreamVirtualChannelStates.size(); ++k)
 						{
-							if (m_southPort.m_downstreamVirtualChannelStates.at(j) == VirtualChannelState::V
-								&& m_southPort.m_inputVirtualChannelPriority.at(j) > priority)
+							if (m_southPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
+								&& m_southPort.m_inputVirtualChannelPriority.at(k) > priority)
 							{
-								priority = m_southPort.m_inputVirtualChannelPriority.at(j);
-								index = j;
+								priority = m_southPort.m_inputVirtualChannelPriority.at(k);
+								index = k;
 							}
 						}
 
 						// compare the lowest priority with the challenger and arbitrate 
 						// to the challenger if challenger's priority is higher (smaller)
-						if (m_terminalPort.m_virtualChannelPriority < priority)
+						if (m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
 						{
 							// deallocate the loser's vc
 							// note that output port cannot be routed to input port with the same type
-							// and in this input port case, there is no vc for input terminal port;
-							// meaning in other input port cases, there should be four cases  
+							// there should be four cases
+							if (m_southPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
+								m_terminalPort.m_outputVirtualChannelAllocated = -1;
 							if (m_southPort.m_inputPortRouted.at(index) == PortType::NorthPort)
 								m_northPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
 							if (m_southPort.m_inputPortRouted.at(index) == PortType::WestPort)
@@ -959,34 +960,34 @@ void Router::allocateVirtualChannel()
 
 							// allocate vc to the challenger
 							// change input fields
-							m_terminalPort.m_outputVirtualChannelAllocated = index;
+							m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
 
 							// change output fields
-							m_southPort.m_inputPortRouted.at(index) = PortType::TerminalPort;
-							m_southPort.m_inputVirtualChannelAllocated.at(index) = 0; // no virtual channel for ternimal port
-							m_southPort.m_inputVirtualChannelPriority.at(index) = m_terminalPort.m_virtualChannelPriority;
+							m_southPort.m_inputPortRouted.at(index) = PortType::NorthPort;
+							m_southPort.m_inputVirtualChannelAllocated.at(index) = i;
+							m_southPort.m_inputVirtualChannelPriority.at(index) = m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority;
 							break;
 						}
 					}
 				}
 			}
 
-			// if terminal port is routed to west port
-			if (m_terminalPort.m_outputPortRouted == PortType::WestPort)
+			// if north port is routed to west port
+			if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
 			{
-				for (int i{}; i < m_westPort.m_downstreamVirtualChannelStates.size(); ++i)
+				for (int j{}; j < m_westPort.m_downstreamVirtualChannelStates.size(); ++j)
 				{
-					if (m_westPort.m_downstreamVirtualChannelStates.at(i)
+					if (m_westPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::I)
 					{
 						// change input fields
-						m_terminalPort.m_outputVirtualChannelAllocated = i;
+						m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
 
 						// change output fields
-						m_westPort.m_downstreamVirtualChannelStates.at(i) = VirtualChannelState::V;
-						m_westPort.m_inputPortRouted.at(i) = PortType::TerminalPort;
-						m_westPort.m_inputVirtualChannelAllocated.at(i) = 0; // no virtual channel for ternimal port
-						m_westPort.m_inputVirtualChannelPriority.at(i) = m_terminalPort.m_virtualChannelPriority;
+						m_westPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
+						m_westPort.m_inputPortRouted.at(j) = PortType::NorthPort;
+						m_westPort.m_inputVirtualChannelAllocated.at(j) = i;
+						m_westPort.m_inputVirtualChannelPriority.at(j) = m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority;
 						break;
 					}
 				}
@@ -995,33 +996,34 @@ void Router::allocateVirtualChannel()
 				// meaning states are either A or V;
 				// do the following round-robin arbitration based on virtual channel priority
 				// with DVCS set to V;
-				for (int i{}; i < m_westPort.m_downstreamVirtualChannelStates.size(); ++i)
+				for (int j{}; j < m_westPort.m_downstreamVirtualChannelStates.size(); ++j)
 				{
-					if (m_westPort.m_downstreamVirtualChannelStates.at(i)
+					if (m_westPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::V)
 					{
 						// find the item with the lowest virtual channel priority (maximum) 
 						// and in V state; record priority and index;
 						int priority{};
 						int index{};
-						for (int j{}; j < m_westPort.m_downstreamVirtualChannelStates.size(); ++j)
+						for (int k{}; k < m_westPort.m_downstreamVirtualChannelStates.size(); ++k)
 						{
-							if (m_westPort.m_downstreamVirtualChannelStates.at(j) == VirtualChannelState::V
-								&& m_westPort.m_inputVirtualChannelPriority.at(j) > priority)
+							if (m_westPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
+								&& m_westPort.m_inputVirtualChannelPriority.at(k) > priority)
 							{
-								priority = m_westPort.m_inputVirtualChannelPriority.at(j);
-								index = j;
+								priority = m_westPort.m_inputVirtualChannelPriority.at(k);
+								index = k;
 							}
 						}
 
 						// compare the lowest priority with the challenger and arbitrate 
 						// to the challenger if challenger's priority is higher (smaller)
-						if (m_terminalPort.m_virtualChannelPriority < priority)
+						if (m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
 						{
 							// deallocate the loser's vc
 							// note that output port cannot be routed to input port with the same type
-							// and in this input port case, there is no vc for input terminal port;
-							// meaning in other input port cases, there should be four cases  
+							// there should be four cases
+							if (m_westPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
+								m_terminalPort.m_outputVirtualChannelAllocated = -1;
 							if (m_westPort.m_inputPortRouted.at(index) == PortType::NorthPort)
 								m_northPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
 							if (m_westPort.m_inputPortRouted.at(index) == PortType::SouthPort)
@@ -1031,34 +1033,34 @@ void Router::allocateVirtualChannel()
 
 							// allocate vc to the challenger
 							// change input fields
-							m_terminalPort.m_outputVirtualChannelAllocated = index;
+							m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
 
 							// change output fields
-							m_westPort.m_inputPortRouted.at(index) = PortType::TerminalPort;
-							m_westPort.m_inputVirtualChannelAllocated.at(index) = 0; // no virtual channel for ternimal port
-							m_westPort.m_inputVirtualChannelPriority.at(index) = m_terminalPort.m_virtualChannelPriority;
+							m_westPort.m_inputPortRouted.at(index) = PortType::NorthPort;
+							m_westPort.m_inputVirtualChannelAllocated.at(index) = i;
+							m_westPort.m_inputVirtualChannelPriority.at(index) = m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority;
 							break;
 						}
 					}
 				}
 			}
 
-			// if terminal port is routed to east port
-			if (m_terminalPort.m_outputPortRouted == PortType::EastPort)
+			// if north port is routed to east port
+			if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
 			{
-				for (int i{}; i < m_eastPort.m_downstreamVirtualChannelStates.size(); ++i)
+				for (int j{}; j < m_eastPort.m_downstreamVirtualChannelStates.size(); ++j)
 				{
-					if (m_eastPort.m_downstreamVirtualChannelStates.at(i)
+					if (m_eastPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::I)
 					{
 						// change input fields
-						m_terminalPort.m_outputVirtualChannelAllocated = i;
+						m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
 
 						// change output fields
-						m_eastPort.m_downstreamVirtualChannelStates.at(i) = VirtualChannelState::V;
-						m_eastPort.m_inputPortRouted.at(i) = PortType::TerminalPort;
-						m_eastPort.m_inputVirtualChannelAllocated.at(i) = 0; // no virtual channel for ternimal port
-						m_eastPort.m_inputVirtualChannelPriority.at(i) = m_terminalPort.m_virtualChannelPriority;
+						m_eastPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
+						m_eastPort.m_inputPortRouted.at(j) = PortType::NorthPort;
+						m_eastPort.m_inputVirtualChannelAllocated.at(j) = i;
+						m_eastPort.m_inputVirtualChannelPriority.at(j) = m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority;
 						break;
 					}
 				}
@@ -1067,33 +1069,34 @@ void Router::allocateVirtualChannel()
 				// meaning states are either A or V;
 				// do the following round-robin arbitration based on virtual channel priority
 				// with DVCS set to V;
-				for (int i{}; i < m_eastPort.m_downstreamVirtualChannelStates.size(); ++i)
+				for (int j{}; j < m_eastPort.m_downstreamVirtualChannelStates.size(); ++j)
 				{
-					if (m_eastPort.m_downstreamVirtualChannelStates.at(i)
+					if (m_eastPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::V)
 					{
 						// find the item with the lowest virtual channel priority (maximum) 
 						// and in V state; record priority and index;
 						int priority{};
 						int index{};
-						for (int j{}; j < m_eastPort.m_downstreamVirtualChannelStates.size(); ++j)
+						for (int k{}; k < m_eastPort.m_downstreamVirtualChannelStates.size(); ++k)
 						{
-							if (m_eastPort.m_downstreamVirtualChannelStates.at(j) == VirtualChannelState::V
-								&& m_eastPort.m_inputVirtualChannelPriority.at(j) > priority)
+							if (m_eastPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
+								&& m_eastPort.m_inputVirtualChannelPriority.at(k) > priority)
 							{
-								priority = m_eastPort.m_inputVirtualChannelPriority.at(j);
-								index = j;
+								priority = m_eastPort.m_inputVirtualChannelPriority.at(k);
+								index = k;
 							}
 						}
 
 						// compare the lowest priority with the challenger and arbitrate 
 						// to the challenger if challenger's priority is higher (smaller)
-						if (m_terminalPort.m_virtualChannelPriority < priority)
+						if (m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
 						{
 							// deallocate the loser's vc
 							// note that output port cannot be routed to input port with the same type
-							// and in this input port case, there is no vc for input terminal port;
-							// meaning in other input port cases, there should be four cases  
+							// there should be four cases
+							if (m_eastPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
+								m_terminalPort.m_outputVirtualChannelAllocated = -1;
 							if (m_eastPort.m_inputPortRouted.at(index) == PortType::NorthPort)
 								m_northPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
 							if (m_eastPort.m_inputPortRouted.at(index) == PortType::SouthPort)
@@ -1103,12 +1106,12 @@ void Router::allocateVirtualChannel()
 
 							// allocate vc to the challenger
 							// change input fields
-							m_terminalPort.m_outputVirtualChannelAllocated = index;
+							m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
 
 							// change output fields
-							m_eastPort.m_inputPortRouted.at(index) = PortType::TerminalPort;
-							m_eastPort.m_inputVirtualChannelAllocated.at(index) = 0; // no virtual channel for ternimal port
-							m_eastPort.m_inputVirtualChannelPriority.at(index) = m_terminalPort.m_virtualChannelPriority;
+							m_eastPort.m_inputPortRouted.at(index) = PortType::NorthPort;
+							m_eastPort.m_inputVirtualChannelAllocated.at(index) = i;
+							m_eastPort.m_inputVirtualChannelPriority.at(index) = m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority;
 							break;
 						}
 					}
