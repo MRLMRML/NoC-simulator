@@ -25,10 +25,13 @@ public:
 
 	// VA
 	void initiatePriorities();
-	//RouterPort convertPortTypeToPort(const PortType portType);
 	void allocateVirtualChannel();
-	void allocateRouterPortVirtualChannel(const PortType portType);
-	void allocateTerminalPortVirtualChannel();
+	//void allocateTerminalPortVirtualChannel();
+	//void allocateNorthPortVirtualChannel();
+	//void allocateSouthPortVirtualChannel();
+	//void allocateWestPortVirtualChannel();
+	//void allocateEastPortVirtualChannel();
+	//void updatePriorities();
 
 	// SA/ST
 	void allocateSwitchAndTraverseSwitch();

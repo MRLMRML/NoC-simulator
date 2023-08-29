@@ -48,7 +48,7 @@ enum class VirtualChannelState
 {
 	I, // Idle, virtual channel is empty; also used in downstream
 	R, // Routing
-	V, // Virtual channel allocation
+	V, // Virtual channel allocation; also used in downstream
 	A, // Active, virtual channel is occupied; also used in downstream
 	T  // Terminate
 };

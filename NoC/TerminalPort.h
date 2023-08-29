@@ -17,9 +17,9 @@ public:
 
 
 	// Output units
-	std::array<VirtualChannelState, VC_NUMBER> m_downstreamVirtualChannelStates{}; // either I or A
-	std::array<PortType, VC_NUMBER> m_inputPortRouted{};
-	std::array<int, VC_NUMBER> m_inputVirtualChannelAllocated{};
+	VirtualChannelState m_downstreamVirtualChannelState{}; // I/V/A
+	PortType m_inputPortRouted{};
+	int m_inputVirtualChannelAllocated{};
 	int m_inputVirtualChannelPriority{};
 
 private:
