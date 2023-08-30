@@ -600,6 +600,9 @@ void Router::allocateVirtualChannel()
 					// to the challenger if challenger's priority is higher (smaller)
 					if (m_terminalPort.m_virtualChannelPriority < priority)
 					{
+						// record it in arbitration recorder
+						winArbitration(PortType::TerminalPort, 0);
+
 						// deallocate the loser's vc
 						// note that output port cannot be routed to input port with the same type
 						// and in this input port case, there is no vc for input terminal port;
@@ -672,6 +675,9 @@ void Router::allocateVirtualChannel()
 					// to the challenger if challenger's priority is higher (smaller)
 					if (m_terminalPort.m_virtualChannelPriority < priority)
 					{
+						// record it in arbitration recorder
+						winArbitration(PortType::TerminalPort, 0);
+
 						// deallocate the loser's vc
 						// note that output port cannot be routed to input port with the same type
 						// and in this input port case, there is no vc for input terminal port;
@@ -744,6 +750,9 @@ void Router::allocateVirtualChannel()
 					// to the challenger if challenger's priority is higher (smaller)
 					if (m_terminalPort.m_virtualChannelPriority < priority)
 					{
+						// record it in arbitration recorder
+						winArbitration(PortType::TerminalPort, 0);
+
 						// deallocate the loser's vc
 						// note that output port cannot be routed to input port with the same type
 						// and in this input port case, there is no vc for input terminal port;
@@ -816,6 +825,9 @@ void Router::allocateVirtualChannel()
 					// to the challenger if challenger's priority is higher (smaller)
 					if (m_terminalPort.m_virtualChannelPriority < priority)
 					{
+						// record it in arbitration recorder
+						winArbitration(PortType::TerminalPort, 0);
+
 						// deallocate the loser's vc
 						// note that output port cannot be routed to input port with the same type
 						// and in this input port case, there is no vc for input terminal port;
@@ -860,7 +872,6 @@ void Router::allocateVirtualChannel()
 					m_terminalPort.m_inputPortRouted = PortType::NorthPort;
 					m_terminalPort.m_inputVirtualChannelAllocated = i;
 					m_terminalPort.m_inputVirtualChannelPriority = m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority;
-					break;
 				}
 
 				// If there is no I downstream virtual channel states;
@@ -874,6 +885,9 @@ void Router::allocateVirtualChannel()
 					int priority{ m_terminalPort.m_inputVirtualChannelPriority };
 					if (m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
 					{
+						// record it in arbitration recorder
+						winArbitration(PortType::NorthPort, i);
+
 						// deallocate the loser's vc
 						// note that output port cannot be routed to input port with the same type
 						// there should be four cases
@@ -894,7 +908,6 @@ void Router::allocateVirtualChannel()
 						m_terminalPort.m_inputPortRouted = PortType::NorthPort;
 						m_terminalPort.m_inputVirtualChannelAllocated = i;
 						m_terminalPort.m_inputVirtualChannelPriority = m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority;
-						break;
 					}
 				}
 			}
@@ -946,6 +959,9 @@ void Router::allocateVirtualChannel()
 						// to the challenger if challenger's priority is higher (smaller)
 						if (m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
 						{
+							// record it in arbitration recorder
+							winArbitration(PortType::NorthPort, i);
+
 							// deallocate the loser's vc
 							// note that output port cannot be routed to input port with the same type
 							// there should be four cases
@@ -1019,6 +1035,9 @@ void Router::allocateVirtualChannel()
 						// to the challenger if challenger's priority is higher (smaller)
 						if (m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
 						{
+							// record it in arbitration recorder
+							winArbitration(PortType::NorthPort, i);
+
 							// deallocate the loser's vc
 							// note that output port cannot be routed to input port with the same type
 							// there should be four cases
@@ -1092,6 +1111,9 @@ void Router::allocateVirtualChannel()
 						// to the challenger if challenger's priority is higher (smaller)
 						if (m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
 						{
+							// record it in arbitration recorder
+							winArbitration(PortType::NorthPort, i);
+
 							// deallocate the loser's vc
 							// note that output port cannot be routed to input port with the same type
 							// there should be four cases
@@ -1138,7 +1160,6 @@ void Router::allocateVirtualChannel()
 					m_terminalPort.m_inputPortRouted = PortType::SouthPort;
 					m_terminalPort.m_inputVirtualChannelAllocated = i;
 					m_terminalPort.m_inputVirtualChannelPriority = m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority;
-					break;
 				}
 
 				// If there is no I downstream virtual channel states;
@@ -1152,6 +1173,9 @@ void Router::allocateVirtualChannel()
 					int priority{ m_terminalPort.m_inputVirtualChannelPriority };
 					if (m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
 					{
+						// record it in arbitration recorder
+						winArbitration(PortType::SouthPort, i);
+
 						// deallocate the loser's vc
 						// note that output port cannot be routed to input port with the same type
 						// there should be four cases
@@ -1172,7 +1196,6 @@ void Router::allocateVirtualChannel()
 						m_terminalPort.m_inputPortRouted = PortType::SouthPort;
 						m_terminalPort.m_inputVirtualChannelAllocated = i;
 						m_terminalPort.m_inputVirtualChannelPriority = m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority;
-						break;
 					}
 				}
 			}
@@ -1224,6 +1247,9 @@ void Router::allocateVirtualChannel()
 						// to the challenger if challenger's priority is higher (smaller)
 						if (m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
 						{
+							// record it in arbitration recorder
+							winArbitration(PortType::SouthPort, i);
+
 							// deallocate the loser's vc
 							// note that output port cannot be routed to input port with the same type
 							// there should be four cases
@@ -1297,6 +1323,9 @@ void Router::allocateVirtualChannel()
 						// to the challenger if challenger's priority is higher (smaller)
 						if (m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
 						{
+							// record it in arbitration recorder
+							winArbitration(PortType::SouthPort, i);
+
 							// deallocate the loser's vc
 							// note that output port cannot be routed to input port with the same type
 							// there should be four cases
@@ -1370,6 +1399,9 @@ void Router::allocateVirtualChannel()
 						// to the challenger if challenger's priority is higher (smaller)
 						if (m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
 						{
+							// record it in arbitration recorder
+							winArbitration(PortType::SouthPort, i);
+
 							// deallocate the loser's vc
 							// note that output port cannot be routed to input port with the same type
 							// there should be four cases
@@ -1416,7 +1448,6 @@ void Router::allocateVirtualChannel()
 					m_terminalPort.m_inputPortRouted = PortType::WestPort;
 					m_terminalPort.m_inputVirtualChannelAllocated = i;
 					m_terminalPort.m_inputVirtualChannelPriority = m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority;
-					break;
 				}
 
 				// If there is no I downstream virtual channel states;
@@ -1430,6 +1461,9 @@ void Router::allocateVirtualChannel()
 					int priority{ m_terminalPort.m_inputVirtualChannelPriority };
 					if (m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
 					{
+						// record it in arbitration recorder
+						winArbitration(PortType::WestPort, i);
+
 						// deallocate the loser's vc
 						// note that output port cannot be routed to input port with the same type
 						// there should be four cases
@@ -1450,7 +1484,6 @@ void Router::allocateVirtualChannel()
 						m_terminalPort.m_inputPortRouted = PortType::WestPort;
 						m_terminalPort.m_inputVirtualChannelAllocated = i;
 						m_terminalPort.m_inputVirtualChannelPriority = m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority;
-						break;
 					}
 				}
 			}
@@ -1502,6 +1535,9 @@ void Router::allocateVirtualChannel()
 						// to the challenger if challenger's priority is higher (smaller)
 						if (m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
 						{
+							// record it in arbitration recorder
+							winArbitration(PortType::WestPort, i);
+
 							// deallocate the loser's vc
 							// note that output port cannot be routed to input port with the same type
 							// there should be four cases
@@ -1575,6 +1611,9 @@ void Router::allocateVirtualChannel()
 						// to the challenger if challenger's priority is higher (smaller)
 						if (m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
 						{
+							// record it in arbitration recorder
+							winArbitration(PortType::WestPort, i);
+
 							// deallocate the loser's vc
 							// note that output port cannot be routed to input port with the same type
 							// there should be four cases
@@ -1648,6 +1687,9 @@ void Router::allocateVirtualChannel()
 						// to the challenger if challenger's priority is higher (smaller)
 						if (m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
 						{
+							// record it in arbitration recorder
+							winArbitration(PortType::WestPort, i);
+
 							// deallocate the loser's vc
 							// note that output port cannot be routed to input port with the same type
 							// there should be four cases
@@ -1694,7 +1736,6 @@ void Router::allocateVirtualChannel()
 					m_terminalPort.m_inputPortRouted = PortType::EastPort;
 					m_terminalPort.m_inputVirtualChannelAllocated = i;
 					m_terminalPort.m_inputVirtualChannelPriority = m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority;
-					break;
 				}
 
 				// If there is no I downstream virtual channel states;
@@ -1708,6 +1749,9 @@ void Router::allocateVirtualChannel()
 					int priority{ m_terminalPort.m_inputVirtualChannelPriority };
 					if (m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
 					{
+						// record it in arbitration recorder
+						winArbitration(PortType::EastPort, i);
+
 						// deallocate the loser's vc
 						// note that output port cannot be routed to input port with the same type
 						// there should be four cases
@@ -1728,7 +1772,6 @@ void Router::allocateVirtualChannel()
 						m_terminalPort.m_inputPortRouted = PortType::EastPort;
 						m_terminalPort.m_inputVirtualChannelAllocated = i;
 						m_terminalPort.m_inputVirtualChannelPriority = m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority;
-						break;
 					}
 				}
 			}
@@ -1780,6 +1823,9 @@ void Router::allocateVirtualChannel()
 						// to the challenger if challenger's priority is higher (smaller)
 						if (m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
 						{
+							// record it in arbitration recorder
+							winArbitration(PortType::EastPort, i);
+
 							// deallocate the loser's vc
 							// note that output port cannot be routed to input port with the same type
 							// there should be four cases
@@ -1853,6 +1899,9 @@ void Router::allocateVirtualChannel()
 						// to the challenger if challenger's priority is higher (smaller)
 						if (m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
 						{
+							// record it in arbitration recorder
+							winArbitration(PortType::EastPort, i);
+
 							// deallocate the loser's vc
 							// note that output port cannot be routed to input port with the same type
 							// there should be four cases
@@ -1926,6 +1975,9 @@ void Router::allocateVirtualChannel()
 						// to the challenger if challenger's priority is higher (smaller)
 						if (m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
 						{
+							// record it in arbitration recorder
+							winArbitration(PortType::EastPort, i);
+
 							// deallocate the loser's vc
 							// note that output port cannot be routed to input port with the same type
 							// there should be four cases
@@ -1954,11 +2006,149 @@ void Router::allocateVirtualChannel()
 		}
 	}
 
-	// update priority
+	// activate virtual channels
+	activateVirtualChannel();
 
+	// update priority
+	updatePriority();
 }
 
-//void Router::updatePriorities()
-//{
-//
-//}
+void Router::winArbitration(const PortType port, const int virtualChannel)
+{
+	m_arbitrationRecorder.push_back({ port, virtualChannel });
+}
+
+void Router::activateVirtualChannel()
+{
+	// activate terminal port
+	if (m_terminalPort.m_virtualChannelState == VirtualChannelState::V
+		&& m_terminalPort.m_outputVirtualChannelAllocated != -1)
+		m_terminalPort.m_virtualChannelState == VirtualChannelState::A;
+	if (m_terminalPort.m_downstreamVirtualChannelState == VirtualChannelState::V)
+		m_terminalPort.m_downstreamVirtualChannelState == VirtualChannelState::A;
+
+	// activate north port
+	for (int i{}; i < m_northPort.m_virtualChannels.size(); ++i)
+	{
+		if (m_northPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::V
+			&& m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated != -1)
+			m_northPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A;
+		if (m_northPort.m_downstreamVirtualChannelStates.at(i) == VirtualChannelState::V)
+			m_northPort.m_downstreamVirtualChannelStates.at(i) == VirtualChannelState::A;
+	}
+
+	// activate south port
+	for (int i{}; i < m_southPort.m_virtualChannels.size(); ++i)
+	{
+		if (m_southPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::V
+			&& m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated != -1)
+			m_southPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A;
+		if (m_southPort.m_downstreamVirtualChannelStates.at(i) == VirtualChannelState::V)
+			m_southPort.m_downstreamVirtualChannelStates.at(i) == VirtualChannelState::A;
+	}
+
+	// activate west port
+	for (int i{}; i < m_westPort.m_virtualChannels.size(); ++i)
+	{
+		if (m_westPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::V
+			&& m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated != -1)
+			m_westPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A;
+		if (m_westPort.m_downstreamVirtualChannelStates.at(i) == VirtualChannelState::V)
+			m_westPort.m_downstreamVirtualChannelStates.at(i) == VirtualChannelState::A;
+	}
+
+	// activate east port
+	for (int i{}; i < m_eastPort.m_virtualChannels.size(); ++i)
+	{
+		if (m_eastPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::V
+			&& m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated != -1)
+			m_eastPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A;
+		if (m_eastPort.m_downstreamVirtualChannelStates.at(i) == VirtualChannelState::V)
+			m_eastPort.m_downstreamVirtualChannelStates.at(i) == VirtualChannelState::A;
+	}
+}
+
+void Router::updatePriority()
+{
+	int localCounter{};
+
+	// update terminal port
+	m_terminalPort.m_virtualChannelPriority -= localCounter;
+	for (int j{}; j < m_arbitrationRecorder.size(); ++j)
+	{
+		if (m_arbitrationRecorder.at(j).port == PortType::NorthPort
+			&& m_arbitrationRecorder.at(j).virtualChannel == 0)
+		{
+			m_terminalPort.m_virtualChannelPriority = (1 + VC_NUMBER * BUFFER_SIZE) - m_arbitrationRecorder.size() + j;
+			localCounter++;
+			break;
+		}
+	}
+
+	// update north port
+	for (int i{}; i < m_northPort.m_virtualChannels.size(); ++i)
+	{
+		m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority -= localCounter;
+		for (int j{}; j < m_arbitrationRecorder.size(); ++j)
+		{
+			if (m_arbitrationRecorder.at(j).port == PortType::NorthPort 
+				&& m_arbitrationRecorder.at(j).virtualChannel == i)
+			{
+				m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority = (1 + VC_NUMBER * BUFFER_SIZE) - m_arbitrationRecorder.size() + j;
+				localCounter++;
+				break;
+			}
+		}
+	}
+
+	// update south port
+	for (int i{}; i < m_southPort.m_virtualChannels.size(); ++i)
+	{
+		m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority -= localCounter;
+		for (int j{}; j < m_arbitrationRecorder.size(); ++j)
+		{
+			if (m_arbitrationRecorder.at(j).port == PortType::NorthPort
+				&& m_arbitrationRecorder.at(j).virtualChannel == i)
+			{
+				m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority = (1 + VC_NUMBER * BUFFER_SIZE) - m_arbitrationRecorder.size() + j;
+				localCounter++;
+				break;
+			}
+		}
+	}
+
+	// update west port
+	for (int i{}; i < m_westPort.m_virtualChannels.size(); ++i)
+	{
+		m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority -= localCounter;
+		for (int j{}; j < m_arbitrationRecorder.size(); ++j)
+		{
+			if (m_arbitrationRecorder.at(j).port == PortType::NorthPort
+				&& m_arbitrationRecorder.at(j).virtualChannel == i)
+			{
+				m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority = (1 + VC_NUMBER * BUFFER_SIZE) - m_arbitrationRecorder.size() + j;
+				localCounter++;
+				break;
+			}
+		}
+	}
+
+	// update east port
+	for (int i{}; i < m_eastPort.m_virtualChannels.size(); ++i)
+	{
+		m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority -= localCounter;
+		for (int j{}; j < m_arbitrationRecorder.size(); ++j)
+		{
+			if (m_arbitrationRecorder.at(j).port == PortType::NorthPort
+				&& m_arbitrationRecorder.at(j).virtualChannel == i)
+			{
+				m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority = (1 + VC_NUMBER * BUFFER_SIZE) - m_arbitrationRecorder.size() + j;
+				localCounter++;
+				break;
+			}
+		}
+	}
+
+	// clear the arbitration recorder
+	m_arbitrationRecorder.clear(); 
+}

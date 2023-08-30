@@ -25,13 +25,10 @@ public:
 
 	// VA
 	void initiatePriorities();
+	void winArbitration(const PortType port, const int virtualChannel);
 	void allocateVirtualChannel();
-	//void allocateTerminalPortVirtualChannel();
-	//void allocateNorthPortVirtualChannel();
-	//void allocateSouthPortVirtualChannel();
-	//void allocateWestPortVirtualChannel();
-	//void allocateEastPortVirtualChannel();
-	//void updatePriorities();
+	void activateVirtualChannel();
+	void updatePriority();
 
 	// SA/ST
 	void allocateSwitchAndTraverseSwitch();
@@ -51,10 +48,10 @@ public:
 	std::vector<MappingTableLine> m_mappingTable{};
 
 	// VA
-	//VirtualChannelPriorityTable m_VCPT{};
+	std::vector<ArbitrationRecorderLine> m_arbitrationRecorder{}; // record the winner of arbitration; used in updatePriorities();
+	
 	// SA/ST
-
-	// Credit
 	CreditMaintainer m_creditMaintainer{}; // ???
+
 private:
 };

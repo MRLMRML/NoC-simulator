@@ -44,6 +44,12 @@ enum class PortType
 
 std::ostream& operator<<(std::ostream& stream, const PortType& portType);
 
+struct ArbitrationRecorderLine
+{
+	PortType port{};
+	int virtualChannel{};
+};
+
 enum class VirtualChannelState
 {
 	I, // Idle, virtual channel is empty; also used in downstream
