@@ -2023,18 +2023,18 @@ void Router::activateVirtualChannel()
 	// activate terminal port
 	if (m_terminalPort.m_virtualChannelState == VirtualChannelState::V
 		&& m_terminalPort.m_outputVirtualChannelAllocated != -1)
-		m_terminalPort.m_virtualChannelState == VirtualChannelState::A;
+		m_terminalPort.m_virtualChannelState = VirtualChannelState::A;
 	if (m_terminalPort.m_downstreamVirtualChannelState == VirtualChannelState::V)
-		m_terminalPort.m_downstreamVirtualChannelState == VirtualChannelState::A;
+		m_terminalPort.m_downstreamVirtualChannelState = VirtualChannelState::A;
 
 	// activate north port
 	for (int i{}; i < m_northPort.m_virtualChannels.size(); ++i)
 	{
 		if (m_northPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::V
 			&& m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated != -1)
-			m_northPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A;
+			m_northPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::A;
 		if (m_northPort.m_downstreamVirtualChannelStates.at(i) == VirtualChannelState::V)
-			m_northPort.m_downstreamVirtualChannelStates.at(i) == VirtualChannelState::A;
+			m_northPort.m_downstreamVirtualChannelStates.at(i) = VirtualChannelState::A;
 	}
 
 	// activate south port
@@ -2042,9 +2042,9 @@ void Router::activateVirtualChannel()
 	{
 		if (m_southPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::V
 			&& m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated != -1)
-			m_southPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A;
+			m_southPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::A;
 		if (m_southPort.m_downstreamVirtualChannelStates.at(i) == VirtualChannelState::V)
-			m_southPort.m_downstreamVirtualChannelStates.at(i) == VirtualChannelState::A;
+			m_southPort.m_downstreamVirtualChannelStates.at(i) = VirtualChannelState::A;
 	}
 
 	// activate west port
@@ -2052,9 +2052,9 @@ void Router::activateVirtualChannel()
 	{
 		if (m_westPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::V
 			&& m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated != -1)
-			m_westPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A;
+			m_westPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::A;
 		if (m_westPort.m_downstreamVirtualChannelStates.at(i) == VirtualChannelState::V)
-			m_westPort.m_downstreamVirtualChannelStates.at(i) == VirtualChannelState::A;
+			m_westPort.m_downstreamVirtualChannelStates.at(i) = VirtualChannelState::A;
 	}
 
 	// activate east port
@@ -2062,9 +2062,9 @@ void Router::activateVirtualChannel()
 	{
 		if (m_eastPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::V
 			&& m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated != -1)
-			m_eastPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A;
+			m_eastPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::A;
 		if (m_eastPort.m_downstreamVirtualChannelStates.at(i) == VirtualChannelState::V)
-			m_eastPort.m_downstreamVirtualChannelStates.at(i) == VirtualChannelState::A;
+			m_eastPort.m_downstreamVirtualChannelStates.at(i) = VirtualChannelState::A;
 	}
 }
 
