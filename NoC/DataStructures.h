@@ -44,7 +44,7 @@ enum class PortType
 
 std::ostream& operator<<(std::ostream& stream, const PortType& portType);
 
-struct ArbitrationRecorderLine
+struct VirtualChannelArbitrationRecorderLine
 {
 	PortType port{};
 	int virtualChannel{};

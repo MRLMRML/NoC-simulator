@@ -9,7 +9,7 @@ class Router
 public:
 	Router()
 	{
-		initiatePriorities();
+		initiateVirtualChannelPriority();
 	}
 
 	void runOneStep();
@@ -23,21 +23,27 @@ public:
 	void routeEastPort();
 
 	// VA
-	void initiatePriorities();
+	void initiateVirtualChannelPriority();
 	void allocateVirtualChannel();
 	void allocateTerminalPortVirtualChannel();
 	void allocateNorthPortVirtualChannel();
 	void allocateSouthPortVirtualChannel();
 	void allocateWestPortVirtualChannel();
 	void allocateEastPortVirtualChannel();
-	void winArbitration(const PortType port, const int virtualChannel);
+	void winVirtualChannelArbitration(const PortType port, const int virtualChannel);
 	void activateVirtualChannel();
-	void updatePriority();
+	void updateVirtualChannelPriority();
 
-	// SA/ST
-	void allocateSwitchAndTraverseSwitch();
+	// SA
+	void allocateSwitch();
 
-	void compensateCycle();
+	void winSwitchArbitration(const PortType port);
+	void updateSwitchPriority();
+
+	// ST
+	void traverseSwitch();
+
+	//void compensateCycle();
 
 public:
 	RouterPort m_northPort{};
@@ -52,10 +58,14 @@ public:
 	std::vector<MappingTableLine> m_mappingTable{};
 
 	// VA
-	std::vector<ArbitrationRecorderLine> m_arbitrationRecorder{}; // record the winner of arbitration; used in updatePriorities();
+	std::vector<VirtualChannelArbitrationRecorderLine> m_virtualChannelArbitrationRecorder{}; // record the winner of virtual channel arbitration; used in updateVirtualChannelPriority();
 	
-	// SA/ST
-	CreditMaintainer m_creditMaintainer{}; // ???
+	// SA
+	std::vector<PortType> m_switchArbitrationRecorder{}; // record the winner of switch arbitration; used in updateSwitchPriority();
+
+	// ST
+	
+	//CreditMaintainer m_creditMaintainer{}; // ???
 
 private:
 };
