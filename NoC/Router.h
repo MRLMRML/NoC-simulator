@@ -3,7 +3,6 @@
 #include "TerminalPort.h"
 #include "RouterPort.h"
 #include "CreditMaintainer.h"
-//#include "VirtualChannelPriorityTable.h"
 
 class Router
 {
@@ -17,16 +16,21 @@ public:
 
 	// RC
 	void computeRoute();
+	void routeTerminalPort();
 	void routeNorthPort();
 	void routeSouthPort();
 	void routeWestPort();
 	void routeEastPort();
-	void routeTerminalPort();
 
 	// VA
 	void initiatePriorities();
-	void winArbitration(const PortType port, const int virtualChannel);
 	void allocateVirtualChannel();
+	void allocateTerminalPortVirtualChannel();
+	void allocateNorthPortVirtualChannel();
+	void allocateSouthPortVirtualChannel();
+	void allocateWestPortVirtualChannel();
+	void allocateEastPortVirtualChannel();
+	void winArbitration(const PortType port, const int virtualChannel);
 	void activateVirtualChannel();
 	void updatePriority();
 

@@ -86,8 +86,5 @@
     <ClCompile Include="RouterPort.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VirtualChannelPriorityTable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

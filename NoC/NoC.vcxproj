@@ -154,7 +154,6 @@
     <ClCompile Include="RouterPort.cpp" />
     <ClCompile Include="TerminalPort.cpp" />
     <ClCompile Include="VirtualChannel.cpp" />
-    <ClCompile Include="VirtualChannelPriorityTable.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
