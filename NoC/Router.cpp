@@ -524,25 +524,25 @@ void Router::initiateVirtualChannelPriority()
 
 	m_terminalPort.m_virtualChannelPriority = virtualChannelPriority;
 
-	for (int i{}; i < BUFFER_SIZE; ++i)
+	for (int i{}; i < VC_NUMBER; ++i)
 	{
 		virtualChannelPriority++;
 		m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority = virtualChannelPriority;
 	}
 
-	for (int i{}; i < BUFFER_SIZE; ++i)
+	for (int i{}; i < VC_NUMBER; ++i)
 	{
 		virtualChannelPriority++;
 		m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority = virtualChannelPriority;
 	}
 
-	for (int i{}; i < BUFFER_SIZE; ++i)
+	for (int i{}; i < VC_NUMBER; ++i)
 	{
 		virtualChannelPriority++;
 		m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority = virtualChannelPriority;
 	}
 
-	for (int i{}; i < BUFFER_SIZE; ++i)
+	for (int i{}; i < VC_NUMBER; ++i)
 	{
 		virtualChannelPriority++;
 		m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority = virtualChannelPriority;
@@ -580,7 +580,7 @@ void Router::allocateTerminalPortVirtualChannel()
 		// if terminal port is routed to north port
 		if (m_terminalPort.m_outputPortRouted == PortType::NorthPort)
 		{
-			for (int i{}; i < m_northPort.m_downstreamVirtualChannelStates.size(); ++i)
+			for (int i{}; i < VC_NUMBER; ++i)
 			{
 				if (m_northPort.m_downstreamVirtualChannelStates.at(i)
 					== VirtualChannelState::I)
@@ -601,7 +601,7 @@ void Router::allocateTerminalPortVirtualChannel()
 			// meaning states are either A or V;
 			// do the following round-robin arbitration based on virtual channel priority
 			// with DVCS set to V;
-			for (int i{}; i < m_northPort.m_downstreamVirtualChannelStates.size(); ++i)
+			for (int i{}; i < VC_NUMBER; ++i)
 			{
 				if (m_northPort.m_downstreamVirtualChannelStates.at(i)
 					== VirtualChannelState::V)
@@ -610,7 +610,7 @@ void Router::allocateTerminalPortVirtualChannel()
 					// and in V state; record priority and index;
 					int priority{};
 					int index{};
-					for (int j{}; j < m_northPort.m_downstreamVirtualChannelStates.size(); ++j)
+					for (int j{}; j < VC_NUMBER; ++j)
 					{
 						if (m_northPort.m_downstreamVirtualChannelStates.at(j) == VirtualChannelState::V
 							&& m_northPort.m_inputVirtualChannelPriority.at(j) > priority)
@@ -656,7 +656,7 @@ void Router::allocateTerminalPortVirtualChannel()
 		// if terminal port is routed to south port
 		if (m_terminalPort.m_outputPortRouted == PortType::SouthPort)
 		{
-			for (int i{}; i < m_southPort.m_downstreamVirtualChannelStates.size(); ++i)
+			for (int i{}; i < VC_NUMBER; ++i)
 			{
 				if (m_southPort.m_downstreamVirtualChannelStates.at(i)
 					== VirtualChannelState::I)
@@ -677,7 +677,7 @@ void Router::allocateTerminalPortVirtualChannel()
 			// meaning states are either A or V;
 			// do the following round-robin arbitration based on virtual channel priority
 			// with DVCS set to V;
-			for (int i{}; i < m_southPort.m_downstreamVirtualChannelStates.size(); ++i)
+			for (int i{}; i < VC_NUMBER; ++i)
 			{
 				if (m_southPort.m_downstreamVirtualChannelStates.at(i)
 					== VirtualChannelState::V)
@@ -686,7 +686,7 @@ void Router::allocateTerminalPortVirtualChannel()
 					// and in V state; record priority and index;
 					int priority{};
 					int index{};
-					for (int j{}; j < m_southPort.m_downstreamVirtualChannelStates.size(); ++j)
+					for (int j{}; j < VC_NUMBER; ++j)
 					{
 						if (m_southPort.m_downstreamVirtualChannelStates.at(j) == VirtualChannelState::V
 							&& m_southPort.m_inputVirtualChannelPriority.at(j) > priority)
@@ -732,7 +732,7 @@ void Router::allocateTerminalPortVirtualChannel()
 		// if terminal port is routed to west port
 		if (m_terminalPort.m_outputPortRouted == PortType::WestPort)
 		{
-			for (int i{}; i < m_westPort.m_downstreamVirtualChannelStates.size(); ++i)
+			for (int i{}; i < VC_NUMBER; ++i)
 			{
 				if (m_westPort.m_downstreamVirtualChannelStates.at(i)
 					== VirtualChannelState::I)
@@ -753,7 +753,7 @@ void Router::allocateTerminalPortVirtualChannel()
 			// meaning states are either A or V;
 			// do the following round-robin arbitration based on virtual channel priority
 			// with DVCS set to V;
-			for (int i{}; i < m_westPort.m_downstreamVirtualChannelStates.size(); ++i)
+			for (int i{}; i < VC_NUMBER; ++i)
 			{
 				if (m_westPort.m_downstreamVirtualChannelStates.at(i)
 					== VirtualChannelState::V)
@@ -762,7 +762,7 @@ void Router::allocateTerminalPortVirtualChannel()
 					// and in V state; record priority and index;
 					int priority{};
 					int index{};
-					for (int j{}; j < m_westPort.m_downstreamVirtualChannelStates.size(); ++j)
+					for (int j{}; j < VC_NUMBER; ++j)
 					{
 						if (m_westPort.m_downstreamVirtualChannelStates.at(j) == VirtualChannelState::V
 							&& m_westPort.m_inputVirtualChannelPriority.at(j) > priority)
@@ -808,7 +808,7 @@ void Router::allocateTerminalPortVirtualChannel()
 		// if terminal port is routed to east port
 		if (m_terminalPort.m_outputPortRouted == PortType::EastPort)
 		{
-			for (int i{}; i < m_eastPort.m_downstreamVirtualChannelStates.size(); ++i)
+			for (int i{}; i < VC_NUMBER; ++i)
 			{
 				if (m_eastPort.m_downstreamVirtualChannelStates.at(i)
 					== VirtualChannelState::I)
@@ -829,7 +829,7 @@ void Router::allocateTerminalPortVirtualChannel()
 			// meaning states are either A or V;
 			// do the following round-robin arbitration based on virtual channel priority
 			// with DVCS set to V;
-			for (int i{}; i < m_eastPort.m_downstreamVirtualChannelStates.size(); ++i)
+			for (int i{}; i < VC_NUMBER; ++i)
 			{
 				if (m_eastPort.m_downstreamVirtualChannelStates.at(i)
 					== VirtualChannelState::V)
@@ -838,7 +838,7 @@ void Router::allocateTerminalPortVirtualChannel()
 					// and in V state; record priority and index;
 					int priority{};
 					int index{};
-					for (int j{}; j < m_eastPort.m_downstreamVirtualChannelStates.size(); ++j)
+					for (int j{}; j < VC_NUMBER; ++j)
 					{
 						if (m_eastPort.m_downstreamVirtualChannelStates.at(j) == VirtualChannelState::V
 							&& m_eastPort.m_inputVirtualChannelPriority.at(j) > priority)
@@ -885,7 +885,7 @@ void Router::allocateTerminalPortVirtualChannel()
 
 void Router::allocateNorthPortVirtualChannel()
 {
-	for (int i{}; i < m_northPort.m_virtualChannels.size(); ++i)
+	for (int i{}; i < VC_NUMBER; ++i)
 	{
 		if (m_northPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::V)
 		{
@@ -945,7 +945,7 @@ void Router::allocateNorthPortVirtualChannel()
 			// if north port is routed to south port
 			if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
 			{
-				for (int j{}; j < m_southPort.m_downstreamVirtualChannelStates.size(); ++j)
+				for (int j{}; j < VC_NUMBER; ++j)
 				{
 					if (m_southPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::I)
@@ -966,7 +966,7 @@ void Router::allocateNorthPortVirtualChannel()
 				// meaning states are either A or V;
 				// do the following round-robin arbitration based on virtual channel priority
 				// with DVCS set to V;
-				for (int j{}; j < m_southPort.m_downstreamVirtualChannelStates.size(); ++j)
+				for (int j{}; j < VC_NUMBER; ++j)
 				{
 					if (m_southPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::V)
@@ -975,7 +975,7 @@ void Router::allocateNorthPortVirtualChannel()
 						// and in V state; record priority and index;
 						int priority{};
 						int index{};
-						for (int k{}; k < m_southPort.m_downstreamVirtualChannelStates.size(); ++k)
+						for (int k{}; k < VC_NUMBER; ++k)
 						{
 							if (m_southPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
 								&& m_southPort.m_inputVirtualChannelPriority.at(k) > priority)
@@ -1022,7 +1022,7 @@ void Router::allocateNorthPortVirtualChannel()
 			// if north port is routed to west port
 			if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
 			{
-				for (int j{}; j < m_westPort.m_downstreamVirtualChannelStates.size(); ++j)
+				for (int j{}; j < VC_NUMBER; ++j)
 				{
 					if (m_westPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::I)
@@ -1043,7 +1043,7 @@ void Router::allocateNorthPortVirtualChannel()
 				// meaning states are either A or V;
 				// do the following round-robin arbitration based on virtual channel priority
 				// with DVCS set to V;
-				for (int j{}; j < m_westPort.m_downstreamVirtualChannelStates.size(); ++j)
+				for (int j{}; j < VC_NUMBER; ++j)
 				{
 					if (m_westPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::V)
@@ -1052,7 +1052,7 @@ void Router::allocateNorthPortVirtualChannel()
 						// and in V state; record priority and index;
 						int priority{};
 						int index{};
-						for (int k{}; k < m_westPort.m_downstreamVirtualChannelStates.size(); ++k)
+						for (int k{}; k < VC_NUMBER; ++k)
 						{
 							if (m_westPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
 								&& m_westPort.m_inputVirtualChannelPriority.at(k) > priority)
@@ -1099,7 +1099,7 @@ void Router::allocateNorthPortVirtualChannel()
 			// if north port is routed to east port
 			if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
 			{
-				for (int j{}; j < m_eastPort.m_downstreamVirtualChannelStates.size(); ++j)
+				for (int j{}; j < VC_NUMBER; ++j)
 				{
 					if (m_eastPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::I)
@@ -1120,7 +1120,7 @@ void Router::allocateNorthPortVirtualChannel()
 				// meaning states are either A or V;
 				// do the following round-robin arbitration based on virtual channel priority
 				// with DVCS set to V;
-				for (int j{}; j < m_eastPort.m_downstreamVirtualChannelStates.size(); ++j)
+				for (int j{}; j < VC_NUMBER; ++j)
 				{
 					if (m_eastPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::V)
@@ -1129,7 +1129,7 @@ void Router::allocateNorthPortVirtualChannel()
 						// and in V state; record priority and index;
 						int priority{};
 						int index{};
-						for (int k{}; k < m_eastPort.m_downstreamVirtualChannelStates.size(); ++k)
+						for (int k{}; k < VC_NUMBER; ++k)
 						{
 							if (m_eastPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
 								&& m_eastPort.m_inputVirtualChannelPriority.at(k) > priority)
@@ -1178,7 +1178,7 @@ void Router::allocateNorthPortVirtualChannel()
 
 void Router::allocateSouthPortVirtualChannel()
 {
-	for (int i{}; i < m_southPort.m_virtualChannels.size(); ++i)
+	for (int i{}; i < VC_NUMBER; ++i)
 	{
 		if (m_southPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::V)
 		{
@@ -1238,7 +1238,7 @@ void Router::allocateSouthPortVirtualChannel()
 			// if south port is routed to north port
 			if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
 			{
-				for (int j{}; j < m_northPort.m_downstreamVirtualChannelStates.size(); ++j)
+				for (int j{}; j < VC_NUMBER; ++j)
 				{
 					if (m_northPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::I)
@@ -1259,7 +1259,7 @@ void Router::allocateSouthPortVirtualChannel()
 				// meaning states are either A or V;
 				// do the following round-robin arbitration based on virtual channel priority
 				// with DVCS set to V;
-				for (int j{}; j < m_northPort.m_downstreamVirtualChannelStates.size(); ++j)
+				for (int j{}; j < VC_NUMBER; ++j)
 				{
 					if (m_northPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::V)
@@ -1268,7 +1268,7 @@ void Router::allocateSouthPortVirtualChannel()
 						// and in V state; record priority and index;
 						int priority{};
 						int index{};
-						for (int k{}; k < m_northPort.m_downstreamVirtualChannelStates.size(); ++k)
+						for (int k{}; k < VC_NUMBER; ++k)
 						{
 							if (m_northPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
 								&& m_northPort.m_inputVirtualChannelPriority.at(k) > priority)
@@ -1315,7 +1315,7 @@ void Router::allocateSouthPortVirtualChannel()
 			// if south port is routed to west port
 			if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
 			{
-				for (int j{}; j < m_westPort.m_downstreamVirtualChannelStates.size(); ++j)
+				for (int j{}; j < VC_NUMBER; ++j)
 				{
 					if (m_westPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::I)
@@ -1336,7 +1336,7 @@ void Router::allocateSouthPortVirtualChannel()
 				// meaning states are either A or V;
 				// do the following round-robin arbitration based on virtual channel priority
 				// with DVCS set to V;
-				for (int j{}; j < m_westPort.m_downstreamVirtualChannelStates.size(); ++j)
+				for (int j{}; j < VC_NUMBER; ++j)
 				{
 					if (m_westPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::V)
@@ -1345,7 +1345,7 @@ void Router::allocateSouthPortVirtualChannel()
 						// and in V state; record priority and index;
 						int priority{};
 						int index{};
-						for (int k{}; k < m_westPort.m_downstreamVirtualChannelStates.size(); ++k)
+						for (int k{}; k < VC_NUMBER; ++k)
 						{
 							if (m_westPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
 								&& m_westPort.m_inputVirtualChannelPriority.at(k) > priority)
@@ -1392,7 +1392,7 @@ void Router::allocateSouthPortVirtualChannel()
 			// if south port is routed to east port
 			if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
 			{
-				for (int j{}; j < m_eastPort.m_downstreamVirtualChannelStates.size(); ++j)
+				for (int j{}; j < VC_NUMBER; ++j)
 				{
 					if (m_eastPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::I)
@@ -1413,7 +1413,7 @@ void Router::allocateSouthPortVirtualChannel()
 				// meaning states are either A or V;
 				// do the following round-robin arbitration based on virtual channel priority
 				// with DVCS set to V;
-				for (int j{}; j < m_eastPort.m_downstreamVirtualChannelStates.size(); ++j)
+				for (int j{}; j < VC_NUMBER; ++j)
 				{
 					if (m_eastPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::V)
@@ -1422,7 +1422,7 @@ void Router::allocateSouthPortVirtualChannel()
 						// and in V state; record priority and index;
 						int priority{};
 						int index{};
-						for (int k{}; k < m_eastPort.m_downstreamVirtualChannelStates.size(); ++k)
+						for (int k{}; k < VC_NUMBER; ++k)
 						{
 							if (m_eastPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
 								&& m_eastPort.m_inputVirtualChannelPriority.at(k) > priority)
@@ -1471,7 +1471,7 @@ void Router::allocateSouthPortVirtualChannel()
 
 void Router::allocateWestPortVirtualChannel()
 {
-	for (int i{}; i < m_westPort.m_virtualChannels.size(); ++i)
+	for (int i{}; i < VC_NUMBER; ++i)
 	{
 		if (m_westPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::V)
 		{
@@ -1531,7 +1531,7 @@ void Router::allocateWestPortVirtualChannel()
 			// if west port is routed to north port
 			if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
 			{
-				for (int j{}; j < m_northPort.m_downstreamVirtualChannelStates.size(); ++j)
+				for (int j{}; j < VC_NUMBER; ++j)
 				{
 					if (m_northPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::I)
@@ -1552,7 +1552,7 @@ void Router::allocateWestPortVirtualChannel()
 				// meaning states are either A or V;
 				// do the following round-robin arbitration based on virtual channel priority
 				// with DVCS set to V;
-				for (int j{}; j < m_northPort.m_downstreamVirtualChannelStates.size(); ++j)
+				for (int j{}; j < VC_NUMBER; ++j)
 				{
 					if (m_northPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::V)
@@ -1561,7 +1561,7 @@ void Router::allocateWestPortVirtualChannel()
 						// and in V state; record priority and index;
 						int priority{};
 						int index{};
-						for (int k{}; k < m_northPort.m_downstreamVirtualChannelStates.size(); ++k)
+						for (int k{}; k < VC_NUMBER; ++k)
 						{
 							if (m_northPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
 								&& m_northPort.m_inputVirtualChannelPriority.at(k) > priority)
@@ -1608,7 +1608,7 @@ void Router::allocateWestPortVirtualChannel()
 			// if west port is routed to south port
 			if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
 			{
-				for (int j{}; j < m_southPort.m_downstreamVirtualChannelStates.size(); ++j)
+				for (int j{}; j < VC_NUMBER; ++j)
 				{
 					if (m_southPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::I)
@@ -1629,7 +1629,7 @@ void Router::allocateWestPortVirtualChannel()
 				// meaning states are either A or V;
 				// do the following round-robin arbitration based on virtual channel priority
 				// with DVCS set to V;
-				for (int j{}; j < m_southPort.m_downstreamVirtualChannelStates.size(); ++j)
+				for (int j{}; j < VC_NUMBER; ++j)
 				{
 					if (m_southPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::V)
@@ -1638,7 +1638,7 @@ void Router::allocateWestPortVirtualChannel()
 						// and in V state; record priority and index;
 						int priority{};
 						int index{};
-						for (int k{}; k < m_southPort.m_downstreamVirtualChannelStates.size(); ++k)
+						for (int k{}; k < VC_NUMBER; ++k)
 						{
 							if (m_southPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
 								&& m_southPort.m_inputVirtualChannelPriority.at(k) > priority)
@@ -1685,7 +1685,7 @@ void Router::allocateWestPortVirtualChannel()
 			// if west port is routed to east port
 			if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
 			{
-				for (int j{}; j < m_eastPort.m_downstreamVirtualChannelStates.size(); ++j)
+				for (int j{}; j < VC_NUMBER; ++j)
 				{
 					if (m_eastPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::I)
@@ -1706,7 +1706,7 @@ void Router::allocateWestPortVirtualChannel()
 				// meaning states are either A or V;
 				// do the following round-robin arbitration based on virtual channel priority
 				// with DVCS set to V;
-				for (int j{}; j < m_eastPort.m_downstreamVirtualChannelStates.size(); ++j)
+				for (int j{}; j < VC_NUMBER; ++j)
 				{
 					if (m_eastPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::V)
@@ -1715,7 +1715,7 @@ void Router::allocateWestPortVirtualChannel()
 						// and in V state; record priority and index;
 						int priority{};
 						int index{};
-						for (int k{}; k < m_eastPort.m_downstreamVirtualChannelStates.size(); ++k)
+						for (int k{}; k < VC_NUMBER; ++k)
 						{
 							if (m_eastPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
 								&& m_eastPort.m_inputVirtualChannelPriority.at(k) > priority)
@@ -1764,7 +1764,7 @@ void Router::allocateWestPortVirtualChannel()
 
 void Router::allocateEastPortVirtualChannel()
 {
-	for (int i{}; i < m_eastPort.m_virtualChannels.size(); ++i)
+	for (int i{}; i < VC_NUMBER; ++i)
 	{
 		if (m_eastPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::V)
 		{
@@ -1824,7 +1824,7 @@ void Router::allocateEastPortVirtualChannel()
 			// if east port is routed to north port
 			if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
 			{
-				for (int j{}; j < m_northPort.m_downstreamVirtualChannelStates.size(); ++j)
+				for (int j{}; j < VC_NUMBER; ++j)
 				{
 					if (m_northPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::I)
@@ -1845,7 +1845,7 @@ void Router::allocateEastPortVirtualChannel()
 				// meaning states are either A or V;
 				// do the following round-robin arbitration based on virtual channel priority
 				// with DVCS set to V;
-				for (int j{}; j < m_northPort.m_downstreamVirtualChannelStates.size(); ++j)
+				for (int j{}; j < VC_NUMBER; ++j)
 				{
 					if (m_northPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::V)
@@ -1854,7 +1854,7 @@ void Router::allocateEastPortVirtualChannel()
 						// and in V state; record priority and index;
 						int priority{};
 						int index{};
-						for (int k{}; k < m_northPort.m_downstreamVirtualChannelStates.size(); ++k)
+						for (int k{}; k < VC_NUMBER; ++k)
 						{
 							if (m_northPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
 								&& m_northPort.m_inputVirtualChannelPriority.at(k) > priority)
@@ -1901,7 +1901,7 @@ void Router::allocateEastPortVirtualChannel()
 			// if east port is routed to south port
 			if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
 			{
-				for (int j{}; j < m_southPort.m_downstreamVirtualChannelStates.size(); ++j)
+				for (int j{}; j < VC_NUMBER; ++j)
 				{
 					if (m_southPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::I)
@@ -1922,7 +1922,7 @@ void Router::allocateEastPortVirtualChannel()
 				// meaning states are either A or V;
 				// do the following round-robin arbitration based on virtual channel priority
 				// with DVCS set to V;
-				for (int j{}; j < m_southPort.m_downstreamVirtualChannelStates.size(); ++j)
+				for (int j{}; j < VC_NUMBER; ++j)
 				{
 					if (m_southPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::V)
@@ -1931,7 +1931,7 @@ void Router::allocateEastPortVirtualChannel()
 						// and in V state; record priority and index;
 						int priority{};
 						int index{};
-						for (int k{}; k < m_southPort.m_downstreamVirtualChannelStates.size(); ++k)
+						for (int k{}; k < VC_NUMBER; ++k)
 						{
 							if (m_southPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
 								&& m_southPort.m_inputVirtualChannelPriority.at(k) > priority)
@@ -1978,7 +1978,7 @@ void Router::allocateEastPortVirtualChannel()
 			// if east port is routed to west port
 			if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
 			{
-				for (int j{}; j < m_westPort.m_downstreamVirtualChannelStates.size(); ++j)
+				for (int j{}; j < VC_NUMBER; ++j)
 				{
 					if (m_westPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::I)
@@ -1999,7 +1999,7 @@ void Router::allocateEastPortVirtualChannel()
 				// meaning states are either A or V;
 				// do the following round-robin arbitration based on virtual channel priority
 				// with DVCS set to V;
-				for (int j{}; j < m_westPort.m_downstreamVirtualChannelStates.size(); ++j)
+				for (int j{}; j < VC_NUMBER; ++j)
 				{
 					if (m_westPort.m_downstreamVirtualChannelStates.at(j)
 						== VirtualChannelState::V)
@@ -2008,7 +2008,7 @@ void Router::allocateEastPortVirtualChannel()
 						// and in V state; record priority and index;
 						int priority{};
 						int index{};
-						for (int k{}; k < m_westPort.m_downstreamVirtualChannelStates.size(); ++k)
+						for (int k{}; k < VC_NUMBER; ++k)
 						{
 							if (m_westPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
 								&& m_westPort.m_inputVirtualChannelPriority.at(k) > priority)
@@ -2195,7 +2195,53 @@ void Router::updateVirtualChannelPriority()
 	m_virtualChannelArbitrationRecorder.clear(); 
 }
 
+void Router::initiateSwitchPriority()
+{
+	// terminal port
+	m_terminalPort.m_switchPriorityGlobal = 0;
+
+	// north port
+	for (int i{}; i < VC_NUMBER; ++i)
+		m_northPort.m_virtualChannels.at(i).m_switchPriorityLocal = i;
+	m_northPort.m_switchPriorityGlobal = 1;
+
+	// south port
+	for (int i{}; i < VC_NUMBER; ++i)
+		m_southPort.m_virtualChannels.at(i).m_switchPriorityLocal = i;
+	m_southPort.m_switchPriorityGlobal = 2;
+
+	// west port
+	for (int i{}; i < VC_NUMBER; ++i)
+		m_westPort.m_virtualChannels.at(i).m_switchPriorityLocal = i;
+	m_westPort.m_switchPriorityGlobal = 3;
+
+	// east port
+	for (int i{}; i < VC_NUMBER; ++i)
+		m_eastPort.m_virtualChannels.at(i).m_switchPriorityLocal = i;
+	m_eastPort.m_switchPriorityGlobal = 4;
+}
+
 void Router::allocateSwitch()
 {
+	// allocate terminal port
+	if (m_terminalPort.m_virtualChannelState == VirtualChannelState::A
+		&& )
 
+	// allocate north port
+	
+
+	// allocate south port
+	
+
+	// allocate west port
+	
+
+	// allocate east port
+
+
+}
+
+void Router::winSwitchArbitration(const PortType port)
+{
+	m_switchArbitrationRecorder.push_back(port);
 }

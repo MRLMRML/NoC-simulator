@@ -10,6 +10,8 @@ public:
 	Router()
 	{
 		initiateVirtualChannelPriority();
+		initiateSwitchPriority();
+
 	}
 
 	void runOneStep();
@@ -35,8 +37,8 @@ public:
 	void updateVirtualChannelPriority();
 
 	// SA
+	void initiateSwitchPriority();
 	void allocateSwitch();
-
 	void winSwitchArbitration(const PortType port);
 	void updateSwitchPriority();
 
