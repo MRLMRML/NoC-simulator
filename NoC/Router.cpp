@@ -2224,24 +2224,537 @@ void Router::initiateSwitchPriority()
 void Router::allocateSwitch()
 {
 	// allocate terminal port
-	if (m_terminalPort.m_virtualChannelState == VirtualChannelState::A
-		&& )
+	allocateTerminalPortSwitch();
 
 	// allocate north port
-	
+	allocateNorthPortSwitch();
 
 	// allocate south port
-	
+	allocateSouthPortSwitch();
 
 	// allocate west port
-	
+	allocateWestPortSwitch();
 
 	// allocate east port
+	allocateEastPortSwitch();
 
+	// arbitrate all connections, terminate losers' connection, put winner's flit into crossbarInputBuffer
+	switchArbitration();
+
+	// update switch priority global
+	updateSwitchPriority();
+}
+
+void Router::allocateTerminalPortSwitch()
+{
+	// setup crossbar connection
+	if (m_terminalPort.m_virtualChannelState == VirtualChannelState::A)
+	{
+		// if terminal port is routed to north port 
+		if (m_terminalPort.m_outputPortRouted == PortType::NorthPort)
+		{
+			if (m_northPort.m_credit.at(m_terminalPort.m_outputVirtualChannelAllocated) > 0)
+			{
+				m_crossbar.setUpConnection(m_terminalPort, m_northPort);
+			}
+		}
+
+		// if terminal port is routed to south port 
+		if (m_terminalPort.m_outputPortRouted == PortType::SouthPort)
+		{
+			if (m_southPort.m_credit.at(m_terminalPort.m_outputVirtualChannelAllocated) > 0)
+			{
+				m_crossbar.setUpConnection(m_terminalPort, m_southPort);
+			}
+		}
+
+		// if terminal port is routed to west port 
+		if (m_terminalPort.m_outputPortRouted == PortType::WestPort)
+		{
+			if (m_westPort.m_credit.at(m_terminalPort.m_outputVirtualChannelAllocated) > 0)
+			{
+				m_crossbar.setUpConnection(m_terminalPort, m_westPort);
+			}
+		}
+
+		// if terminal port is routed to east port 
+		if (m_terminalPort.m_outputPortRouted == PortType::EastPort)
+		{
+			if (m_eastPort.m_credit.at(m_terminalPort.m_outputVirtualChannelAllocated) > 0)
+			{
+				m_crossbar.setUpConnection(m_terminalPort, m_eastPort);
+			}
+		}
+	}
+}
+
+void Router::allocateNorthPortSwitch()
+{
+	// find vc in state A with the highest local priority
+	for (int i{}; i < VC_NUMBER; ++i)
+	{
+		if (m_northPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A)
+		{
+			// if north port is routed to terminal port 
+			if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
+			{
+				if (m_northPort.m_virtualChannels.at(i).m_switchPriorityLocal
+					< m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+				{
+					m_northPort.m_virtualChannelSwitched = i;
+				}
+			}
+
+			// if north port is routed to south port 
+			if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
+			{
+				if (m_southPort.m_credit.at(m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+				{
+					if (m_northPort.m_virtualChannels.at(i).m_switchPriorityLocal
+						< m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+					{
+						m_northPort.m_virtualChannelSwitched = i;
+					}
+				}
+			}
+
+			// if north port is routed to west port 
+			if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
+			{
+				if (m_westPort.m_credit.at(m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+				{
+					if (m_northPort.m_virtualChannels.at(i).m_switchPriorityLocal
+						< m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+					{
+						m_northPort.m_virtualChannelSwitched = i;
+					}
+				}
+			}
+
+			// if north port is routed to east port 
+			if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
+			{
+				if (m_eastPort.m_credit.at(m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+				{
+					if (m_northPort.m_virtualChannels.at(i).m_switchPriorityLocal
+						< m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+					{
+						m_northPort.m_virtualChannelSwitched = i;
+					}
+				}
+			}
+		}
+	}
+
+	// setup crossbar connection
+	for (int i{}; i < VC_NUMBER; ++i)
+	{
+		if (m_northPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A)
+		{
+			// if north port is routed to terminal port 
+			if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
+			{
+				m_crossbar.setUpConnection(m_northPort, m_terminalPort);
+				break;
+			}
+
+			// if north port is routed to south port 
+			if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
+			{
+				if (m_southPort.m_credit.at(m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+				{
+					m_crossbar.setUpConnection(m_northPort, m_southPort);
+					break;
+				}
+			}
+
+			// if north port is routed to west port 
+			if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
+			{
+				if (m_westPort.m_credit.at(m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+				{
+					m_crossbar.setUpConnection(m_northPort, m_westPort);
+					break;
+				}
+			}
+
+			// if north port is routed to east port 
+			if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
+			{
+				if (m_eastPort.m_credit.at(m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+				{
+					m_crossbar.setUpConnection(m_northPort, m_eastPort);
+					break;
+				}
+			}
+		}
+	}
+
+	// update switch priority local
+	for (int i{}; i < VC_NUMBER; ++i)
+	{
+		if (m_northPort.m_virtualChannels.at(i).m_switchPriorityLocal
+			> m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+		{
+			m_northPort.m_virtualChannels.at(i).m_switchPriorityLocal--;
+		}
+	}
+	m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_switchPriorityLocal = VC_NUMBER - 1;
+}
+
+void Router::allocateSouthPortSwitch()
+{
+	// find vc in state A with the highest local priority
+	for (int i{}; i < VC_NUMBER; ++i)
+	{
+		if (m_southPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A)
+		{
+			// if south port is routed to terminal port 
+			if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
+			{
+				if (m_southPort.m_virtualChannels.at(i).m_switchPriorityLocal
+					< m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+				{
+					m_southPort.m_virtualChannelSwitched = i;
+				}
+			}
+
+			// if south port is routed to north port 
+			if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
+			{
+				if (m_northPort.m_credit.at(m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+				{
+					if (m_southPort.m_virtualChannels.at(i).m_switchPriorityLocal
+						< m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+					{
+						m_southPort.m_virtualChannelSwitched = i;
+					}
+				}
+			}
+
+			// if south port is routed to west port 
+			if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
+			{
+				if (m_westPort.m_credit.at(m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+				{
+					if (m_southPort.m_virtualChannels.at(i).m_switchPriorityLocal
+						< m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+					{
+						m_southPort.m_virtualChannelSwitched = i;
+					}
+				}
+			}
+
+			// if south port is routed to east port 
+			if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
+			{
+				if (m_eastPort.m_credit.at(m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+				{
+					if (m_southPort.m_virtualChannels.at(i).m_switchPriorityLocal
+						< m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+					{
+						m_southPort.m_virtualChannelSwitched = i;
+					}
+				}
+			}
+		}
+	}
+
+	// setup crossbar connection
+	for (int i{}; i < VC_NUMBER; ++i)
+	{
+		if (m_southPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A)
+		{
+			// if south port is routed to terminal port 
+			if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
+			{
+				m_crossbar.setUpConnection(m_southPort, m_terminalPort);
+				break;
+			}
+
+			// if south port is routed to north port 
+			if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
+			{
+				if (m_northPort.m_credit.at(m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+				{
+					m_crossbar.setUpConnection(m_southPort, m_northPort);
+					break;
+				}
+			}
+
+			// if south port is routed to west port 
+			if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
+			{
+				if (m_westPort.m_credit.at(m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+				{
+					m_crossbar.setUpConnection(m_southPort, m_westPort);
+					break;
+				}
+			}
+
+			// if south port is routed to east port 
+			if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
+			{
+				if (m_eastPort.m_credit.at(m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+				{
+					m_crossbar.setUpConnection(m_southPort, m_eastPort);
+					break;
+				}
+			}
+		}
+	}
+
+	// update switch priority local
+	for (int i{}; i < VC_NUMBER; ++i)
+	{
+		if (m_southPort.m_virtualChannels.at(i).m_switchPriorityLocal
+			> m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+		{
+			m_southPort.m_virtualChannels.at(i).m_switchPriorityLocal--;
+		}
+	}
+	m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_switchPriorityLocal = VC_NUMBER - 1;
+}
+
+void Router::allocateWestPortSwitch()
+{
+	// find vc in state A with the highest local priority
+	for (int i{}; i < VC_NUMBER; ++i)
+	{
+		if (m_westPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A)
+		{
+			// if west port is routed to terminal port 
+			if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
+			{
+				if (m_westPort.m_virtualChannels.at(i).m_switchPriorityLocal
+					< m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+				{
+					m_westPort.m_virtualChannelSwitched = i;
+				}
+			}
+
+			// if west port is routed to north port 
+			if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
+			{
+				if (m_northPort.m_credit.at(m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+				{
+					if (m_westPort.m_virtualChannels.at(i).m_switchPriorityLocal
+						< m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+					{
+						m_westPort.m_virtualChannelSwitched = i;
+					}
+				}
+			}
+
+			// if west port is routed to south port 
+			if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
+			{
+				if (m_southPort.m_credit.at(m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+				{
+					if (m_westPort.m_virtualChannels.at(i).m_switchPriorityLocal
+						< m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+					{
+						m_westPort.m_virtualChannelSwitched = i;
+					}
+				}
+			}
+
+			// if west port is routed to east port 
+			if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
+			{
+				if (m_eastPort.m_credit.at(m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+				{
+					if (m_westPort.m_virtualChannels.at(i).m_switchPriorityLocal
+						< m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+					{
+						m_westPort.m_virtualChannelSwitched = i;
+					}
+				}
+			}
+		}
+	}
+
+	// setup crossbar connection
+	for (int i{}; i < VC_NUMBER; ++i)
+	{
+		if (m_westPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A)
+		{
+			// if west port is routed to terminal port 
+			if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
+			{
+				m_crossbar.setUpConnection(m_westPort, m_terminalPort);
+				break;
+			}
+
+			// if west port is routed to north port 
+			if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
+			{
+				if (m_northPort.m_credit.at(m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+				{
+					m_crossbar.setUpConnection(m_westPort, m_northPort);
+					break;
+				}
+			}
+
+			// if west port is routed to south port 
+			if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
+			{
+				if (m_southPort.m_credit.at(m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+				{
+					m_crossbar.setUpConnection(m_westPort, m_southPort);
+					break;
+				}
+			}
+
+			// if west port is routed to east port 
+			if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
+			{
+				if (m_eastPort.m_credit.at(m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+				{
+					m_crossbar.setUpConnection(m_westPort, m_eastPort);
+					break;
+				}
+			}
+		}
+	}
+
+	// update switch priority local
+	for (int i{}; i < VC_NUMBER; ++i)
+	{
+		if (m_westPort.m_virtualChannels.at(i).m_switchPriorityLocal
+	> m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+		{
+			m_westPort.m_virtualChannels.at(i).m_switchPriorityLocal--;
+		}
+	}
+	m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_switchPriorityLocal = VC_NUMBER - 1;
+}
+
+void Router::allocateEastPortSwitch()
+{
+	// find vc in state A with the highest local priority
+	for (int i{}; i < VC_NUMBER; ++i)
+	{
+		if (m_eastPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A)
+		{
+			// if east port is routed to terminal port 
+			if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
+			{
+				if (m_eastPort.m_virtualChannels.at(i).m_switchPriorityLocal
+					< m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+				{
+					m_eastPort.m_virtualChannelSwitched = i;
+				}
+			}
+
+			// if east port is routed to north port 
+			if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
+			{
+				if (m_northPort.m_credit.at(m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+				{
+					if (m_eastPort.m_virtualChannels.at(i).m_switchPriorityLocal
+						< m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+					{
+						m_eastPort.m_virtualChannelSwitched = i;
+					}
+				}
+			}
+
+			// if east port is routed to south port 
+			if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
+			{
+				if (m_southPort.m_credit.at(m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+				{
+					if (m_eastPort.m_virtualChannels.at(i).m_switchPriorityLocal
+						< m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+					{
+						m_eastPort.m_virtualChannelSwitched = i;
+					}
+				}
+			}
+
+			// if east port is routed to west port 
+			if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
+			{
+				if (m_westPort.m_credit.at(m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+				{
+					if (m_eastPort.m_virtualChannels.at(i).m_switchPriorityLocal
+						< m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+					{
+						m_eastPort.m_virtualChannelSwitched = i;
+					}
+				}
+			}
+		}
+	}
+
+	// setup crossbar connection
+	for (int i{}; i < VC_NUMBER; ++i)
+	{
+		if (m_eastPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A)
+		{
+			// if east port is routed to terminal port 
+			if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
+			{
+				m_crossbar.setUpConnection(m_eastPort, m_terminalPort);
+				break;
+			}
+
+			// if east port is routed to north port 
+			if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
+			{
+				if (m_northPort.m_credit.at(m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+				{
+					m_crossbar.setUpConnection(m_eastPort, m_northPort);
+					break;
+				}
+			}
+
+			// if east port is routed to south port 
+			if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
+			{
+				if (m_southPort.m_credit.at(m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+				{
+					m_crossbar.setUpConnection(m_eastPort, m_southPort);
+					break;
+				}
+			}
+
+			// if east port is routed to west port 
+			if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
+			{
+				if (m_westPort.m_credit.at(m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+				{
+					m_crossbar.setUpConnection(m_eastPort, m_westPort);
+					break;
+				}
+			}
+		}
+	}
+
+	// update switch priority local
+	for (int i{}; i < VC_NUMBER; ++i)
+	{
+		if (m_eastPort.m_virtualChannels.at(i).m_switchPriorityLocal
+	> m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+		{
+			m_eastPort.m_virtualChannels.at(i).m_switchPriorityLocal--;
+		}
+	}
+	m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_switchPriorityLocal = VC_NUMBER - 1;
+}
+
+void Router::switchArbitration()
+{
 
 }
 
 void Router::winSwitchArbitration(const PortType port)
 {
 	m_switchArbitrationRecorder.push_back(port);
+}
+
+void Router::updateSwitchPriority()
+{
+
 }

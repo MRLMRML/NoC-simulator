@@ -2,7 +2,7 @@
 #include "DataStructures.h"
 #include "TerminalPort.h"
 #include "RouterPort.h"
-#include "CreditMaintainer.h"
+#include "Crossbar.h"
 
 class Router
 {
@@ -39,7 +39,13 @@ public:
 	// SA
 	void initiateSwitchPriority();
 	void allocateSwitch();
+	void allocateTerminalPortSwitch();
+	void allocateNorthPortSwitch();
+	void allocateSouthPortSwitch();
+	void allocateWestPortSwitch();
+	void allocateEastPortSwitch();
 	void winSwitchArbitration(const PortType port);
+	void switchArbitration();
 	void updateSwitchPriority();
 
 	// ST
@@ -53,6 +59,7 @@ public:
 	RouterPort m_westPort{};
 	RouterPort m_eastPort{};
 	TerminalPort m_terminalPort{};
+	Crossbar m_crossbar{};
 
 	// RC
 	RouterID m_routerID{};

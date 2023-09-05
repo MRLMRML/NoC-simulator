@@ -129,7 +129,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CreditMaintainer.h" />
+    <ClInclude Include="Crossbar.h" />
     <ClInclude Include="DataStructures.h" />
     <ClInclude Include="Links.h" />
     <ClInclude Include="Log.h" />
@@ -143,7 +143,7 @@
     <ClInclude Include="VirtualChannelPriorityTable.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CreditMaintainer.cpp" />
+    <ClCompile Include="Crossbar.cpp" />
     <ClCompile Include="DataStructures.cpp" />
     <ClCompile Include="Links.cpp" />
     <ClCompile Include="Log.cpp" />
