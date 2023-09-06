@@ -6,6 +6,10 @@ class RouterPort : public Port
 {
 public:
 	RouterPort() = default;
+	RouterPort(const PortType portType) : Port{ portType } 
+	{
+		m_credit.fill(BUFFER_SIZE);
+	}
 
 	void receiveFlit();
 
@@ -13,7 +17,6 @@ public:
 	std::array<VirtualChannel, VC_NUMBER> m_virtualChannels{};
 	// SA
 	int m_virtualChannelSwitched{}; // default 0
-	int m_switchPriorityGlobal{};
 
 	// Output units
 	// VA
@@ -22,8 +25,7 @@ public:
 	std::array<int, VC_NUMBER> m_inputVirtualChannelAllocated{}; // default doesn't matter  
 	std::array<int, VC_NUMBER> m_inputVirtualChannelPriority{};
 	// SA
-	std::array<int, VC_NUMBER> m_credit{ BUFFER_SIZE }; // available downstream buffer number
-	PortType m_inputPortSwitched{}; // Unselected (default)
+	std::array<int, VC_NUMBER> m_credit{}; // available downstream buffer number
 
 private:
 };

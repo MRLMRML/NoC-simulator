@@ -5,6 +5,7 @@ class TerminalPort : public Port
 {
 public:
 	TerminalPort() = default;
+	TerminalPort(const PortType portType) : Port{ portType } {}
 
 public:
 
@@ -14,8 +15,6 @@ public:
 	int m_outputVirtualChannelAllocated{ -1 }; // -1 is default
 	// VA
 	int m_virtualChannelPriority{};
-	// SA
-	int m_switchPriorityGlobal{};
 
 	// Output units
 	// VA
@@ -23,7 +22,5 @@ public:
 	PortType m_inputPortRouted{};
 	int m_inputVirtualChannelAllocated{};
 	int m_inputVirtualChannelPriority{};
-	// SA
-	PortType m_inputPortSwitched{}; // Unselected (default)
 private:
 };

@@ -2121,7 +2121,7 @@ void Router::updateVirtualChannelPriority()
 		if (m_virtualChannelArbitrationRecorder.at(j).port == PortType::NorthPort
 			&& m_virtualChannelArbitrationRecorder.at(j).virtualChannel == 0)
 		{
-			m_terminalPort.m_virtualChannelPriority = (1 + VC_NUMBER * BUFFER_SIZE) - m_virtualChannelArbitrationRecorder.size() + j;
+			m_terminalPort.m_virtualChannelPriority = (1 + VC_NUMBER * 4) - m_virtualChannelArbitrationRecorder.size() + j;
 			counter++;
 			break;
 		}
@@ -2136,7 +2136,7 @@ void Router::updateVirtualChannelPriority()
 			if (m_virtualChannelArbitrationRecorder.at(j).port == PortType::NorthPort 
 				&& m_virtualChannelArbitrationRecorder.at(j).virtualChannel == i)
 			{
-				m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority = (1 + VC_NUMBER * BUFFER_SIZE) - m_virtualChannelArbitrationRecorder.size() + j;
+				m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority = (1 + VC_NUMBER * 4) - m_virtualChannelArbitrationRecorder.size() + j;
 				counter++;
 				break;
 			}
@@ -2152,7 +2152,7 @@ void Router::updateVirtualChannelPriority()
 			if (m_virtualChannelArbitrationRecorder.at(j).port == PortType::NorthPort
 				&& m_virtualChannelArbitrationRecorder.at(j).virtualChannel == i)
 			{
-				m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority = (1 + VC_NUMBER * BUFFER_SIZE) - m_virtualChannelArbitrationRecorder.size() + j;
+				m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority = (1 + VC_NUMBER * 4) - m_virtualChannelArbitrationRecorder.size() + j;
 				counter++;
 				break;
 			}
@@ -2168,7 +2168,7 @@ void Router::updateVirtualChannelPriority()
 			if (m_virtualChannelArbitrationRecorder.at(j).port == PortType::NorthPort
 				&& m_virtualChannelArbitrationRecorder.at(j).virtualChannel == i)
 			{
-				m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority = (1 + VC_NUMBER * BUFFER_SIZE) - m_virtualChannelArbitrationRecorder.size() + j;
+				m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority = (1 + VC_NUMBER * 4) - m_virtualChannelArbitrationRecorder.size() + j;
 				counter++;
 				break;
 			}
@@ -2184,7 +2184,7 @@ void Router::updateVirtualChannelPriority()
 			if (m_virtualChannelArbitrationRecorder.at(j).port == PortType::NorthPort
 				&& m_virtualChannelArbitrationRecorder.at(j).virtualChannel == i)
 			{
-				m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority = (1 + VC_NUMBER * BUFFER_SIZE) - m_virtualChannelArbitrationRecorder.size() + j;
+				m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority = (1 + VC_NUMBER * 4) - m_virtualChannelArbitrationRecorder.size() + j;
 				counter++;
 				break;
 			}
@@ -2238,7 +2238,7 @@ void Router::allocateSwitch()
 	// allocate east port
 	allocateEastPortSwitch();
 
-	// arbitrate all connections, terminate losers' connection, put winner's flit into crossbarInputBuffer
+	// arbitrate output port, terminate losers' connection
 	switchArbitration();
 
 	// update switch priority global
@@ -2746,7 +2746,40 @@ void Router::allocateEastPortSwitch()
 
 void Router::switchArbitration()
 {
+	// make output ports in switch connections a set
+	std::set<Port*> outputPorts{};
+	for (auto& connection : m_crossbar.m_connections)
+	{
+		outputPorts.insert(connection.second);
+	}
 
+	// arbitrate output port
+	for (auto& outputPort : outputPorts)
+	{
+		for (auto& connection : m_crossbar.m_connections)
+		{
+			int priority{ 5 };
+			if (connection.second == outputPort)
+			{
+				if (connection.first->m_switchPriorityGlobal < priority)
+				{
+					if (priority != 5)
+						winSwitchArbitration(connection.second->m_portType);
+					priority = connection.first->m_switchPriorityGlobal;
+					outputPort->m_inputPortSwitched = connection.first->m_portType;
+				}
+			}
+		}
+	}
+
+	// terminate losers connection
+	// auto = const std::pair<Port*, Port*>
+	// const?!
+	for (auto& connection : m_crossbar.m_connections)
+	{
+		if (connection.first->m_portType != connection.second->m_inputPortSwitched)
+			m_crossbar.terminateConnection(connection);
+	}
 }
 
 void Router::winSwitchArbitration(const PortType port)
@@ -2755,6 +2788,71 @@ void Router::winSwitchArbitration(const PortType port)
 }
 
 void Router::updateSwitchPriority()
+{
+	int counter{ 0 };
+	// update terminal port 
+	m_terminalPort.m_switchPriorityGlobal -= counter;
+	for (int i{}; i < m_switchArbitrationRecorder.size(); ++i)
+	{
+		if (m_switchArbitrationRecorder.at(i) == m_terminalPort.m_portType)
+		{
+			m_terminalPort.m_switchPriorityGlobal == 5 - m_switchArbitrationRecorder.size() + i;
+			counter++;
+			break;
+		}
+	}
+
+	// update north port 
+	m_northPort.m_switchPriorityGlobal -= counter;
+	for (int i{}; i < m_switchArbitrationRecorder.size(); ++i)
+	{
+		if (m_switchArbitrationRecorder.at(i) == m_northPort.m_portType)
+		{
+			m_northPort.m_switchPriorityGlobal == 5 - m_switchArbitrationRecorder.size() + i;
+			counter++;
+			break;
+		}
+	}
+
+	// update south port 
+	m_southPort.m_switchPriorityGlobal -= counter;
+	for (int i{}; i < m_switchArbitrationRecorder.size(); ++i)
+	{
+		if (m_switchArbitrationRecorder.at(i) == m_southPort.m_portType)
+		{
+			m_southPort.m_switchPriorityGlobal == 5 - m_switchArbitrationRecorder.size() + i;
+			counter++;
+			break;
+		}
+	}
+
+	// update west port 
+	m_westPort.m_switchPriorityGlobal -= counter;
+	for (int i{}; i < m_switchArbitrationRecorder.size(); ++i)
+	{
+		if (m_switchArbitrationRecorder.at(i) == m_westPort.m_portType)
+		{
+			m_westPort.m_switchPriorityGlobal == 5 - m_switchArbitrationRecorder.size() + i;
+			counter++;
+			break;
+		}
+	}
+
+	// update east port 
+	m_eastPort.m_switchPriorityGlobal -= counter;
+	for (int i{}; i < m_switchArbitrationRecorder.size(); ++i)
+	{
+		if (m_switchArbitrationRecorder.at(i) == m_eastPort.m_portType)
+		{
+			m_eastPort.m_switchPriorityGlobal == 5 - m_switchArbitrationRecorder.size() + i;
+			counter++;
+			break;
+		}
+	}
+	m_switchArbitrationRecorder.clear();
+}
+
+void Router::traverseSwitch()
 {
 
 }

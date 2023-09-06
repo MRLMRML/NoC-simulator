@@ -11,7 +11,6 @@ public:
 	{
 		initiateVirtualChannelPriority();
 		initiateSwitchPriority();
-
 	}
 
 	void runOneStep();
@@ -54,11 +53,11 @@ public:
 	//void compensateCycle();
 
 public:
-	RouterPort m_northPort{};
-	RouterPort m_southPort{};
-	RouterPort m_westPort{};
-	RouterPort m_eastPort{};
-	TerminalPort m_terminalPort{};
+	RouterPort m_northPort{ PortType::NorthPort };
+	RouterPort m_southPort{ PortType::SouthPort };
+	RouterPort m_westPort{ PortType::WestPort };
+	RouterPort m_eastPort{ PortType::EastPort };
+	TerminalPort m_terminalPort{ PortType::TerminalPort };
 	Crossbar m_crossbar{};
 
 	// RC
@@ -74,7 +73,6 @@ public:
 
 	// ST
 	
-	//CreditMaintainer m_creditMaintainer{}; // ???
 
 private:
 };

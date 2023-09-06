@@ -13,10 +13,12 @@ public:
 
 	void terminateConnection(Port& inputPort, Port& outputPort);
 
+	void terminateConnection(const std::pair<Port*, Port*>& connection);
+
 	void terminateAllConnections();
 
 	void runOneStep();
 
-private:
 	std::set<std::pair<Port*, Port*>> m_connections{};
+private:
 };

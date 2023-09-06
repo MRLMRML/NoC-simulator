@@ -12,6 +12,12 @@ void Crossbar::terminateConnection(Port& inputPort, Port& outputPort)
 	log(" Crossbar: connection terminated ");
 }
 
+void Crossbar::terminateConnection(const std::pair<Port*, Port*>& connection)
+{
+	m_connections.erase(connection);
+	log(" Crossbar: connection terminated ");
+}
+
 void Crossbar::terminateAllConnections()
 {
 	m_connections.clear();
