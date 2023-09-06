@@ -23,8 +23,9 @@ public:
 	PortType m_portType{};
 
 	// SA
+	int m_virtualChannelSwitched{}; // default 0
 	int m_switchPriorityGlobal{};
-	PortType m_inputPortSwitched{}; // Unselected (default)
+	PortType m_outputPortSwitched{}; // Unselected (default)
 
 private:
 };

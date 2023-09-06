@@ -15,8 +15,6 @@ public:
 
 	// Input units
 	std::array<VirtualChannel, VC_NUMBER> m_virtualChannels{};
-	// SA
-	int m_virtualChannelSwitched{}; // default 0
 
 	// Output units
 	// VA

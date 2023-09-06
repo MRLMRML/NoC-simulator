@@ -2764,9 +2764,9 @@ void Router::switchArbitration()
 				if (connection.first->m_switchPriorityGlobal < priority)
 				{
 					if (priority != 5)
-						winSwitchArbitration(connection.second->m_portType);
+						winSwitchArbitration(connection.first->m_portType);
 					priority = connection.first->m_switchPriorityGlobal;
-					outputPort->m_inputPortSwitched = connection.first->m_portType;
+					connection.first->m_outputPortSwitched = connection.second->m_portType;
 				}
 			}
 		}
@@ -2777,7 +2777,7 @@ void Router::switchArbitration()
 	// const?!
 	for (auto& connection : m_crossbar.m_connections)
 	{
-		if (connection.first->m_portType != connection.second->m_inputPortSwitched)
+		if (connection.first->m_outputPortSwitched != connection.second->m_portType)
 			m_crossbar.terminateConnection(connection);
 	}
 }
@@ -2854,5 +2854,5 @@ void Router::updateSwitchPriority()
 
 void Router::traverseSwitch()
 {
-
+	
 }
