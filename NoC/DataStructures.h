@@ -50,6 +50,13 @@ struct VirtualChannelArbitrationRecorderLine
 	int virtualChannel{};
 };
 
+struct SwitchArbitrationRecorderLine
+{
+	PortType port{};
+	PortType outputPortSwitched{};
+	int switchPriorityGlobal{};
+};
+
 enum class VirtualChannelState
 {
 	I, // Idle, virtual channel is empty; also used in downstream

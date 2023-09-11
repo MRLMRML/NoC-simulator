@@ -2194,13 +2194,8 @@ void Router::winVirtualChannelArbitration(const PortType port, const int virtual
 
 void Router::loseVirtualChannelArbitration(const PortType port, const int virtualChannel)
 {
-	for (auto& element : m_virtualChannelArbitrationRecorder)
-	{
-		if (element.port == port && element.virtualChannel == virtualChannel)
-		{
-			m_virtualChannelArbitrationRecorder.erase(std::remove(m_virtualChannelArbitrationRecorder.begin(), m_virtualChannelArbitrationRecorder.end(), element), m_virtualChannelArbitrationRecorder.end());
-		}
-	}
+	VirtualChannelArbitrationRecorderLine record {port, virtualChannel};
+	m_virtualChannelArbitrationRecorder.erase(std::remove(m_virtualChannelArbitrationRecorder.begin(), m_virtualChannelArbitrationRecorder.end(), record), m_virtualChannelArbitrationRecorder.end());
 }
 
 void Router::activateVirtualChannel()
@@ -2390,7 +2385,7 @@ void Router::allocateSwitch()
 
 void Router::allocateTerminalPortSwitch()
 {
-	// setup crossbar connection
+	// allocate switch
 	if (m_terminalPort.m_virtualChannelState == VirtualChannelState::A)
 	{
 		// if terminal port is routed to north port 
@@ -2398,7 +2393,7 @@ void Router::allocateTerminalPortSwitch()
 		{
 			if (m_northPort.m_credit.at(m_terminalPort.m_outputVirtualChannelAllocated) > 0)
 			{
-				m_crossbar.setUpConnection(m_terminalPort, m_northPort);
+				m_terminalPort.m_outputPortSwitched = PortType::NorthPort;
 			}
 		}
 
@@ -2407,7 +2402,7 @@ void Router::allocateTerminalPortSwitch()
 		{
 			if (m_southPort.m_credit.at(m_terminalPort.m_outputVirtualChannelAllocated) > 0)
 			{
-				m_crossbar.setUpConnection(m_terminalPort, m_southPort);
+				m_terminalPort.m_outputPortSwitched = PortType::SouthPort;
 			}
 		}
 
@@ -2416,7 +2411,7 @@ void Router::allocateTerminalPortSwitch()
 		{
 			if (m_westPort.m_credit.at(m_terminalPort.m_outputVirtualChannelAllocated) > 0)
 			{
-				m_crossbar.setUpConnection(m_terminalPort, m_westPort);
+				m_terminalPort.m_outputPortSwitched = PortType::WestPort;
 			}
 		}
 
@@ -2425,7 +2420,7 @@ void Router::allocateTerminalPortSwitch()
 		{
 			if (m_eastPort.m_credit.at(m_terminalPort.m_outputVirtualChannelAllocated) > 0)
 			{
-				m_crossbar.setUpConnection(m_terminalPort, m_eastPort);
+				m_terminalPort.m_outputPortSwitched = PortType::EastPort;
 			}
 		}
 	}
@@ -2489,7 +2484,7 @@ void Router::allocateNorthPortSwitch()
 		}
 	}
 
-	// setup crossbar connection
+	// allocate switch
 	for (int i{}; i < VC_NUMBER; ++i)
 	{
 		if (m_northPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A)
@@ -2497,7 +2492,7 @@ void Router::allocateNorthPortSwitch()
 			// if north port is routed to terminal port 
 			if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
 			{
-				m_crossbar.setUpConnection(m_northPort, m_terminalPort);
+				m_northPort.m_outputPortSwitched = PortType::TerminalPort;
 				break;
 			}
 
@@ -2506,7 +2501,7 @@ void Router::allocateNorthPortSwitch()
 			{
 				if (m_southPort.m_credit.at(m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
 				{
-					m_crossbar.setUpConnection(m_northPort, m_southPort);
+					m_northPort.m_outputPortSwitched = PortType::SouthPort;
 					break;
 				}
 			}
@@ -2516,7 +2511,7 @@ void Router::allocateNorthPortSwitch()
 			{
 				if (m_westPort.m_credit.at(m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
 				{
-					m_crossbar.setUpConnection(m_northPort, m_westPort);
+					m_northPort.m_outputPortSwitched = PortType::WestPort;
 					break;
 				}
 			}
@@ -2526,7 +2521,7 @@ void Router::allocateNorthPortSwitch()
 			{
 				if (m_eastPort.m_credit.at(m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
 				{
-					m_crossbar.setUpConnection(m_northPort, m_eastPort);
+					m_northPort.m_outputPortSwitched = PortType::EastPort;
 					break;
 				}
 			}
@@ -2603,7 +2598,7 @@ void Router::allocateSouthPortSwitch()
 		}
 	}
 
-	// setup crossbar connection
+	// allocate switch
 	for (int i{}; i < VC_NUMBER; ++i)
 	{
 		if (m_southPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A)
@@ -2611,7 +2606,7 @@ void Router::allocateSouthPortSwitch()
 			// if south port is routed to terminal port 
 			if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
 			{
-				m_crossbar.setUpConnection(m_southPort, m_terminalPort);
+				m_southPort.m_outputPortSwitched = PortType::TerminalPort;
 				break;
 			}
 
@@ -2620,7 +2615,7 @@ void Router::allocateSouthPortSwitch()
 			{
 				if (m_northPort.m_credit.at(m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
 				{
-					m_crossbar.setUpConnection(m_southPort, m_northPort);
+					m_southPort.m_outputPortSwitched = PortType::NorthPort;
 					break;
 				}
 			}
@@ -2630,7 +2625,7 @@ void Router::allocateSouthPortSwitch()
 			{
 				if (m_westPort.m_credit.at(m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
 				{
-					m_crossbar.setUpConnection(m_southPort, m_westPort);
+					m_southPort.m_outputPortSwitched = PortType::WestPort;
 					break;
 				}
 			}
@@ -2640,7 +2635,7 @@ void Router::allocateSouthPortSwitch()
 			{
 				if (m_eastPort.m_credit.at(m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
 				{
-					m_crossbar.setUpConnection(m_southPort, m_eastPort);
+					m_southPort.m_outputPortSwitched = PortType::EastPort;
 					break;
 				}
 			}
@@ -2717,7 +2712,7 @@ void Router::allocateWestPortSwitch()
 		}
 	}
 
-	// setup crossbar connection
+	// allocate switch
 	for (int i{}; i < VC_NUMBER; ++i)
 	{
 		if (m_westPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A)
@@ -2725,7 +2720,7 @@ void Router::allocateWestPortSwitch()
 			// if west port is routed to terminal port 
 			if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
 			{
-				m_crossbar.setUpConnection(m_westPort, m_terminalPort);
+				m_westPort.m_outputPortSwitched = PortType::TerminalPort;
 				break;
 			}
 
@@ -2734,7 +2729,7 @@ void Router::allocateWestPortSwitch()
 			{
 				if (m_northPort.m_credit.at(m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
 				{
-					m_crossbar.setUpConnection(m_westPort, m_northPort);
+					m_westPort.m_outputPortSwitched = PortType::NorthPort;
 					break;
 				}
 			}
@@ -2744,7 +2739,7 @@ void Router::allocateWestPortSwitch()
 			{
 				if (m_southPort.m_credit.at(m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
 				{
-					m_crossbar.setUpConnection(m_westPort, m_southPort);
+					m_westPort.m_outputPortSwitched = PortType::SouthPort;
 					break;
 				}
 			}
@@ -2754,7 +2749,7 @@ void Router::allocateWestPortSwitch()
 			{
 				if (m_eastPort.m_credit.at(m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
 				{
-					m_crossbar.setUpConnection(m_westPort, m_eastPort);
+					m_westPort.m_outputPortSwitched = PortType::EastPort;
 					break;
 				}
 			}
@@ -2831,7 +2826,7 @@ void Router::allocateEastPortSwitch()
 		}
 	}
 
-	// setup crossbar connection
+	// allocate switch
 	for (int i{}; i < VC_NUMBER; ++i)
 	{
 		if (m_eastPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A)
@@ -2839,7 +2834,7 @@ void Router::allocateEastPortSwitch()
 			// if east port is routed to terminal port 
 			if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
 			{
-				m_crossbar.setUpConnection(m_eastPort, m_terminalPort);
+				m_eastPort.m_outputPortSwitched = PortType::TerminalPort;
 				break;
 			}
 
@@ -2848,7 +2843,7 @@ void Router::allocateEastPortSwitch()
 			{
 				if (m_northPort.m_credit.at(m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
 				{
-					m_crossbar.setUpConnection(m_eastPort, m_northPort);
+					m_eastPort.m_outputPortSwitched = PortType::NorthPort;
 					break;
 				}
 			}
@@ -2858,7 +2853,7 @@ void Router::allocateEastPortSwitch()
 			{
 				if (m_southPort.m_credit.at(m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
 				{
-					m_crossbar.setUpConnection(m_eastPort, m_southPort);
+					m_eastPort.m_outputPortSwitched = PortType::SouthPort;
 					break;
 				}
 			}
@@ -2868,7 +2863,7 @@ void Router::allocateEastPortSwitch()
 			{
 				if (m_westPort.m_credit.at(m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
 				{
-					m_crossbar.setUpConnection(m_eastPort, m_westPort);
+					m_eastPort.m_outputPortSwitched = PortType::WestPort;
 					break;
 				}
 			}
@@ -2889,45 +2884,121 @@ void Router::allocateEastPortSwitch()
 
 void Router::switchArbitration()
 {
-	// make output ports in switch connections a set
-	std::set<Port*> outputPorts{};
-	for (auto& connection : m_crossbar.m_connections)
+	// arbitrate terminal port
+	if (m_terminalPort.m_outputPortSwitched != PortType::Unselected)
 	{
-		outputPorts.insert(connection.second);
-	}
-
-	// arbitrate output port
-	for (auto& outputPort : outputPorts)
-	{
-		for (auto& connection : m_crossbar.m_connections)
+		for (auto& record : m_switchArbitrationRecorder)
 		{
-			int priority{ 5 };
-			if (connection.second == outputPort)
+			if (record.port == PortType::TerminalPort
+				&& record.outputPortSwitched == m_terminalPort.m_outputPortSwitched)
 			{
-				if (connection.first->m_switchPriorityGlobal < priority)
+				if (record.switchPriorityGlobal > m_terminalPort.m_switchPriorityGlobal)
 				{
-					if (priority != 5)
-						winSwitchArbitration(connection.first->m_portType);
-					priority = connection.first->m_switchPriorityGlobal;
-					connection.first->m_outputPortSwitched = connection.second->m_portType;
+					winSwitchArbitration(PortType::TerminalPort, m_terminalPort.m_outputPortSwitched, m_terminalPort.m_switchPriorityGlobal);
+					loseSwitchArbitration(record.port, record.outputPortSwitched, record.switchPriorityGlobal);
 				}
+			}
+			else
+			{
+				winSwitchArbitration(PortType::TerminalPort, m_terminalPort.m_outputPortSwitched, m_terminalPort.m_switchPriorityGlobal);
 			}
 		}
 	}
-
-	// terminate losers connection
-	// auto = const std::pair<Port*, Port*>
-	// const?!
-	for (auto& connection : m_crossbar.m_connections)
+	
+	// arbitrate north port
+	if (m_northPort.m_outputPortSwitched != PortType::Unselected)
 	{
-		if (connection.first->m_outputPortSwitched != connection.second->m_portType)
-			m_crossbar.terminateConnection(connection);
+		for (auto& record : m_switchArbitrationRecorder)
+		{
+			if (record.port == PortType::NorthPort
+				&& record.outputPortSwitched == m_northPort.m_outputPortSwitched)
+			{
+				if (record.switchPriorityGlobal > m_northPort.m_switchPriorityGlobal)
+				{
+					winSwitchArbitration(PortType::TerminalPort, m_northPort.m_outputPortSwitched, m_northPort.m_switchPriorityGlobal);
+					loseSwitchArbitration(record.port, record.outputPortSwitched, record.switchPriorityGlobal);
+				}
+			}
+			else
+			{
+				winSwitchArbitration(PortType::TerminalPort, m_northPort.m_outputPortSwitched, m_northPort.m_switchPriorityGlobal);
+			}
+		}
+	}
+	
+	// arbitrate south port
+	if (m_southPort.m_outputPortSwitched != PortType::Unselected)
+	{
+		for (auto& record : m_switchArbitrationRecorder)
+		{
+			if (record.port == PortType::SouthPort
+				&& record.outputPortSwitched == m_southPort.m_outputPortSwitched)
+			{
+				if (record.switchPriorityGlobal > m_southPort.m_switchPriorityGlobal)
+				{
+					winSwitchArbitration(PortType::TerminalPort, m_southPort.m_outputPortSwitched, m_southPort.m_switchPriorityGlobal);
+					loseSwitchArbitration(record.port, record.outputPortSwitched, record.switchPriorityGlobal);
+				}
+			}
+			else
+			{
+				winSwitchArbitration(PortType::TerminalPort, m_southPort.m_outputPortSwitched, m_southPort.m_switchPriorityGlobal);
+			}
+		}
+	}
+	
+	// arbitrate west port
+	if (m_westPort.m_outputPortSwitched != PortType::Unselected)
+	{
+		for (auto& record : m_switchArbitrationRecorder)
+		{
+			if (record.port == PortType::WestPort
+				&& record.outputPortSwitched == m_westPort.m_outputPortSwitched)
+			{
+				if (record.switchPriorityGlobal > m_westPort.m_switchPriorityGlobal)
+				{
+					winSwitchArbitration(PortType::TerminalPort, m_westPort.m_outputPortSwitched, m_westPort.m_switchPriorityGlobal);
+					loseSwitchArbitration(record.port, record.outputPortSwitched, record.switchPriorityGlobal);
+				}
+			}
+			else
+			{
+				winSwitchArbitration(PortType::TerminalPort, m_westPort.m_outputPortSwitched, m_westPort.m_switchPriorityGlobal);
+			}
+		}
+	}
+	
+	// arbitrate east port
+	if (m_eastPort.m_outputPortSwitched != PortType::Unselected)
+	{
+		for (auto& record : m_switchArbitrationRecorder)
+		{
+			if (record.port == PortType::EastPort
+				&& record.outputPortSwitched == m_eastPort.m_outputPortSwitched)
+			{
+				if (record.switchPriorityGlobal > m_eastPort.m_switchPriorityGlobal)
+				{
+					winSwitchArbitration(PortType::TerminalPort, m_eastPort.m_outputPortSwitched, m_eastPort.m_switchPriorityGlobal);
+					loseSwitchArbitration(record.port, record.outputPortSwitched, record.switchPriorityGlobal);
+				}
+			}
+			else
+			{
+				winSwitchArbitration(PortType::TerminalPort, m_eastPort.m_outputPortSwitched, m_eastPort.m_switchPriorityGlobal);
+			}
+		}
 	}
 }
 
-void Router::winSwitchArbitration(const PortType port)
+void Router::winSwitchArbitration(const PortType port, const PortType outputPortSwitched, const int switchPriorityGlobal)
 {
-	m_switchArbitrationRecorder.push_back(port);
+	m_switchArbitrationRecorder.push_back({port, outputPortSwitched, switchPriorityGlobal});
+}
+
+void Router::loseSwitchArbitration(const PortType port, const PortType outputPortSwitched, const int switchPriorityGlobal)
+{
+	SwitchArbitrationRecorderLine record{ port, outputPortSwitched, switchPriorityGlobal };
+	m_switchArbitrationRecorder.erase(std::remove(m_switchArbitrationRecorder.begin(), m_switchArbitrationRecorder.end(), record), m_switchArbitrationRecorder.end());
 }
 
 void Router::updateSwitchPriority()
@@ -2937,7 +3008,7 @@ void Router::updateSwitchPriority()
 	m_terminalPort.m_switchPriorityGlobal -= counter;
 	for (int i{}; i < m_switchArbitrationRecorder.size(); ++i)
 	{
-		if (m_switchArbitrationRecorder.at(i) == m_terminalPort.m_portType)
+		if (m_switchArbitrationRecorder.at(i).port == m_terminalPort.m_portType)
 		{
 			m_terminalPort.m_switchPriorityGlobal == 5 - m_switchArbitrationRecorder.size() + i;
 			counter++;
@@ -2949,7 +3020,7 @@ void Router::updateSwitchPriority()
 	m_northPort.m_switchPriorityGlobal -= counter;
 	for (int i{}; i < m_switchArbitrationRecorder.size(); ++i)
 	{
-		if (m_switchArbitrationRecorder.at(i) == m_northPort.m_portType)
+		if (m_switchArbitrationRecorder.at(i).port == m_northPort.m_portType)
 		{
 			m_northPort.m_switchPriorityGlobal == 5 - m_switchArbitrationRecorder.size() + i;
 			counter++;
@@ -2961,7 +3032,7 @@ void Router::updateSwitchPriority()
 	m_southPort.m_switchPriorityGlobal -= counter;
 	for (int i{}; i < m_switchArbitrationRecorder.size(); ++i)
 	{
-		if (m_switchArbitrationRecorder.at(i) == m_southPort.m_portType)
+		if (m_switchArbitrationRecorder.at(i).port == m_southPort.m_portType)
 		{
 			m_southPort.m_switchPriorityGlobal == 5 - m_switchArbitrationRecorder.size() + i;
 			counter++;
@@ -2973,7 +3044,7 @@ void Router::updateSwitchPriority()
 	m_westPort.m_switchPriorityGlobal -= counter;
 	for (int i{}; i < m_switchArbitrationRecorder.size(); ++i)
 	{
-		if (m_switchArbitrationRecorder.at(i) == m_westPort.m_portType)
+		if (m_switchArbitrationRecorder.at(i).port == m_westPort.m_portType)
 		{
 			m_westPort.m_switchPriorityGlobal == 5 - m_switchArbitrationRecorder.size() + i;
 			counter++;
@@ -2985,7 +3056,7 @@ void Router::updateSwitchPriority()
 	m_eastPort.m_switchPriorityGlobal -= counter;
 	for (int i{}; i < m_switchArbitrationRecorder.size(); ++i)
 	{
-		if (m_switchArbitrationRecorder.at(i) == m_eastPort.m_portType)
+		if (m_switchArbitrationRecorder.at(i).port == m_eastPort.m_portType)
 		{
 			m_eastPort.m_switchPriorityGlobal == 5 - m_switchArbitrationRecorder.size() + i;
 			counter++;

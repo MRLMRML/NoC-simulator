@@ -44,7 +44,8 @@ public:
 	void allocateSouthPortSwitch();
 	void allocateWestPortSwitch();
 	void allocateEastPortSwitch();
-	void winSwitchArbitration(const PortType port);
+	void winSwitchArbitration(const PortType port, const PortType outputPortSwitched, const int switchPriorityGlobal);
+	void loseSwitchArbitration(const PortType port, const PortType outputPortSwitched, const int switchPriorityGlobal);
 	void switchArbitration();
 	void updateSwitchPriority();
 
@@ -70,7 +71,7 @@ public:
 	std::vector<VirtualChannelArbitrationRecorderLine> m_virtualChannelArbitrationRecorder{}; // record the winner of virtual channel arbitration; used in updateVirtualChannelPriority();
 	
 	// SA
-	std::vector<PortType> m_switchArbitrationRecorder{}; // record the winner of switch arbitration; used in updateSwitchPriority();
+	std::vector<SwitchArbitrationRecorderLine> m_switchArbitrationRecorder{}; // record the winner of switch arbitration; used in updateSwitchPriority();
 
 	// ST
 	
