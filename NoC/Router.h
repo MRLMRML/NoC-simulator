@@ -35,6 +35,8 @@ public:
 	void loseVirtualChannelArbitration(const PortType port, const int virtualChannel);
 	void activateVirtualChannel();
 	void updateVirtualChannelPriority();
+	void resetRCVAInputFields(const PortType port, const int virtualChannel);
+	void resetRCVAOutputFields(const PortType port, const int virtualChannel); // when credits are full: A -> I
 
 	// SA
 	void initiateSwitchPriority();
@@ -48,6 +50,8 @@ public:
 	void loseSwitchArbitration(const PortType port, const PortType outputPortSwitched, const int switchPriorityGlobal);
 	void switchArbitration();
 	void updateSwitchPriority();
+	void getOneFlitOut();
+	void resetSAFields(const PortType port);
 
 	// ST
 	void traverseSwitch();
