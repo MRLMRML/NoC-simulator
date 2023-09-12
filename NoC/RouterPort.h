@@ -12,6 +12,7 @@ public:
 	}
 
 	void receiveFlit();
+	void receiveCredit();
 
 	// Input units
 	std::array<VirtualChannel, VC_NUMBER> m_virtualChannels{};

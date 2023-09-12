@@ -9,3 +9,12 @@ void RouterPort::receiveFlit()
 		m_inFlitBuffer.pop_front();
 	}
 }
+
+void RouterPort::receiveCredit()
+{
+	if (!m_inCreditBuffer.empty())
+	{
+		m_credit.at(m_inCreditBuffer.front().virtualChannel)++;
+		m_inCreditBuffer.pop_front();
+	}
+}

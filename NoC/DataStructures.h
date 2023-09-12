@@ -200,7 +200,7 @@ std::ostream& operator<<(std::ostream& stream, const Flit& flit);
 
 struct Credit
 {
-	bool credit{};
+	int virtualChannel{};
 };
 
 enum class PEType

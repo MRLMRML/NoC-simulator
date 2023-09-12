@@ -33,40 +33,40 @@ void Links::runOneStep()
 	// transfer one element in Port pair
 	for (auto& connection : m_connections)
 	{
-		if (!connection.first->outFlitBuffer.empty())
+		if (!connection.first->m_outFlitBuffer.empty())
 		{
-			connection.second->inFlitBuffer.push_back(connection.first->outFlitBuffer.front());
+			connection.second->m_inFlitBuffer.push_back(connection.first->m_outFlitBuffer.front());
 			log(" Links: flit transferred (LHS -> RHS)");
 		}
 
-		if (!connection.second->outCreditBuffer.empty())
+		if (!connection.second->m_outCreditBuffer.empty())
 		{
-			connection.first->inCreditBuffer.push_back(connection.second->outCreditBuffer.front());
+			connection.first->m_inCreditBuffer.push_back(connection.second->m_outCreditBuffer.front());
 			log(" Links: credit transferred (LHS <- RHS)");
 		}
 
-		if (!connection.second->outFlitBuffer.empty())
+		if (!connection.second->m_outFlitBuffer.empty())
 		{
-			connection.first->inFlitBuffer.push_back(connection.second->outFlitBuffer.front());
+			connection.first->m_inFlitBuffer.push_back(connection.second->m_outFlitBuffer.front());
 			log(" Links: flit transferred (LHS <- RHS)");
 		}
 
-		if (!connection.first->outCreditBuffer.empty())
+		if (!connection.first->m_outCreditBuffer.empty())
 		{
-			connection.second->inCreditBuffer.push_back(connection.first->outCreditBuffer.front());
+			connection.second->m_inCreditBuffer.push_back(connection.first->m_outCreditBuffer.front());
 			log(" Links: credit transferred (LHS <- RHS)");
 		}
 	}
 
 	for (auto& connection : m_connections)
 	{
-		if (!connection.first->outFlitBuffer.empty())
-			connection.first->outFlitBuffer.pop_front();
-		if (!connection.second->outCreditBuffer.empty())
-			connection.second->outCreditBuffer.pop_front();
-		if (!connection.second->outFlitBuffer.empty())
-			connection.second->outFlitBuffer.pop_front();
-		if (!connection.first->outCreditBuffer.empty())
-			connection.first->outCreditBuffer.pop_front();
+		if (!connection.first->m_outFlitBuffer.empty())
+			connection.first->m_outFlitBuffer.pop_front();
+		if (!connection.second->m_outCreditBuffer.empty())
+			connection.second->m_outCreditBuffer.pop_front();
+		if (!connection.second->m_outFlitBuffer.empty())
+			connection.second->m_outFlitBuffer.pop_front();
+		if (!connection.first->m_outCreditBuffer.empty())
+			connection.first->m_outCreditBuffer.pop_front();
 	}
 }
