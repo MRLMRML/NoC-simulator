@@ -56,8 +56,6 @@ public:
 	void resetRCVAInputFields(const PortType port, const int virtualChannel);
 	void resetRCVAOutputFields(const PortType port, const int virtualChannel); // when credits are full: A -> I
 
-	//void compensateCycle();
-
 public:
 	RouterPort m_northPort{ PortType::NorthPort };
 	RouterPort m_southPort{ PortType::SouthPort };
@@ -78,7 +76,6 @@ public:
 	std::vector<SwitchArbitrationRecorderLine> m_switchArbitrationRecorder{}; // record the winner of switch arbitration; used in updateSwitchPriority();
 
 	// ST
-	
 
 private:
 };
