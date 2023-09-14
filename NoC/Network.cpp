@@ -47,12 +47,12 @@ void Network::printRouterIDs()
 	}
 }
 
-void Network::mountNode(const RouterID& routerID, const Node* node)
-{
-	m_links.setUpConnection(m_routers[static_cast<std::array<Router, 16Ui64>::size_type>(routerID.y) * NETWORK_DIMENSION_X + routerID.x].m_terminalPort, node->m_NI->m_port);
-	m_routers[static_cast<std::array<Router, 16Ui64>::size_type>(routerID.y) * NETWORK_DIMENSION_X + routerID.x].m_NID = node->m_NI->m_NID;
-	m_mappingTable.push_back({ routerID, node->m_NI->m_NID });
-}
+//void Network::mountNode(const RouterID& routerID, const Node* node)
+//{
+//	m_links.setUpConnection(m_routers[static_cast<std::array<Router, 16Ui64>::size_type>(routerID.y) * NETWORK_DIMENSION_X + routerID.x].m_terminalPort, node->m_NI->m_port);
+//	m_routers[static_cast<std::array<Router, 16Ui64>::size_type>(routerID.y) * NETWORK_DIMENSION_X + routerID.x].m_NID = node->m_NI->m_NID;
+//	m_mappingTable.push_back({ routerID, node->m_NI->m_NID });
+//}
 
 void Network::printNodeIDs()
 {

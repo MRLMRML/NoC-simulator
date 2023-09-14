@@ -139,6 +139,7 @@
     <ClInclude Include="Port.h" />
     <ClInclude Include="RouterPort.h" />
     <ClInclude Include="TerminalPort.h" />
+    <ClInclude Include="TrafficGenerator.h" />
     <ClInclude Include="VirtualChannel.h" />
     <ClInclude Include="VirtualChannelPriorityTable.h" />
   </ItemGroup>
@@ -153,6 +154,7 @@
     <ClCompile Include="Router.cpp" />
     <ClCompile Include="RouterPort.cpp" />
     <ClCompile Include="TerminalPort.cpp" />
+    <ClCompile Include="TrafficGenerator.cpp" />
     <ClCompile Include="VirtualChannel.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
