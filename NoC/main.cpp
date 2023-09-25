@@ -2,5 +2,6 @@
 
 int main()
 {
-	
+	Router router{};
+	std::cout << sizeof(router) << std::endl;
 }
