@@ -95,16 +95,16 @@ bool Network::isQuiet()
 	return m_links.areEmpty();
 }
 
-void Network::runOneStep()
-{
-	if (globalCycle >= m_networkCycle)
-	{
-		m_links.runOneStep();
-		for (auto& router : m_routers)
-		{
-			router.runOneStep();
-		}
-
-		m_networkCycle += LINKS_CYCLES + ROUTER_CYCLES;
-	}
-}
+//void Network::runOneStep()
+//{
+//	if (globalCycle >= m_networkCycle)
+//	{
+//		m_links.runOneStep();
+//		for (auto& router : m_routers)
+//		{
+//			router.runOneStep();
+//		}
+//
+//		m_networkCycle += LINKS_CYCLES + ROUTER_CYCLES;
+//	}
+//}

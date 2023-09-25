@@ -26,6 +26,19 @@ std::ostream& operator<<(std::ostream& stream, const PortType& portType)
 	return stream;
 }
 
+bool VirtualChannelArbitrationRecorderLine::operator==(const VirtualChannelArbitrationRecorderLine& record) const
+{
+	return port == record.port
+		&& virtualChannel == record.virtualChannel;
+}
+
+bool SwitchArbitrationRecorderLine::operator==(const SwitchArbitrationRecorderLine& record) const
+{
+	return port == record.port
+		&& outputPortSwitched == record.outputPortSwitched
+		&& switchPriorityGlobal == record.switchPriorityGlobal;
+}
+
 std::ostream& operator<<(std::ostream& stream, const VirtualChannelState& virtualChannelState)
 {
 	switch (virtualChannelState)

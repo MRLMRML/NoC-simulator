@@ -46,12 +46,14 @@ std::ostream& operator<<(std::ostream& stream, const PortType& portType);
 
 struct VirtualChannelArbitrationRecorderLine
 {
+	bool operator==(const VirtualChannelArbitrationRecorderLine& record) const;
 	PortType port{};
 	int virtualChannel{};
 };
 
 struct SwitchArbitrationRecorderLine
 {
+	bool operator==(const SwitchArbitrationRecorderLine& record) const;
 	PortType port{};
 	PortType outputPortSwitched{};
 	int switchPriorityGlobal{};

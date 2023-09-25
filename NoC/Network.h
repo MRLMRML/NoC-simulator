@@ -33,7 +33,7 @@ public:
 
 	bool isQuiet();
 
-	void runOneStep();
+	//void runOneStep();
 
 private:
 	std::array<Router, ROUTER_NUMBER> m_routers{};
