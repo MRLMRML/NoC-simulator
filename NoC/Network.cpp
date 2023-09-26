@@ -33,10 +33,13 @@ void Network::setUpConnections()
 		}
 	}
 #endif
+
+	std::cout << " Network: " << NETWORK_DIMENSION_X << " x " << NETWORK_DIMENSION_Y << " network created " << std::endl;
 }
 
 void Network::printRouterIDs()
 {
+	log(" Network: below is routers ID ");
 	for (size_t j{}; j < NETWORK_DIMENSION_Y; ++j)
 	{
 		for (size_t i{}; i < NETWORK_DIMENSION_X; ++i)
@@ -47,15 +50,17 @@ void Network::printRouterIDs()
 	}
 }
 
-//void Network::mountNode(const RouterID& routerID, const Node* node)
-//{
-//	m_links.setUpConnection(m_routers[static_cast<std::array<Router, 16Ui64>::size_type>(routerID.y) * NETWORK_DIMENSION_X + routerID.x].m_terminalPort, node->m_NI->m_port);
-//	m_routers[static_cast<std::array<Router, 16Ui64>::size_type>(routerID.y) * NETWORK_DIMENSION_X + routerID.x].m_NID = node->m_NI->m_NID;
-//	m_mappingTable.push_back({ routerID, node->m_NI->m_NID });
-//}
+void Network::mountNode(RouterID routerID, DopplerNode* node)
+{
+	m_links.setUpConnection(m_routers[static_cast<std::array<Router, 16Ui64>::size_type>(routerID.y) * NETWORK_DIMENSION_X + routerID.x].m_terminalPort, node->m_port);
+	m_routers[static_cast<std::array<Router, 16Ui64>::size_type>(routerID.y) * NETWORK_DIMENSION_X + routerID.x].m_NID = node->m_NID;
+	m_mappingTable.push_back({ routerID, node->m_NID });
+	log(" Network: node mounted ");
+}
 
 void Network::printNodeIDs()
 {
+	log(" Network: below is nodes ID ");
 	for (size_t j{}; j < NETWORK_DIMENSION_Y; ++j)
 	{
 		for (size_t i{}; i < NETWORK_DIMENSION_X; ++i)
@@ -71,6 +76,7 @@ void Network::printNodeIDs()
 
 void Network::viewMappingTable()
 {
+	log(" Network: below is mapping table: router ID | node ID ");
 	for (auto& mappingTableLine : m_mappingTable)
 	{
 		std::cout << mappingTableLine.routerID << "| " << mappingTableLine.NID << std::endl;
@@ -93,6 +99,15 @@ void Network::terminateConnections()
 bool Network::isQuiet()
 {
 	return m_links.areEmpty();
+}
+
+void Network::runOneStep()
+{
+	m_links.runOneStep();
+	for (auto& router : m_routers)
+	{
+		router.runOneStep();
+	}
 }
 
 //void Network::runOneStep()

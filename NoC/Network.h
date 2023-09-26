@@ -1,7 +1,7 @@
 #pragma once
 #include "Router.h"
 #include "Links.h"
-//#include "Node.h"
+#include "DopplerNode.h"
 #include <array>
 
 //extern size_t globalCycle;
@@ -21,7 +21,7 @@ public:
 
 	void printRouterIDs();
 
-	//void mountNode(const RouterID& routerID, const Node* node);
+	void mountNode(RouterID routerID, DopplerNode* node);
 
 	void printNodeIDs();
 
@@ -33,11 +33,11 @@ public:
 
 	bool isQuiet();
 
-	//void runOneStep();
+	void runOneStep();
 
 private:
 	std::array<Router, ROUTER_NUMBER> m_routers{};
 	Links m_links{};
 	std::vector<MappingTableLine> m_mappingTable{};
-	size_t m_networkCycle{};
+	//size_t m_networkCycle{};
 };

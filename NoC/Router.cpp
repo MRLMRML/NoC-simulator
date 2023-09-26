@@ -122,8 +122,8 @@ void Router::routeTerminalPort()
 			}
 		}
 #endif
-	}
 	m_terminalPort.m_virtualChannelState = VirtualChannelState::V; // R -> V
+	}
 }
 
 void Router::routeNorthPort()
@@ -219,8 +219,8 @@ void Router::routeNorthPort()
 				}
 			}
 #endif
-		}
 		virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
+		}
 	}
 }
 
@@ -317,8 +317,8 @@ void Router::routeSouthPort()
 				}
 			}
 #endif
-		}
 		virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
+		}
 	}
 }
 
@@ -415,8 +415,8 @@ void Router::routeWestPort()
 				log(" West port: routed to east port ");
 			}
 #endif
-		}
 		virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
+		}
 	}
 }
 
@@ -513,8 +513,8 @@ void Router::routeEastPort()
 				log(" East port: routed to west port ");
 			}
 #endif
-		}
 		virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
+		}
 	}
 }
 

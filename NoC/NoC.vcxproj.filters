@@ -51,7 +51,7 @@
     <ClInclude Include="Crossbar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TrafficGenerator.h">
+    <ClInclude Include="DopplerNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -89,7 +89,7 @@
     <ClCompile Include="Crossbar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TrafficGenerator.cpp">
+    <ClCompile Include="DopplerNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

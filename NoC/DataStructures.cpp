@@ -119,6 +119,8 @@ std::ostream& operator<<(std::ostream& stream, const FlitType& flitType)
 std::ostream& operator<<(std::ostream& stream, const Flit& flit)
 {
 	stream << " "
+		<< flit.port << "|"
+		<< flit.virtualChannel << "|"
 		<< flit.flitType << "|"
 		<< flit.destination << "|"
 		<< flit.xID << "|"
