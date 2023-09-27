@@ -15,7 +15,7 @@ public:
 
 	void terminateAllConnections();
 
-	bool areEmpty();
+	//bool areEmpty();
 
 	void runOneStep();
 

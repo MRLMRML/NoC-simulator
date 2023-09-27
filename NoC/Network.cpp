@@ -96,10 +96,10 @@ void Network::terminateConnections()
 	m_links.terminateAllConnections();
 }
 
-bool Network::isQuiet()
-{
-	return m_links.areEmpty();
-}
+//bool Network::isQuiet()
+//{
+//	return m_links.areEmpty();
+//}
 
 void Network::runOneStep()
 {

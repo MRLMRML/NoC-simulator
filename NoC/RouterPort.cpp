@@ -2,19 +2,19 @@
 
 void RouterPort::receiveFlit()
 {
-	if (!m_inFlitBuffer.empty())
+	if (!m_inFlitRegister.empty())
 	{
-		m_virtualChannels.at(m_inFlitBuffer.front().virtualChannel).pushbackFlit(m_inFlitBuffer.front());
-		m_virtualChannels.at(m_inFlitBuffer.front().virtualChannel).m_virtualChannelState = VirtualChannelState::R; // I -> R
-		m_inFlitBuffer.pop_front();
+		m_virtualChannels.at(m_inFlitRegister.front().virtualChannel).pushbackFlit(m_inFlitRegister.front());
+		m_virtualChannels.at(m_inFlitRegister.front().virtualChannel).m_virtualChannelState = VirtualChannelState::R; // I -> R
+		m_inFlitRegister.pop_front();
 	}
 }
 
 void RouterPort::receiveCredit()
 {
-	if (!m_inCreditBuffer.empty())
+	if (!m_inCreditRegister.empty())
 	{
-		m_credit.at(m_inCreditBuffer.front().virtualChannel)++;
-		m_inCreditBuffer.pop_front();
+		m_credit.at(m_inCreditRegister.front().virtualChannel)++;
+		m_inCreditRegister.pop_front();
 	}
 }

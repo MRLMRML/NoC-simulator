@@ -29,12 +29,16 @@ void Crossbar::runOneStep()
 	// transfer one element in Port pair; one way
 	for (auto& connection : m_connections)
 	{
-		if (!connection.first->m_crossbarInputBuffer.empty())
+		if (connection.second->m_outFlitRegister.valid == false)
 		{
-			connection.second->m_outFlitBuffer.push_back(connection.first->m_crossbarInputBuffer.front());
-			connection.first->m_crossbarInputBuffer.pop_front();
+			connection.second->m_outFlitRegister.flit = connection.first->m_crossbarInputRegister.flit;
+			connection.first->m_crossbarInputRegister.valid = false;
+			connection.second->m_outFlitRegister.valid = true;
 			log(" Crossbar: packet transferred (crossbar input buffer -> out flit buffer)");
 		}
+
+		else
+			throw std::runtime_error{ " Crossbar: out flit register is not set to false " };
 	}
 
 	//// create a set that contains input ports only

@@ -72,6 +72,7 @@ std::ostream& operator<<(std::ostream& stream, const VirtualChannelState& virtua
 
 enum class PacketType
 {
+	Default,
 	ReadRequest,
 	ReadResponse,
 	WriteRequest,
@@ -102,6 +103,7 @@ struct PacketReorderBufferLine
 
 enum class FlitType
 {
+	DefaultFlit,
 	HeadFlit,
 	BodyFlit,
 	TailFlit,
@@ -112,6 +114,8 @@ std::ostream& operator<<(std::ostream& stream, const FlitType& flitType);
 
 struct Flit
 {
+	Flit() = default;
+
 	// HeadFlit
 	Flit(const PortType port,
 		const int virtualChannel,
@@ -185,17 +189,17 @@ struct Flit
 		AxADDR{ packet.AxADDR },
 		xDATA{ packet.xDATA } {}
 
-	PortType port{};
-	int virtualChannel{};
-	FlitType flitType{};
-	int destination{};
-	int xID{};
-	PacketType RWQB{};
-	int MID{};
-	int SID{};
-	int SEQID{};
-	int AxADDR{};
-	std::vector<DATA_PRECISION> xDATA{};
+	PortType port{PortType::Unselected};
+	int virtualChannel{-1};
+	FlitType flitType{ FlitType::DefaultFlit };
+	int destination{-1};
+	int xID{-1};
+	PacketType RWQB{PacketType::Default};
+	int MID{-1};
+	int SID{-1};
+	int SEQID{-1};
+	int AxADDR{-1};
+	std::vector<DATA_PRECISION> xDATA{-1};
 };
 
 std::ostream& operator<<(std::ostream& stream, const Flit& flit);
@@ -203,6 +207,18 @@ std::ostream& operator<<(std::ostream& stream, const Flit& flit);
 struct Credit
 {
 	int virtualChannel{};
+};
+
+struct FlitRegister
+{
+	bool valid{};
+	Flit flit{};
+};
+
+struct CreditRegister
+{
+	bool valid{};
+	Credit credit{};
 };
 
 enum class PEType

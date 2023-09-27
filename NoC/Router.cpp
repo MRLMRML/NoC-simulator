@@ -21,8 +21,8 @@ void Router::routeTerminalPort()
 {
 	if (m_terminalPort.m_virtualChannelState == VirtualChannelState::R)
 	{
-		if (m_terminalPort.m_inFlitBuffer.front().flitType != FlitType::HeadFlit ||
-			m_terminalPort.m_inFlitBuffer.front().flitType != FlitType::HeadTailFlit)
+		if (m_terminalPort.m_inFlitRegister.flit.flitType != FlitType::HeadFlit ||
+			m_terminalPort.m_inFlitRegister.flit.flitType != FlitType::HeadTailFlit)
 		{
 			throw std::runtime_error{ " Terminal port routing error: not head flit " };
 		}
@@ -31,7 +31,7 @@ void Router::routeTerminalPort()
 		// lookup mapping table and find the routerID by flit.destination
 		for (auto& mappingTableLine : m_mappingTable)
 		{
-			if (mappingTableLine.NID == m_terminalPort.m_inFlitBuffer.front().destination)
+			if (mappingTableLine.NID == m_terminalPort.m_inFlitRegister.flit.destination)
 			{
 				destination = mappingTableLine.routerID;
 				break;
@@ -3111,11 +3111,12 @@ void Router::getOneFlitOut()
 	// terminal port
 	if (m_terminalPort.m_outputPortSwitched != PortType::Unselected)
 	{
-		Flit flit{ m_terminalPort.m_inFlitBuffer.front() };
+		Flit flit{ m_terminalPort.m_inFlitRegister.flit };
+		m_terminalPort.m_inFlitRegister.valid = false;
 		flit.port = m_terminalPort.m_outputPortRouted;
 		flit.virtualChannel = m_terminalPort.m_outputVirtualChannelAllocated;
-		m_terminalPort.m_crossbarInputBuffer.push_back(flit);
-		m_terminalPort.m_inFlitBuffer.pop_front();
+		m_terminalPort.m_crossbarInputRegister.flit = flit;
+		m_terminalPort.m_crossbarInputRegister.valid = true;
 	}
 
 	// north port
@@ -3124,8 +3125,9 @@ void Router::getOneFlitOut()
 		Flit flit{ m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_buffer.front() };
 		flit.port = m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_outputPortRouted;
 		flit.virtualChannel = m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_outputVirtualChannelAllocated;
-		m_northPort.m_crossbarInputBuffer.push_back(flit);
-		m_northPort.m_inFlitBuffer.pop_front();
+		m_northPort.m_crossbarInputRegister.flit = flit;
+		m_northPort.m_crossbarInputRegister.valid = true;
+		m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_buffer.pop_front();
 	}
 
 	// south port
@@ -3134,8 +3136,9 @@ void Router::getOneFlitOut()
 		Flit flit{ m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_buffer.front() };
 		flit.port = m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_outputPortRouted;
 		flit.virtualChannel = m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_outputVirtualChannelAllocated;
-		m_southPort.m_crossbarInputBuffer.push_back(flit);
-		m_southPort.m_inFlitBuffer.pop_front();
+		m_southPort.m_crossbarInputRegister.flit = flit;
+		m_southPort.m_crossbarInputRegister.valid = true;
+		m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_buffer.pop_front();
 	}
 
 	// west port
@@ -3144,8 +3147,9 @@ void Router::getOneFlitOut()
 		Flit flit{ m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_buffer.front() };
 		flit.port = m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_outputPortRouted;
 		flit.virtualChannel = m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_outputVirtualChannelAllocated;
-		m_westPort.m_crossbarInputBuffer.push_back(flit);
-		m_westPort.m_inFlitBuffer.pop_front();
+		m_westPort.m_crossbarInputRegister.flit = flit;
+		m_westPort.m_crossbarInputRegister.valid = true;
+		m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_buffer.pop_front();
 	}
 
 	// east port
@@ -3154,15 +3158,16 @@ void Router::getOneFlitOut()
 		Flit flit{ m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_buffer.front() };
 		flit.port = m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_outputPortRouted;
 		flit.virtualChannel = m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_outputVirtualChannelAllocated;
-		m_eastPort.m_crossbarInputBuffer.push_back(flit);
-		m_eastPort.m_inFlitBuffer.pop_front();
+		m_eastPort.m_crossbarInputRegister.flit = flit;
+		m_eastPort.m_crossbarInputRegister.valid = true;
+		m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_buffer.pop_front();
 	}
 }
 
 void Router::traverseSwitch()
 {
 	// setup crossbar connection
-	if (!m_terminalPort.m_crossbarInputBuffer.empty())
+	if (m_terminalPort.m_crossbarInputRegister.valid == true)
 	{
 		if (m_terminalPort.m_outputPortSwitched == PortType::NorthPort)
 			m_crossbar.setUpConnection(m_terminalPort, m_northPort);
@@ -3174,7 +3179,7 @@ void Router::traverseSwitch()
 			m_crossbar.setUpConnection(m_terminalPort, m_eastPort);
 	}
 
-	if (!m_northPort.m_crossbarInputBuffer.empty())
+	if (m_northPort.m_crossbarInputRegister.valid == true)
 	{
 		if (m_northPort.m_outputPortSwitched == PortType::TerminalPort)
 			m_crossbar.setUpConnection(m_northPort, m_terminalPort);
@@ -3186,7 +3191,7 @@ void Router::traverseSwitch()
 			m_crossbar.setUpConnection(m_northPort, m_eastPort);
 	}
 
-	if (!m_southPort.m_crossbarInputBuffer.empty())
+	if (m_southPort.m_crossbarInputRegister.valid == true)
 	{
 		if (m_southPort.m_outputPortSwitched == PortType::TerminalPort)
 			m_crossbar.setUpConnection(m_southPort, m_terminalPort);
@@ -3198,7 +3203,7 @@ void Router::traverseSwitch()
 			m_crossbar.setUpConnection(m_southPort, m_eastPort);
 	}
 
-	if (!m_westPort.m_crossbarInputBuffer.empty())
+	if (m_westPort.m_crossbarInputRegister.valid == true)
 	{
 		if (m_westPort.m_outputPortSwitched == PortType::TerminalPort)
 			m_crossbar.setUpConnection(m_westPort, m_terminalPort);
@@ -3210,7 +3215,7 @@ void Router::traverseSwitch()
 			m_crossbar.setUpConnection(m_westPort, m_eastPort);
 	}
 
-	if (!m_eastPort.m_crossbarInputBuffer.empty())
+	if (m_eastPort.m_crossbarInputRegister.valid == true)
 	{
 		if (m_eastPort.m_outputPortSwitched == PortType::TerminalPort)
 			m_crossbar.setUpConnection(m_eastPort, m_terminalPort);
@@ -3231,65 +3236,69 @@ void Router::traverseSwitch()
 		if (connection.first->m_portType == PortType::TerminalPort)
 		{
 			if (connection.second->m_portType == PortType::NorthPort)
-				m_northPort.m_credit.at(m_northPort.m_outFlitBuffer.back().virtualChannel)--;
+				m_northPort.m_credit.at(m_northPort.m_outFlitRegister.flit.virtualChannel)--;
 			if (connection.second->m_portType == PortType::SouthPort)
-				m_southPort.m_credit.at(m_southPort.m_outFlitBuffer.back().virtualChannel)--;
+				m_southPort.m_credit.at(m_southPort.m_outFlitRegister.flit.virtualChannel)--;
 			if (connection.second->m_portType == PortType::WestPort)
-				m_westPort.m_credit.at(m_westPort.m_outFlitBuffer.back().virtualChannel)--;
+				m_westPort.m_credit.at(m_westPort.m_outFlitRegister.flit.virtualChannel)--;
 			if (connection.second->m_portType == PortType::EastPort)
-				m_eastPort.m_credit.at(m_eastPort.m_outFlitBuffer.back().virtualChannel)--;
+				m_eastPort.m_credit.at(m_eastPort.m_outFlitRegister.flit.virtualChannel)--;
 		}
 
 		if (connection.first->m_portType == PortType::NorthPort)
 		{
 			Credit credit{ m_northPort.m_virtualChannelSwitched };
-			m_northPort.m_outCreditBuffer.push_back(credit);
+			m_northPort.m_outCreditRegister.credit = credit;
+			m_northPort.m_outCreditRegister.valid = true;
 
 			if (connection.second->m_portType == PortType::SouthPort)
-				m_southPort.m_credit.at(m_southPort.m_outFlitBuffer.back().virtualChannel)--;
+				m_southPort.m_credit.at(m_southPort.m_outFlitRegister.flit.virtualChannel)--;
 			if (connection.second->m_portType == PortType::WestPort)
-				m_westPort.m_credit.at(m_westPort.m_outFlitBuffer.back().virtualChannel)--;
+				m_westPort.m_credit.at(m_westPort.m_outFlitRegister.flit.virtualChannel)--;
 			if (connection.second->m_portType == PortType::EastPort)
-				m_eastPort.m_credit.at(m_eastPort.m_outFlitBuffer.back().virtualChannel)--;
+				m_eastPort.m_credit.at(m_eastPort.m_outFlitRegister.flit.virtualChannel)--;
 		}
 
 		if (connection.first->m_portType == PortType::SouthPort)
 		{
 			Credit credit{ m_southPort.m_virtualChannelSwitched };
-			m_southPort.m_outCreditBuffer.push_back(credit);
+			m_southPort.m_outCreditRegister.credit = credit;
+			m_southPort.m_outCreditRegister.valid = true;
 
 			if (connection.second->m_portType == PortType::NorthPort)
-				m_northPort.m_credit.at(m_northPort.m_outFlitBuffer.back().virtualChannel)--;
+				m_northPort.m_credit.at(m_northPort.m_outFlitRegister.flit.virtualChannel)--;
 			if (connection.second->m_portType == PortType::WestPort)
-				m_westPort.m_credit.at(m_westPort.m_outFlitBuffer.back().virtualChannel)--;
+				m_westPort.m_credit.at(m_westPort.m_outFlitRegister.flit.virtualChannel)--;
 			if (connection.second->m_portType == PortType::EastPort)
-				m_eastPort.m_credit.at(m_eastPort.m_outFlitBuffer.back().virtualChannel)--;
+				m_eastPort.m_credit.at(m_eastPort.m_outFlitRegister.flit.virtualChannel)--;
 		}
 
 		if (connection.first->m_portType == PortType::WestPort)
 		{
 			Credit credit{ m_westPort.m_virtualChannelSwitched };
-			m_westPort.m_outCreditBuffer.push_back(credit);
+			m_westPort.m_outCreditRegister.credit = credit;
+			m_westPort.m_outCreditRegister.valid = true;
 
 			if (connection.second->m_portType == PortType::NorthPort)
-				m_northPort.m_credit.at(m_northPort.m_outFlitBuffer.back().virtualChannel)--;
+				m_northPort.m_credit.at(m_northPort.m_outFlitRegister.flit.virtualChannel)--;
 			if (connection.second->m_portType == PortType::SouthPort)
-				m_southPort.m_credit.at(m_southPort.m_outFlitBuffer.back().virtualChannel)--;
+				m_southPort.m_credit.at(m_southPort.m_outFlitRegister.flit.virtualChannel)--;
 			if (connection.second->m_portType == PortType::EastPort)
-				m_eastPort.m_credit.at(m_eastPort.m_outFlitBuffer.back().virtualChannel)--;
+				m_eastPort.m_credit.at(m_eastPort.m_outFlitRegister.flit.virtualChannel)--;
 		}
 
 		if (connection.first->m_portType == PortType::EastPort)
 		{
 			Credit credit{ m_eastPort.m_virtualChannelSwitched };
-			m_eastPort.m_outCreditBuffer.push_back(credit);
+			m_eastPort.m_outCreditRegister.credit = credit;
+			m_eastPort.m_outCreditRegister.valid = true;
 
 			if (connection.second->m_portType == PortType::NorthPort)
-				m_northPort.m_credit.at(m_northPort.m_outFlitBuffer.back().virtualChannel)--;
+				m_northPort.m_credit.at(m_northPort.m_outFlitRegister.flit.virtualChannel)--;
 			if (connection.second->m_portType == PortType::SouthPort)
-				m_southPort.m_credit.at(m_southPort.m_outFlitBuffer.back().virtualChannel)--;
+				m_southPort.m_credit.at(m_southPort.m_outFlitRegister.flit.virtualChannel)--;
 			if (connection.second->m_portType == PortType::WestPort)
-				m_westPort.m_credit.at(m_westPort.m_outFlitBuffer.back().virtualChannel)--;
+				m_westPort.m_credit.at(m_westPort.m_outFlitRegister.flit.virtualChannel)--;
 		}
 	}
 
@@ -3298,40 +3307,40 @@ void Router::traverseSwitch()
 	{
 		if (connection.first->m_portType == PortType::TerminalPort)
 		{
-			if (connection.second->m_outFlitBuffer.back().flitType == FlitType::HeadTailFlit
-				&& connection.second->m_outFlitBuffer.back().flitType == FlitType::TailFlit)
+			if (connection.second->m_outFlitRegister.flit.flitType == FlitType::HeadTailFlit
+				|| connection.second->m_outFlitRegister.flit.flitType == FlitType::TailFlit)
 				resetRCVAInputFields(PortType::TerminalPort, m_terminalPort.m_virtualChannelSwitched);
 			resetSAFields(PortType::TerminalPort);
 		}
 
 		if (connection.first->m_portType == PortType::NorthPort)
 		{
-			if (connection.second->m_outFlitBuffer.back().flitType == FlitType::HeadTailFlit
-				&& connection.second->m_outFlitBuffer.back().flitType == FlitType::TailFlit)
+			if (connection.second->m_outFlitRegister.flit.flitType == FlitType::HeadTailFlit
+				|| connection.second->m_outFlitRegister.flit.flitType == FlitType::TailFlit)
 				resetRCVAInputFields(PortType::NorthPort, m_northPort.m_virtualChannelSwitched);
 			resetSAFields(PortType::NorthPort);
 		}
 
 		if (connection.first->m_portType == PortType::SouthPort)
 		{
-			if (connection.second->m_outFlitBuffer.back().flitType == FlitType::HeadTailFlit
-				&& connection.second->m_outFlitBuffer.back().flitType == FlitType::TailFlit)
+			if (connection.second->m_outFlitRegister.flit.flitType == FlitType::HeadTailFlit
+				|| connection.second->m_outFlitRegister.flit.flitType == FlitType::TailFlit)
 				resetRCVAInputFields(PortType::SouthPort, m_southPort.m_virtualChannelSwitched);
 			resetSAFields(PortType::SouthPort);
 		}
 
 		if (connection.first->m_portType == PortType::WestPort)
 		{
-			if (connection.second->m_outFlitBuffer.back().flitType == FlitType::HeadTailFlit
-				&& connection.second->m_outFlitBuffer.back().flitType == FlitType::TailFlit)
+			if (connection.second->m_outFlitRegister.flit.flitType == FlitType::HeadTailFlit
+				|| connection.second->m_outFlitRegister.flit.flitType == FlitType::TailFlit)
 				resetRCVAInputFields(PortType::WestPort, m_westPort.m_virtualChannelSwitched);
 			resetSAFields(PortType::WestPort);
 		}
 
 		if (connection.first->m_portType == PortType::EastPort)
 		{
-			if (connection.second->m_outFlitBuffer.back().flitType == FlitType::HeadTailFlit
-				&& connection.second->m_outFlitBuffer.back().flitType == FlitType::TailFlit)
+			if (connection.second->m_outFlitRegister.flit.flitType == FlitType::HeadTailFlit
+				|| connection.second->m_outFlitRegister.flit.flitType == FlitType::TailFlit)
 				resetRCVAInputFields(PortType::EastPort, m_eastPort.m_virtualChannelSwitched);
 			resetSAFields(PortType::EastPort);
 		}

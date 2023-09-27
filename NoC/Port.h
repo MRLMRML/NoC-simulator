@@ -8,16 +8,16 @@ public:
 	Port(const PortType portType) : m_portType{ portType } {}
 	virtual ~Port() = default;
 
-	bool isEmpty();
+	//bool isEmpty();
 
 	// Input port
-	std::deque<Flit> m_inFlitBuffer;
-	std::deque<Credit> m_outCreditBuffer;
-	std::deque<Flit> m_crossbarInputBuffer;
+	FlitRegister m_inFlitRegister;
+	CreditRegister m_outCreditRegister;
+	FlitRegister m_crossbarInputRegister;
 
 	// Output port
-	std::deque<Flit> m_outFlitBuffer;
-	std::deque<Credit> m_inCreditBuffer;
+	FlitRegister m_outFlitRegister;
+	CreditRegister m_inCreditRegister;
 
 	// port type
 	PortType m_portType{};

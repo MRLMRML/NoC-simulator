@@ -66,6 +66,9 @@ std::ostream& operator<<(std::ostream& stream, const PacketType& packetType)
 {
 	switch (packetType)
 	{
+	case PacketType::Default:
+		stream << "Default";
+		break;
 	case PacketType::ReadRequest:
 		stream << "ReadRequest";
 		break;
@@ -100,6 +103,9 @@ std::ostream& operator<<(std::ostream& stream, const FlitType& flitType)
 {
 	switch (flitType)
 	{
+	case FlitType::DefaultFlit:
+		stream << "DefaultFlit";
+		break;
 	case FlitType::HeadFlit:
 		stream << "HeadFlit";
 		break;
