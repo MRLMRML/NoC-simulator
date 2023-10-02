@@ -98,55 +98,60 @@ void DopplerNode::sendFlit()
 
 void DopplerNode::collectTraffic()
 {
-	receiveFlit();
 	assemblePacket();
 }
 
-void DopplerNode::receiveFlit()
+bool DopplerNode::receiveFlit()
 {
 	if (m_port.m_inFlitRegister.valid == true)
 	{
 		Flit flit{ m_port.m_inFlitRegister.flit };
 		m_port.m_inFlitRegister.valid = false;
 		m_flitReorderBuffer.push_back(flit);
+		return true;
 	}
+	else
+		return false;
 }
 
 void DopplerNode::assemblePacket()
 {
-	if (m_flitReorderBuffer.back().flitType == FlitType::HeadTailFlit)
+	if (receiveFlit() == true)
 	{
-		m_packetReceived.destination = m_flitReorderBuffer.back().destination;
-		m_packetReceived.xID = m_flitReorderBuffer.back().xID;
-		m_packetReceived.RWQB = m_flitReorderBuffer.back().RWQB;
-		m_packetReceived.MID = m_flitReorderBuffer.back().MID;
-		m_packetReceived.SID = m_flitReorderBuffer.back().SID;
-		m_packetReceived.SEQID = m_flitReorderBuffer.back().SEQID;
-		m_packetReceived.AxADDR = m_flitReorderBuffer.back().AxADDR;
-		m_packetReceived.xDATA = m_flitReorderBuffer.back().xDATA;
-		recordOutputTime();
-		return;
-	}
-
-	if (m_flitReorderBuffer.back().flitType == FlitType::TailFlit)
-	{
-		for (auto& headFlit : m_flitReorderBuffer) // find the headflit that has the same IDs
+		if (m_flitReorderBuffer.back().flitType == FlitType::HeadTailFlit)
 		{
-			if ((headFlit.flitType == FlitType::HeadFlit) &&
-				(headFlit.xID == m_flitReorderBuffer.back().xID) &&
-				(headFlit.MID == m_flitReorderBuffer.back().MID) &&
-				(headFlit.SEQID == m_flitReorderBuffer.back().SEQID))
+			m_packetReceived.destination = m_flitReorderBuffer.back().destination;
+			m_packetReceived.xID = m_flitReorderBuffer.back().xID;
+			m_packetReceived.RWQB = m_flitReorderBuffer.back().RWQB;
+			m_packetReceived.MID = m_flitReorderBuffer.back().MID;
+			m_packetReceived.SID = m_flitReorderBuffer.back().SID;
+			m_packetReceived.SEQID = m_flitReorderBuffer.back().SEQID;
+			m_packetReceived.AxADDR = m_flitReorderBuffer.back().AxADDR;
+			m_packetReceived.xDATA = m_flitReorderBuffer.back().xDATA;
+			recordOutputTime();
+			return;
+		}
+
+		if (m_flitReorderBuffer.back().flitType == FlitType::TailFlit)
+		{
+			for (auto& headFlit : m_flitReorderBuffer) // find the headflit that has the same IDs
 			{
-				m_packetReceived.destination = headFlit.destination;
-				m_packetReceived.xID = headFlit.xID;
-				m_packetReceived.RWQB = headFlit.RWQB;
-				m_packetReceived.MID = headFlit.MID;
-				m_packetReceived.SID = headFlit.SID;
-				m_packetReceived.SEQID = headFlit.SEQID;
-				m_packetReceived.AxADDR = m_flitReorderBuffer.back().AxADDR;
-				m_packetReceived.xDATA = m_flitReorderBuffer.back().xDATA;
-				recordOutputTime();
-				return;
+				if ((headFlit.flitType == FlitType::HeadFlit) &&
+					(headFlit.xID == m_flitReorderBuffer.back().xID) &&
+					(headFlit.MID == m_flitReorderBuffer.back().MID) &&
+					(headFlit.SEQID == m_flitReorderBuffer.back().SEQID))
+				{
+					m_packetReceived.destination = headFlit.destination;
+					m_packetReceived.xID = headFlit.xID;
+					m_packetReceived.RWQB = headFlit.RWQB;
+					m_packetReceived.MID = headFlit.MID;
+					m_packetReceived.SID = headFlit.SID;
+					m_packetReceived.SEQID = headFlit.SEQID;
+					m_packetReceived.AxADDR = m_flitReorderBuffer.back().AxADDR;
+					m_packetReceived.xDATA = m_flitReorderBuffer.back().xDATA;
+					recordOutputTime();
+					return;
+				}
 			}
 		}
 	}

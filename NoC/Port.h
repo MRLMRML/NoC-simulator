@@ -9,6 +9,8 @@ public:
 	virtual ~Port() = default;
 
 	//bool isEmpty();
+	virtual void receiveFlit() {};
+	virtual void receiveCredit() {};
 
 	// Input port
 	FlitRegister m_inFlitRegister;

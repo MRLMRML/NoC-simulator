@@ -55,8 +55,8 @@ std::ostream& operator<<(std::ostream& stream, const VirtualChannelState& virtua
 	case VirtualChannelState::A:
 		stream << "Active";
 		break;
-	case VirtualChannelState::T:
-		stream << "Terminate";
+	case VirtualChannelState::C:
+		stream << "Compensate";
 		break;
 	}
 	return stream;

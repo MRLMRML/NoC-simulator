@@ -7,11 +7,11 @@ class VirtualChannel
 public:
 	VirtualChannel() = default;
 
-	void pushbackFlit(Flit flit);
+	bool pushbackFlit(Flit flit);
 
-	void popfrontFlit();
+	Flit popfrontFlit();
 
-	void runOneStep();
+	//void runOneStep();
 
 	// Data
 	std::deque<Flit> m_buffer{};

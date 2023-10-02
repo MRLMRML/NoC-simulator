@@ -19,7 +19,7 @@ public:
 	void sendFlit();
 
 	void collectTraffic();
-	void receiveFlit();
+	bool receiveFlit();
 	void assemblePacket();
 	void recordOutputTime();
 

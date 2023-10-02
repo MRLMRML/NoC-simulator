@@ -17,8 +17,11 @@ int main()
 	network->viewMappingTable();
 	network->updateMappingTables();
 
-	// testing
 	node0->runOneStep();
-	while(true)
-		network->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.front().
+	//// testing
+	//node0->runOneStep();
+	//while(true)
+	//	network->runOneStep();
 }

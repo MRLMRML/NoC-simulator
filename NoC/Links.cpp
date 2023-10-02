@@ -39,7 +39,7 @@ void Links::runOneStep()
 			connection.second->m_inFlitRegister.flit = connection.first->m_outFlitRegister.flit;
 			connection.first->m_outFlitRegister.valid = false;
 			connection.second->m_inFlitRegister.valid = true;
-			log(" Links: flit transferred (LHS -> RHS)");
+			log(" Links: flit transferred (LHS -> RHS) ");
 		}
 
 		if (connection.second->m_outCreditRegister.valid == true
@@ -48,7 +48,7 @@ void Links::runOneStep()
 			connection.first->m_inCreditRegister.credit = connection.second->m_outCreditRegister.credit;
 			connection.second->m_outCreditRegister.valid = false;
 			connection.first->m_inCreditRegister.valid = true;
-			log(" Links: credit transferred (LHS <- RHS)");
+			log(" Links: credit transferred (LHS <- RHS) ");
 		}
 
 		if (connection.second->m_outFlitRegister.valid == true
@@ -57,7 +57,7 @@ void Links::runOneStep()
 			connection.first->m_inFlitRegister.flit = connection.second->m_outFlitRegister.flit;
 			connection.second->m_outFlitRegister.valid = false;
 			connection.first->m_inFlitRegister.valid = true;
-			log(" Links: flit transferred (LHS <- RHS)");
+			log(" Links: flit transferred (LHS <- RHS) ");
 		}
 
 		if (connection.first->m_outCreditRegister.valid == true
@@ -66,7 +66,7 @@ void Links::runOneStep()
 			connection.second->m_inCreditRegister.credit = connection.first->m_outCreditRegister.credit;
 			connection.first->m_outCreditRegister.valid = false;
 			connection.second->m_inCreditRegister.valid = true;
-			log(" Links: credit transferred (LHS <- RHS)");
+			log(" Links: credit transferred (LHS <- RHS) ");
 		}
 	}
 }

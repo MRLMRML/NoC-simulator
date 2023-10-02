@@ -7,7 +7,8 @@ public:
 	TerminalPort() = default;
 	TerminalPort(const PortType portType) : Port{ portType } {}
 
-public:
+	void receiveFlit() override;
+
 	// Input units
 	VirtualChannelState m_virtualChannelState{}; // I(default) -> R -> V -> A
 	PortType m_outputPortRouted{}; // Unselected (default)

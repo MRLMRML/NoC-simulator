@@ -2,19 +2,32 @@
 
 void RouterPort::receiveFlit()
 {
-	if (!m_inFlitRegister.empty())
+	if (m_inFlitRegister.valid == true)
 	{
-		m_virtualChannels.at(m_inFlitRegister.front().virtualChannel).pushbackFlit(m_inFlitRegister.front());
-		m_virtualChannels.at(m_inFlitRegister.front().virtualChannel).m_virtualChannelState = VirtualChannelState::R; // I -> R
-		m_inFlitRegister.pop_front();
+		if (m_inFlitRegister.flit.flitType == FlitType::HeadFlit
+			|| m_inFlitRegister.flit.flitType == FlitType::HeadTailFlit)
+		{
+			if (m_virtualChannels.at(m_inFlitRegister.flit.virtualChannel).m_virtualChannelState != VirtualChannelState::I)
+			{
+				throw std::runtime_error{ " Router port: virtual channel is not in state I " };
+			}
+			m_virtualChannels.at(m_inFlitRegister.flit.virtualChannel).m_virtualChannelState = VirtualChannelState::R; // I -> R
+		}
+		
+		if (m_virtualChannels.at(m_inFlitRegister.flit.virtualChannel).pushbackFlit(m_inFlitRegister.flit) == true)
+		{
+			m_inFlitRegister.valid = false;
+			log(" Router port: flit received ");
+		}
 	}
 }
 
 void RouterPort::receiveCredit()
 {
-	if (!m_inCreditRegister.empty())
+	if (m_inCreditRegister.valid == true)
 	{
-		m_credit.at(m_inCreditRegister.front().virtualChannel)++;
-		m_inCreditRegister.pop_front();
+		m_credit.at(m_inCreditRegister.credit.virtualChannel)++;
+		m_inCreditRegister.valid = false;
+		log(" Router port: credit received ");
 	}
 }

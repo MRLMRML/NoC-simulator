@@ -65,7 +65,7 @@ enum class VirtualChannelState
 	R, // Routing
 	V, // Virtual channel allocation; also used in downstream
 	A, // Active, virtual channel is occupied; also used in downstream
-	T  // Terminate
+	C  // Compensate
 };
 
 std::ostream& operator<<(std::ostream& stream, const VirtualChannelState& virtualChannelState);
@@ -211,13 +211,13 @@ struct Credit
 
 struct FlitRegister
 {
-	bool valid{};
+	bool valid{ false };
 	Flit flit{};
 };
 
 struct CreditRegister
 {
-	bool valid{};
+	bool valid{ false };
 	Credit credit{};
 };
 

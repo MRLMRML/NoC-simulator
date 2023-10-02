@@ -11,8 +11,8 @@ public:
 		m_credit.fill(BUFFER_SIZE);
 	}
 
-	void receiveFlit();
-	void receiveCredit();
+	void receiveFlit() override;
+	void receiveCredit() override;
 
 	// Input units
 	std::array<VirtualChannel, VC_NUMBER> m_virtualChannels{};

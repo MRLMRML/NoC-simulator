@@ -17,7 +17,7 @@ public:
 
 	void terminateAllConnections();
 
-	void runOneStep();
+	void traversal();
 
 	std::set<std::pair<Port*, Port*>> m_connections{};
 private:

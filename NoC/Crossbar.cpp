@@ -24,7 +24,7 @@ void Crossbar::terminateAllConnections()
 	log(" Crossbar: all connections terminated ");
 }
 
-void Crossbar::runOneStep()
+void Crossbar::traversal()
 {
 	// transfer one element in Port pair; one way
 	for (auto& connection : m_connections)
@@ -34,7 +34,7 @@ void Crossbar::runOneStep()
 			connection.second->m_outFlitRegister.flit = connection.first->m_crossbarInputRegister.flit;
 			connection.first->m_crossbarInputRegister.valid = false;
 			connection.second->m_outFlitRegister.valid = true;
-			log(" Crossbar: packet transferred (crossbar input buffer -> out flit buffer)");
+			log(" Crossbar: flits transferred (crossbar input register -> out flit register)");
 		}
 
 		else

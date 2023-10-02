@@ -15,6 +15,7 @@ public:
 	}
 
 	void runOneStep();
+	void receiveFlitAndCredit();
 
 	// RC
 	void computeRoute();
@@ -53,9 +54,18 @@ public:
 
 	// ST
 	void traverseSwitch();
+	void setUpCrossbarConnections();
+	void updateCredits();
+	void resetFields();
 	void resetSAFields(const PortType port);
 	void resetRCVAInputFields(const PortType port, const int virtualChannel);
 	void resetRCVAOutputFields(const PortType port, const int virtualChannel); // when credits are full: A -> I
+
+	// CC
+	void compensateCycle();
+
+	// debug
+	void viewData();
 
 public:
 	RouterPort m_northPort{ PortType::NorthPort };
