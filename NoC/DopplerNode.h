@@ -6,7 +6,13 @@ class DopplerNode
 {
 public:
 	DopplerNode() = default;
-
+	DopplerNode(const int NID) : m_NID{ NID } {}
+	DopplerNode(const int NID, const bool isSilent) : m_NID{ NID }, m_isSilent{ isSilent } {}
+	DopplerNode(const int NID, const Packet& packetGenerated) : m_NID{ NID }, m_packetGenerated{ packetGenerated } 
+	{
+		m_isSilent = false;
+	}
+	
 	void runOneStep();
 
 	void viewPacket(const Packet& packet);
@@ -28,6 +34,8 @@ public:
 	int m_NID{}; // node ID of this DopplerNode
 
 private:
+	bool m_isSilent{ true };
+	int m_injectTimes{ 1 };
 	Packet m_packetGenerated{};
 	Packet m_packetReceived{};
 	std::deque<Flit> m_sourceQueue{};

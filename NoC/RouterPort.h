@@ -12,7 +12,7 @@ public:
 	}
 
 	void receiveFlit() override;
-	void receiveCredit() override;
+	bool receiveCredit();
 
 	// Input units
 	std::array<VirtualChannel, VC_NUMBER> m_virtualChannels{};

@@ -5,22 +5,22 @@ std::ostream& operator<<(std::ostream& stream, const PortType& portType)
 	switch (portType)
 	{
 	case PortType::Unselected:
-		stream << "Unselected";
+		stream << "U";
 		break;
 	case PortType::NorthPort:
-		stream << "NorthPort";
+		stream << "N";
 		break;
 	case PortType::SouthPort:
-		stream << "SouthPort";
+		stream << "S";
 		break;
 	case PortType::WestPort:
-		stream << "WestPort";
+		stream << "W";
 		break;
 	case PortType::EastPort:
-		stream << "EastPort";
+		stream << "E";
 		break;
 	case PortType::TerminalPort:
-		stream << "TerminalPort";
+		stream << "T";
 		break;
 	}
 	return stream;
@@ -44,19 +44,19 @@ std::ostream& operator<<(std::ostream& stream, const VirtualChannelState& virtua
 	switch (virtualChannelState)
 	{
 	case VirtualChannelState::I:
-		stream << "Idle";
+		stream << "I";
 		break;
 	case VirtualChannelState::R:
-		stream << "Route computation";
+		stream << "R";
 		break;
 	case VirtualChannelState::V:
-		stream << "Virtual channel allocation";
+		stream << "V";
 		break;
 	case VirtualChannelState::A:
-		stream << "Active";
+		stream << "A";
 		break;
 	case VirtualChannelState::C:
-		stream << "Compensate";
+		stream << "C";
 		break;
 	}
 	return stream;
@@ -67,19 +67,19 @@ std::ostream& operator<<(std::ostream& stream, const PacketType& packetType)
 	switch (packetType)
 	{
 	case PacketType::Default:
-		stream << "Default";
+		stream << "D";
 		break;
 	case PacketType::ReadRequest:
-		stream << "ReadRequest";
+		stream << "RQ";
 		break;
 	case PacketType::ReadResponse:
-		stream << "ReadResponse";
+		stream << "RB";
 		break;
 	case PacketType::WriteRequest:
-		stream << "WriteRequest";
+		stream << "WQ";
 		break;
 	case PacketType::WriteResponse:
-		stream << "WriteResponse";
+		stream << "WB";
 		break;
 	}
 	return stream;
@@ -104,19 +104,19 @@ std::ostream& operator<<(std::ostream& stream, const FlitType& flitType)
 	switch (flitType)
 	{
 	case FlitType::DefaultFlit:
-		stream << "DefaultFlit";
+		stream << "D";
 		break;
 	case FlitType::HeadFlit:
-		stream << "HeadFlit";
+		stream << "H";
 		break;
 	case FlitType::BodyFlit:
-		stream << "BodyFlit";
+		stream << "B";
 		break;
 	case FlitType::TailFlit:
-		stream << "TailFlit";
+		stream << "T";
 		break;
 	case FlitType::HeadTailFlit:
-		stream << "HeadTailFlit";
+		stream << "HT";
 		break;
 	}
 	return stream;

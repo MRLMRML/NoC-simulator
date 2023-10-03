@@ -20,8 +20,11 @@ void Crossbar::terminateConnection(const std::pair<Port*, Port*>& connection)
 
 void Crossbar::terminateAllConnections()
 {
-	m_connections.clear();
-	log(" Crossbar: all connections terminated ");
+	if (!m_connections.empty())
+	{
+		m_connections.clear();
+		log(" Crossbar: all connections terminated ");
+	}
 }
 
 void Crossbar::traversal()
@@ -34,7 +37,7 @@ void Crossbar::traversal()
 			connection.second->m_outFlitRegister.flit = connection.first->m_crossbarInputRegister.flit;
 			connection.first->m_crossbarInputRegister.valid = false;
 			connection.second->m_outFlitRegister.valid = true;
-			log(" Crossbar: flits transferred (crossbar input register -> out flit register)");
+			log(" Crossbar: flit transferred (crossbar input register -> out flit register)");
 		}
 
 		else

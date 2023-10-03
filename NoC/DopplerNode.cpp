@@ -2,7 +2,10 @@
 
 void DopplerNode::runOneStep()
 {
-	injectTraffic();
+	if (!m_isSilent)
+	{
+		injectTraffic();
+	}
 	collectTraffic();
 }
 
@@ -20,16 +23,21 @@ void DopplerNode::injectTraffic()
 {
 	// packet rate??
 	// if generate packet:
-		generatePacket();
+		//generatePacket();
+	if (m_injectTimes)
+	{
 		viewPacket(m_packetGenerated);
 		dismantlePacket();
 		recordInputTime();
+		m_injectTimes--;
+	}
 
 	sendFlit(); // every cycle; it may stall when network is busy
 }
 
 void DopplerNode::generatePacket()
 {
+	m_packetGenerated.destination = 3;
 	m_packetGenerated.xDATA = { 1, 1, 4, 5, 1, 4 };
 }
 
@@ -90,9 +98,12 @@ void DopplerNode::sendFlit()
 {
 	if (m_port.m_outFlitRegister.valid == false)
 	{
-		m_port.m_outFlitRegister.flit = m_sourceQueue.front();
-		m_sourceQueue.pop_front();
-		m_port.m_outFlitRegister.valid = true;
+		if (!m_sourceQueue.empty())
+		{
+			m_port.m_outFlitRegister.flit = m_sourceQueue.front();
+			m_sourceQueue.pop_front();
+			m_port.m_outFlitRegister.valid = true;
+		}
 	}
 }
 

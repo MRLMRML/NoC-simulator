@@ -3,7 +3,6 @@
 #include "TerminalPort.h"
 #include "RouterPort.h"
 #include "Crossbar.h"
-//#include <algorithm>
 
 class Router
 {
@@ -66,6 +65,11 @@ public:
 
 	// debug
 	void viewData();
+	void viewTerminalPortData();
+	void viewNorthPortData();
+	void viewSouthPortData();
+	void viewWestPortData();
+	void viewEastPortData();
 
 public:
 	RouterPort m_northPort{ PortType::NorthPort };

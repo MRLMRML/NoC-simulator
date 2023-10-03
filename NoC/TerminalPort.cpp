@@ -7,11 +7,16 @@ void TerminalPort::receiveFlit()
 		if (m_inFlitRegister.flit.flitType == FlitType::HeadFlit
 			|| m_inFlitRegister.flit.flitType == FlitType::HeadTailFlit)
 		{
-			if (m_virtualChannelState != VirtualChannelState::I)
+			if (m_virtualChannelState == VirtualChannelState::I)
 			{
-				throw std::runtime_error{ " Terminal port: virtual channel is not in state I " };
+				m_virtualChannelState = VirtualChannelState::R; // I -> R
+				log(" Terminal port: head or headtail flit received ");
 			}
-			m_virtualChannelState = VirtualChannelState::R; // I -> R
+		}
+		else
+		{
+			if (m_virtualChannelState == VirtualChannelState::A)
+				log(" Terminal port: body or tail flit received ");
 		}
 	}
 }

@@ -5,8 +5,8 @@
 #define MAX_XID 16
 
 // Network.h
-#define NETWORK_DIMENSION_X 1
-#define NETWORK_DIMENSION_Y 1
+#define NETWORK_DIMENSION_X 3
+#define NETWORK_DIMENSION_Y 3
 #define ROUTER_NUMBER NETWORK_DIMENSION_X * NETWORK_DIMENSION_Y
 // choose network type:
 #define MESH
