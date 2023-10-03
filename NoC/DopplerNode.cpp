@@ -23,9 +23,9 @@ void DopplerNode::injectTraffic()
 {
 	// packet rate??
 	// if generate packet:
-		//generatePacket();
 	if (m_injectTimes)
 	{
+		generatePacket();
 		viewPacket(m_packetGenerated);
 		dismantlePacket();
 		recordInputTime();
@@ -37,7 +37,8 @@ void DopplerNode::injectTraffic()
 
 void DopplerNode::generatePacket()
 {
-	m_packetGenerated.destination = 3;
+	m_packetGenerated.destination = 1;
+	m_packetGenerated.xID = 1919;
 	m_packetGenerated.xDATA = { 1, 1, 4, 5, 1, 4 };
 }
 
@@ -139,6 +140,7 @@ void DopplerNode::assemblePacket()
 			m_packetReceived.SEQID = m_flitReorderBuffer.back().SEQID;
 			m_packetReceived.AxADDR = m_flitReorderBuffer.back().AxADDR;
 			m_packetReceived.xDATA = m_flitReorderBuffer.back().xDATA;
+			viewPacket(m_packetReceived);
 			recordOutputTime();
 			return;
 		}
@@ -160,6 +162,7 @@ void DopplerNode::assemblePacket()
 					m_packetReceived.SEQID = headFlit.SEQID;
 					m_packetReceived.AxADDR = m_flitReorderBuffer.back().AxADDR;
 					m_packetReceived.xDATA = m_flitReorderBuffer.back().xDATA;
+					viewPacket(m_packetReceived);
 					recordOutputTime();
 					return;
 				}

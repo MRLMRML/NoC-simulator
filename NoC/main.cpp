@@ -3,10 +3,10 @@
 int main()
 {
 	// doppler packets
-	Packet packet0{ 1, 0 };
+	//Packet packet0{ 1, 0 };
 
 	// create doppler nodes
-	DopplerNode* node0{ new DopplerNode{0, packet0} };
+	DopplerNode* node0{ new DopplerNode{0, false} };
 	DopplerNode* node1{ new DopplerNode{1} };
 	//DopplerNode* node2{ new DopplerNode{2} };
 	//DopplerNode* node3{ new DopplerNode{3, packet3} };
