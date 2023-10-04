@@ -2,13 +2,19 @@
 
 void Router::runOneStep()
 {
-	viewData(); // debug
-	computeRoute();
-	allocateVirtualChannel();
-	allocateSwitch();
-	traverseSwitch();
-	compensateCycle();
-	viewData(); // debug
+	if (localClock.triggerLocalEvent())
+	{
+		viewData(); // debug
+		computeRoute();
+		allocateVirtualChannel();
+		allocateSwitch();
+		traverseSwitch();
+		compensateCycle();
+		viewData(); // debug
+
+		localClock.increaseLocalClock();
+		localClock.resetLocalIncrement();
+	}
 }
 
 void Router::receiveFlitAndCredit()
@@ -37,6 +43,7 @@ void Router::computeRoute()
 	routeSouthPort();
 	routeWestPort();
 	routeEastPort();
+	localClock.accumulateLocalIncrement(1);
 }
 
 void Router::routeTerminalPort()
@@ -587,6 +594,8 @@ void Router::allocateVirtualChannel()
 
 	// update priority
 	updateVirtualChannelPriority();
+
+	localClock.accumulateLocalIncrement(1);
 }
 
 void Router::allocateTerminalPortVirtualChannel()
@@ -2403,6 +2412,8 @@ void Router::allocateSwitch()
 
 	// get one flit out, set fields in the flit, reset fields by flit type
 	getOneFlitOut();
+
+	localClock.accumulateLocalIncrement(1);
 }
 
 void Router::allocateTerminalPortSwitch()
@@ -3520,6 +3531,8 @@ void Router::compensateCycle()
 		if (m_eastPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::C)
 			m_eastPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::I;
 	}
+
+	localClock.accumulateLocalIncrement(1);
 }
 
 void Router::viewData()

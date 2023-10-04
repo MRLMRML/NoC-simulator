@@ -2,6 +2,9 @@
 
 int main()
 {
+	// timing
+	Clock globalClock{};
+
 	// doppler packets
 	//Packet packet0{ 1, 0 };
 
@@ -46,11 +49,12 @@ int main()
 
 	//while (true)
 	//{
-	//	for (auto& node : dopplerNodes)
+	//	for (auto& node : dopplernodes)
 	//	{
-	//		node->runOneStep();
+	//		node->runonestep();
 	//	}
-	//	network->runOneStep();
+	//	network->runonestep();
+	//	globalClock.tickGlobalClock();
 	//}
 
 	node0->runOneStep();

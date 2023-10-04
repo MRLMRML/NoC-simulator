@@ -22,5 +22,6 @@ public:
 	PortType m_inputPortRouted{};
 	int m_inputVirtualChannelAllocated{};
 	int m_inputVirtualChannelPriority{};
+
 private:
 };
