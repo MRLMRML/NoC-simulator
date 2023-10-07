@@ -7,7 +7,7 @@ void Router::runOneStep()
 	allocateVirtualChannel();
 	allocateSwitch();
 	traverseSwitch();
-	compensateCycle();
+	//compensateCycle();
 	viewData(); // debug
 }
 
@@ -148,7 +148,7 @@ void Router::routeTerminalPort()
 	#endif
 			m_terminalPort.m_virtualChannelState = VirtualChannelState::V; // R -> V
 
-			m_terminalPort.m_localClock.accumulateLocalIncrement(1);
+			m_terminalPort.m_localClock.accumulateLocalIncrement(CYCLES_ROUTER_RC);
 			m_terminalPort.m_localClock.increaseLocalClock();
 			m_terminalPort.m_localClock.resetLocalIncrement();
 		}
@@ -251,7 +251,7 @@ void Router::routeNorthPort()
 	#endif
 				virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
 
-				virtualChannel.m_localClock.accumulateLocalIncrement(1);
+				virtualChannel.m_localClock.accumulateLocalIncrement(CYCLES_ROUTER_RC);
 				virtualChannel.m_localClock.increaseLocalClock();
 				virtualChannel.m_localClock.resetLocalIncrement();
 			}
@@ -354,7 +354,7 @@ void Router::routeSouthPort()
 	#endif
 				virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
 
-				virtualChannel.m_localClock.accumulateLocalIncrement(1);
+				virtualChannel.m_localClock.accumulateLocalIncrement(CYCLES_ROUTER_RC);
 				virtualChannel.m_localClock.increaseLocalClock();
 				virtualChannel.m_localClock.resetLocalIncrement();
 			}
@@ -457,7 +457,7 @@ void Router::routeWestPort()
 	#endif
 				virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
 
-				virtualChannel.m_localClock.accumulateLocalIncrement(1);
+				virtualChannel.m_localClock.accumulateLocalIncrement(CYCLES_ROUTER_RC);
 				virtualChannel.m_localClock.increaseLocalClock();
 				virtualChannel.m_localClock.resetLocalIncrement();
 			}
@@ -560,7 +560,7 @@ void Router::routeEastPort()
 	#endif
 				virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
 
-				virtualChannel.m_localClock.accumulateLocalIncrement(1);
+				virtualChannel.m_localClock.accumulateLocalIncrement(CYCLES_ROUTER_RC);
 				virtualChannel.m_localClock.increaseLocalClock();
 				virtualChannel.m_localClock.resetLocalIncrement();
 			}
@@ -2275,7 +2275,7 @@ void Router::activateVirtualChannel()
 	{
 		m_terminalPort.m_virtualChannelState = VirtualChannelState::A;
 
-		m_terminalPort.m_localClock.accumulateLocalIncrement(1);
+		m_terminalPort.m_localClock.accumulateLocalIncrement(CYCLES_ROUTER_VA);
 		m_terminalPort.m_localClock.increaseLocalClock();
 		m_terminalPort.m_localClock.resetLocalIncrement();
 	}
@@ -2290,7 +2290,7 @@ void Router::activateVirtualChannel()
 		{
 			m_northPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::A;
 
-			m_northPort.m_virtualChannels.at(i).m_localClock.accumulateLocalIncrement(1);
+			m_northPort.m_virtualChannels.at(i).m_localClock.accumulateLocalIncrement(CYCLES_ROUTER_VA);
 			m_northPort.m_virtualChannels.at(i).m_localClock.increaseLocalClock();
 			m_northPort.m_virtualChannels.at(i).m_localClock.resetLocalIncrement();
 		}
@@ -2306,7 +2306,7 @@ void Router::activateVirtualChannel()
 		{
 			m_southPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::A;
 
-			m_southPort.m_virtualChannels.at(i).m_localClock.accumulateLocalIncrement(1);
+			m_southPort.m_virtualChannels.at(i).m_localClock.accumulateLocalIncrement(CYCLES_ROUTER_VA);
 			m_southPort.m_virtualChannels.at(i).m_localClock.increaseLocalClock();
 			m_southPort.m_virtualChannels.at(i).m_localClock.resetLocalIncrement();
 		}
@@ -2322,7 +2322,7 @@ void Router::activateVirtualChannel()
 		{
 			m_westPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::A;
 
-			m_westPort.m_virtualChannels.at(i).m_localClock.accumulateLocalIncrement(1);
+			m_westPort.m_virtualChannels.at(i).m_localClock.accumulateLocalIncrement(CYCLES_ROUTER_VA);
 			m_westPort.m_virtualChannels.at(i).m_localClock.increaseLocalClock();
 			m_westPort.m_virtualChannels.at(i).m_localClock.resetLocalIncrement();
 		}
@@ -2338,7 +2338,7 @@ void Router::activateVirtualChannel()
 		{
 			m_eastPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::A;
 
-			m_eastPort.m_virtualChannels.at(i).m_localClock.accumulateLocalIncrement(1);
+			m_eastPort.m_virtualChannels.at(i).m_localClock.accumulateLocalIncrement(CYCLES_ROUTER_VA);
 			m_eastPort.m_virtualChannels.at(i).m_localClock.increaseLocalClock();
 			m_eastPort.m_virtualChannels.at(i).m_localClock.resetLocalIncrement();
 		}
@@ -3239,16 +3239,16 @@ void Router::getOneFlitOut()
 	// terminal port
 	if (m_terminalPort.m_outputPortSwitched != PortType::Unselected)
 	{
-		if (m_terminalPort.m_inFlitRegister.valid == true)
+		if (m_terminalPort.m_flitRegister.valid == true)
 		{
-			Flit flit{ m_terminalPort.m_inFlitRegister.flit };
-			m_terminalPort.m_inFlitRegister.valid = false;
+			Flit flit{ m_terminalPort.m_flitRegister.flit };
+			m_terminalPort.m_flitRegister.valid = false;
 			flit.port = m_terminalPort.m_outputPortRouted;
 			flit.virtualChannel = m_terminalPort.m_outputVirtualChannelAllocated;
 			m_terminalPort.m_crossbarInputRegister.flit = flit;
 			m_terminalPort.m_crossbarInputRegister.valid = true;
 
-			m_terminalPort.m_localClock.accumulateLocalIncrement(1);
+			m_terminalPort.m_localClock.accumulateLocalIncrement(CYCLES_ROUTER_SA);
 			m_terminalPort.m_localClock.increaseLocalClock();
 			m_terminalPort.m_localClock.resetLocalIncrement();
 		}
@@ -3263,7 +3263,7 @@ void Router::getOneFlitOut()
 		m_northPort.m_crossbarInputRegister.flit = flit;
 		m_northPort.m_crossbarInputRegister.valid = true;
 
-		m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_localClock.accumulateLocalIncrement(1);
+		m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_localClock.accumulateLocalIncrement(CYCLES_ROUTER_SA);
 		m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_localClock.increaseLocalClock();
 		m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_localClock.resetLocalIncrement();
 	}
@@ -3277,7 +3277,7 @@ void Router::getOneFlitOut()
 		m_southPort.m_crossbarInputRegister.flit = flit;
 		m_southPort.m_crossbarInputRegister.valid = true;
 
-		m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_localClock.accumulateLocalIncrement(1);
+		m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_localClock.accumulateLocalIncrement(CYCLES_ROUTER_SA);
 		m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_localClock.increaseLocalClock();
 		m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_localClock.resetLocalIncrement();
 	}
@@ -3291,7 +3291,7 @@ void Router::getOneFlitOut()
 		m_westPort.m_crossbarInputRegister.flit = flit;
 		m_westPort.m_crossbarInputRegister.valid = true;
 
-		m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_localClock.accumulateLocalIncrement(1);
+		m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_localClock.accumulateLocalIncrement(CYCLES_ROUTER_SA);
 		m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_localClock.increaseLocalClock();
 		m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_localClock.resetLocalIncrement();
 	}
@@ -3305,7 +3305,7 @@ void Router::getOneFlitOut()
 		m_eastPort.m_crossbarInputRegister.flit = flit;
 		m_eastPort.m_crossbarInputRegister.valid = true;
 
-		m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_localClock.accumulateLocalIncrement(1);
+		m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_localClock.accumulateLocalIncrement(CYCLES_ROUTER_SA);
 		m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_localClock.increaseLocalClock();
 		m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_localClock.resetLocalIncrement();
 	}
@@ -3564,35 +3564,35 @@ void Router::resetRCVAInputFields(const PortType port, const int virtualChannel)
 {
 	if (port == PortType::TerminalPort)
 	{
-		m_terminalPort.m_virtualChannelState = VirtualChannelState::C;
+		m_terminalPort.m_virtualChannelState = VirtualChannelState::I;
 		m_terminalPort.m_outputPortRouted = PortType::Unselected;
 		m_terminalPort.m_outputVirtualChannelAllocated = -1;
 	}
 
 	if (port == PortType::NorthPort)
 	{
-		m_northPort.m_virtualChannels.at(virtualChannel).m_virtualChannelState = VirtualChannelState::C;
+		m_northPort.m_virtualChannels.at(virtualChannel).m_virtualChannelState = VirtualChannelState::I;
 		m_northPort.m_virtualChannels.at(virtualChannel).m_outputPortRouted = PortType::Unselected;
 		m_northPort.m_virtualChannels.at(virtualChannel).m_outputVirtualChannelAllocated = -1;
 	}
 
 	if (port == PortType::SouthPort)
 	{
-		m_southPort.m_virtualChannels.at(virtualChannel).m_virtualChannelState = VirtualChannelState::C;
+		m_southPort.m_virtualChannels.at(virtualChannel).m_virtualChannelState = VirtualChannelState::I;
 		m_southPort.m_virtualChannels.at(virtualChannel).m_outputPortRouted = PortType::Unselected;
 		m_southPort.m_virtualChannels.at(virtualChannel).m_outputVirtualChannelAllocated = -1;
 	}
 
 	if (port == PortType::WestPort)
 	{
-		m_westPort.m_virtualChannels.at(virtualChannel).m_virtualChannelState = VirtualChannelState::C;
+		m_westPort.m_virtualChannels.at(virtualChannel).m_virtualChannelState = VirtualChannelState::I;
 		m_westPort.m_virtualChannels.at(virtualChannel).m_outputPortRouted = PortType::Unselected;
 		m_westPort.m_virtualChannels.at(virtualChannel).m_outputVirtualChannelAllocated = -1;
 	}
 
 	if (port == PortType::EastPort)
 	{
-		m_eastPort.m_virtualChannels.at(virtualChannel).m_virtualChannelState = VirtualChannelState::C;
+		m_eastPort.m_virtualChannels.at(virtualChannel).m_virtualChannelState = VirtualChannelState::I;
 		m_eastPort.m_virtualChannels.at(virtualChannel).m_outputPortRouted = PortType::Unselected;
 		m_eastPort.m_virtualChannels.at(virtualChannel).m_outputVirtualChannelAllocated = -1;
 	}
@@ -3631,62 +3631,62 @@ void Router::resetRCVAOutputFields(const PortType port, const int virtualChannel
 	}
 }
 
-void Router::compensateCycle()
-{
-	if (m_terminalPort.m_localClock.triggerLocalEvent())
-	{
-		if (m_terminalPort.m_virtualChannelState == VirtualChannelState::C)
-		{
-			m_terminalPort.m_virtualChannelState = VirtualChannelState::I;
-
-			m_terminalPort.m_localClock.accumulateLocalIncrement(1);
-			m_terminalPort.m_localClock.increaseLocalClock();
-			m_terminalPort.m_localClock.resetLocalIncrement();
-		}
-	}
-
-	for (int i{}; i < VC_NUMBER; ++i)
-	{
-		if (m_northPort.m_virtualChannels.at(i).m_localClock.triggerLocalEvent())
-		{
-			if (m_northPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::C)
-			{
-				m_northPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::I;
-
-				m_northPort.m_virtualChannels.at(i).m_localClock.accumulateLocalIncrement(1);
-				m_northPort.m_virtualChannels.at(i).m_localClock.increaseLocalClock();
-				m_northPort.m_virtualChannels.at(i).m_localClock.resetLocalIncrement();
-			}
-
-			if (m_southPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::C)
-			{
-				m_southPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::I;
-
-				m_southPort.m_virtualChannels.at(i).m_localClock.accumulateLocalIncrement(1);
-				m_southPort.m_virtualChannels.at(i).m_localClock.increaseLocalClock();
-				m_southPort.m_virtualChannels.at(i).m_localClock.resetLocalIncrement();
-			}
-
-			if (m_westPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::C)
-			{
-				m_westPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::I;
-
-				m_westPort.m_virtualChannels.at(i).m_localClock.accumulateLocalIncrement(1);
-				m_westPort.m_virtualChannels.at(i).m_localClock.increaseLocalClock();
-				m_westPort.m_virtualChannels.at(i).m_localClock.resetLocalIncrement();
-			}
-
-			if (m_eastPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::C)
-			{
-				m_eastPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::I;
-
-				m_eastPort.m_virtualChannels.at(i).m_localClock.accumulateLocalIncrement(1);
-				m_eastPort.m_virtualChannels.at(i).m_localClock.increaseLocalClock();
-				m_eastPort.m_virtualChannels.at(i).m_localClock.resetLocalIncrement();
-			}
-		}
-	}
-}
+//void Router::compensateCycle()
+//{
+//	if (m_terminalPort.m_localClock.triggerLocalEvent())
+//	{
+//		if (m_terminalPort.m_virtualChannelState == VirtualChannelState::I)
+//		{
+//			m_terminalPort.m_virtualChannelState = VirtualChannelState::I;
+//
+//			m_terminalPort.m_localClock.accumulateLocalIncrement(1);
+//			m_terminalPort.m_localClock.increaseLocalClock();
+//			m_terminalPort.m_localClock.resetLocalIncrement();
+//		}
+//	}
+//
+//	for (int i{}; i < VC_NUMBER; ++i)
+//	{
+//		if (m_northPort.m_virtualChannels.at(i).m_localClock.triggerLocalEvent())
+//		{
+//			if (m_northPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::I)
+//			{
+//				m_northPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::I;
+//
+//				m_northPort.m_virtualChannels.at(i).m_localClock.accumulateLocalIncrement(1);
+//				m_northPort.m_virtualChannels.at(i).m_localClock.increaseLocalClock();
+//				m_northPort.m_virtualChannels.at(i).m_localClock.resetLocalIncrement();
+//			}
+//
+//			if (m_southPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::I)
+//			{
+//				m_southPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::I;
+//
+//				m_southPort.m_virtualChannels.at(i).m_localClock.accumulateLocalIncrement(1);
+//				m_southPort.m_virtualChannels.at(i).m_localClock.increaseLocalClock();
+//				m_southPort.m_virtualChannels.at(i).m_localClock.resetLocalIncrement();
+//			}
+//
+//			if (m_westPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::I)
+//			{
+//				m_westPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::I;
+//
+//				m_westPort.m_virtualChannels.at(i).m_localClock.accumulateLocalIncrement(1);
+//				m_westPort.m_virtualChannels.at(i).m_localClock.increaseLocalClock();
+//				m_westPort.m_virtualChannels.at(i).m_localClock.resetLocalIncrement();
+//			}
+//
+//			if (m_eastPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::I)
+//			{
+//				m_eastPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::I;
+//
+//				m_eastPort.m_virtualChannels.at(i).m_localClock.accumulateLocalIncrement(1);
+//				m_eastPort.m_virtualChannels.at(i).m_localClock.increaseLocalClock();
+//				m_eastPort.m_virtualChannels.at(i).m_localClock.resetLocalIncrement();
+//			}
+//		}
+//	}
+//}
 
 void Router::viewData()
 {
@@ -3714,6 +3714,11 @@ void Router::viewTerminalPortData()
 	std::cout << " In flit register: ";
 	if (m_terminalPort.m_inFlitRegister.valid == true)
 		std::cout << m_terminalPort.m_inFlitRegister.flit.xID << m_terminalPort.m_inFlitRegister.flit.flitType;
+	std::cout << std::endl;
+
+	std::cout << " Flit register: ";
+	if (m_terminalPort.m_flitRegister.valid == true)
+		std::cout << m_terminalPort.m_flitRegister.flit.xID << m_terminalPort.m_flitRegister.flit.flitType;
 	std::cout << std::endl;
 
 	std::cout << " Crossbar input register: ";

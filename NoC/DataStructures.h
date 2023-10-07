@@ -64,8 +64,7 @@ enum class VirtualChannelState
 	I, // Idle, virtual channel is empty; also used in downstream
 	R, // Routing
 	V, // Virtual channel allocation; also used in downstream
-	A, // Active, virtual channel is occupied; also used in downstream
-	C  // Compensate
+	A // Active, virtual channel is occupied; also used in downstream
 };
 
 std::ostream& operator<<(std::ostream& stream, const VirtualChannelState& virtualChannelState);

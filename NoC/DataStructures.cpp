@@ -55,9 +55,6 @@ std::ostream& operator<<(std::ostream& stream, const VirtualChannelState& virtua
 	case VirtualChannelState::A:
 		stream << "A";
 		break;
-	case VirtualChannelState::C:
-		stream << "C";
-		break;
 	}
 	return stream;
 }

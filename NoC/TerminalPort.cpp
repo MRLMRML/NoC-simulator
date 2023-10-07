@@ -9,14 +9,28 @@ void TerminalPort::receiveFlit()
 		{
 			if (m_virtualChannelState == VirtualChannelState::I)
 			{
-				m_virtualChannelState = VirtualChannelState::R; // I -> R
-				log(" Terminal port: head or headtail flit received ");
+				if (m_flitRegister.valid == false)
+				{
+					m_flitRegister.flit = m_inFlitRegister.flit;
+					m_inFlitRegister.valid = false;
+					m_flitRegister.valid = true;
+					m_virtualChannelState = VirtualChannelState::R; // I -> R
+					log(" Terminal port: head or headtail flit received ");
+				}
 			}
 		}
 		else
 		{
 			if (m_virtualChannelState == VirtualChannelState::A)
-				log(" Terminal port: body or tail flit received ");
+			{
+				if (m_flitRegister.valid == false)
+				{
+					m_flitRegister.flit = m_inFlitRegister.flit;
+					m_inFlitRegister.valid = false;
+					m_flitRegister.valid = true;
+					log(" Terminal port: body or tail flit received ");
+				}
+			}
 		}
 	}
 }

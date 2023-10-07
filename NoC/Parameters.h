@@ -13,14 +13,19 @@
 //#define TORUS
 
 // Cycles
-#define NI_CYCLES 5
-#define CHANNEL_CYCLES 1
-#define DRAM_CYCLES 10
-#define PE_CYCLES 5
-#define LINKS_CYCLES 1
-#define ROUTER_CYCLES 5
+#define CYCLES_ROUTER_RC 1
+#define CYCLES_ROUTER_VA 1
+#define CYCLES_ROUTER_SA 1
+#define CYCLES_ROUTER_ST 1
 
-#define SIMULATION_CYCLES 500
+//#define NI_CYCLES 5
+//#define CHANNEL_CYCLES 1
+//#define DRAM_CYCLES 10
+//#define PE_CYCLES 5
+//#define LINKS_CYCLES 1
+//
+//
+//#define SIMULATION_CYCLES 500
 
 //// Memory cycle
 //#define MEMORY_READ_CYCLES 

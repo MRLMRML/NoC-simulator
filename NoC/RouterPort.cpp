@@ -11,18 +11,21 @@ void RouterPort::receiveFlit()
 			{
 				if (m_virtualChannels.at(m_inFlitRegister.flit.virtualChannel).pushbackFlit(m_inFlitRegister.flit) == true)
 				{
-					m_virtualChannels.at(m_inFlitRegister.flit.virtualChannel).m_virtualChannelState = VirtualChannelState::R; // I -> R
 					m_inFlitRegister.valid = false;
+					m_virtualChannels.at(m_inFlitRegister.flit.virtualChannel).m_virtualChannelState = VirtualChannelState::R; // I -> R
 					log(" Router port: body or tail flit received ");
 				}
 			}
 		}
 		else
 		{
-			if (m_virtualChannels.at(m_inFlitRegister.flit.virtualChannel).pushbackFlit(m_inFlitRegister.flit) == true)
+			if (m_virtualChannels.at(m_inFlitRegister.flit.virtualChannel).m_virtualChannelState == VirtualChannelState::A)
 			{
-				m_inFlitRegister.valid = false;
-				log(" Router port: head or headtail flit received ");
+				if (m_virtualChannels.at(m_inFlitRegister.flit.virtualChannel).pushbackFlit(m_inFlitRegister.flit) == true)
+				{
+					m_inFlitRegister.valid = false;
+					log(" Router port: head or headtail flit received ");
+				}
 			}
 		}
 	}
