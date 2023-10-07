@@ -3,7 +3,7 @@
 #include "TerminalPort.h"
 #include "RouterPort.h"
 #include "Crossbar.h"
-#include "Clock.h"
+//#include "Clock.h"
 
 class Router
 {
@@ -93,7 +93,7 @@ public:
 
 	// ST
 
-	// Timing
-	Clock localClock{};
+	//// Timing
+	//Clock m_localClock{};
 private:
 };

@@ -7,17 +7,23 @@ void RouterPort::receiveFlit()
 		if (m_inFlitRegister.flit.flitType == FlitType::HeadFlit
 			|| m_inFlitRegister.flit.flitType == FlitType::HeadTailFlit)
 		{
-			if (m_virtualChannels.at(m_inFlitRegister.flit.virtualChannel).m_virtualChannelState != VirtualChannelState::I)
+			if (m_virtualChannels.at(m_inFlitRegister.flit.virtualChannel).m_virtualChannelState == VirtualChannelState::I)
 			{
-				throw std::runtime_error{ " Router port: virtual channel is not in state I " };
+				if (m_virtualChannels.at(m_inFlitRegister.flit.virtualChannel).pushbackFlit(m_inFlitRegister.flit) == true)
+				{
+					m_virtualChannels.at(m_inFlitRegister.flit.virtualChannel).m_virtualChannelState = VirtualChannelState::R; // I -> R
+					m_inFlitRegister.valid = false;
+					log(" Router port: body or tail flit received ");
+				}
 			}
-			m_virtualChannels.at(m_inFlitRegister.flit.virtualChannel).m_virtualChannelState = VirtualChannelState::R; // I -> R
 		}
-		
-		if (m_virtualChannels.at(m_inFlitRegister.flit.virtualChannel).pushbackFlit(m_inFlitRegister.flit) == true)
+		else
 		{
-			m_inFlitRegister.valid = false;
-			log(" Router port: flit received ");
+			if (m_virtualChannels.at(m_inFlitRegister.flit.virtualChannel).pushbackFlit(m_inFlitRegister.flit) == true)
+			{
+				m_inFlitRegister.valid = false;
+				log(" Router port: head or headtail flit received ");
+			}
 		}
 	}
 }

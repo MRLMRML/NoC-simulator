@@ -1,5 +1,6 @@
 #pragma once
 #include "Port.h"
+#include "Clock.h"
 
 class TerminalPort : public Port
 {
@@ -22,6 +23,9 @@ public:
 	PortType m_inputPortRouted{};
 	int m_inputVirtualChannelAllocated{};
 	int m_inputVirtualChannelPriority{};
+
+	// Timing
+	Clock m_localClock{};
 
 private:
 };

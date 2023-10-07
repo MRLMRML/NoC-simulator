@@ -1,6 +1,7 @@
 #pragma once
 #include "DataStructures.h"
 #include "Parameters.h"
+#include "Clock.h"
 
 class VirtualChannel
 {
@@ -25,5 +26,7 @@ public:
 	// SA
 	int m_switchPriorityLocal{};
 
+	// Timing
+	Clock m_localClock{};
 private:
 };

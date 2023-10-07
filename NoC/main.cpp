@@ -39,9 +39,9 @@ int main()
 	network->viewMappingTable();
 	network->updateMappingTables();
 
-	//std::vector<DopplerNode*> dopplerNodes;
-	//dopplerNodes.push_back(node0);
-	//dopplerNodes.push_back(node1);
+	std::vector<DopplerNode*> dopplerNodes;
+	dopplerNodes.push_back(node0);
+	dopplerNodes.push_back(node1);
 	//dopplerNodes.push_back(node3);
 	//dopplerNodes.push_back(node4);
 	//dopplerNodes.push_back(node5);
@@ -49,11 +49,11 @@ int main()
 
 	//while (true)
 	//{
-	//	for (auto& node : dopplernodes)
+	//	for (auto& node : dopplerNodes)
 	//	{
-	//		node->runonestep();
+	//		node->runOneStep();
 	//	}
-	//	network->runonestep();
+	//	network->runOneStep();
 	//	globalClock.tickGlobalClock();
 	//}
 
@@ -62,55 +62,49 @@ int main()
 	network->m_links.runOneStep();
 	network->m_routers.at(0).runOneStep();
 	network->m_routers.at(1).runOneStep();
-	
-	node0->runOneStep();
-	node1->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	
-	node0->runOneStep();
-	node1->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
 
 	node0->runOneStep();
 	node1->runOneStep();
 	network->m_links.runOneStep();
 	network->m_routers.at(0).runOneStep();
 	network->m_routers.at(1).runOneStep();
-	
-	node0->runOneStep();
-	node1->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	
-	node0->runOneStep();
-	node1->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
 
 	node0->runOneStep();
 	node1->runOneStep();
 	network->m_links.runOneStep();
 	network->m_routers.at(0).runOneStep();
 	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
 
-	//node0->runOneStep();
-	//network->m_links.runOneStep();
-	//network->m_routers.front().viewData();
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
 
-	//network->m_routers.front().runOneStep();
-	//network->m_routers.front().viewData();
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
 
-	//network->m_routers.front().runOneStep();
-	//network->m_routers.front().viewData();
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
+
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
+
 	
-	//// testing
-	//node0->runOneStep();
-	//while(true)
-	//	network->runOneStep();
 }

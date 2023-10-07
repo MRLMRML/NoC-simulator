@@ -26,5 +26,6 @@ public:
 	// SA
 	std::array<int, VC_NUMBER> m_credit{}; // available downstream buffer number
 
+	Clock m_localclock{};
 private:
 };
