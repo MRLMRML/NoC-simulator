@@ -96,7 +96,5 @@ public:
 
 	// ST
 
-	//// Timing
-	//Clock m_localClock{};
 private:
 };

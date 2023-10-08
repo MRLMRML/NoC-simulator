@@ -17,6 +17,8 @@
 #define CYCLES_ROUTER_VA 1
 #define CYCLES_ROUTER_SA 1
 #define CYCLES_ROUTER_ST 1
+#define CYCLES_LINK 1
+// all those cycles above are not tested with values higher than 1
 
 //#define NI_CYCLES 5
 //#define CHANNEL_CYCLES 1

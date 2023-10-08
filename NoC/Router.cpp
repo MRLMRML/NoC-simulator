@@ -147,7 +147,7 @@ void Router::routeTerminalPort()
 	#endif
 			m_terminalPort.m_virtualChannelState = VirtualChannelState::V; // R -> V
 
-			m_terminalPort.m_localClock.tickLocalClock();
+			m_terminalPort.m_localClock.tickLocalClock(CYCLES_ROUTER_RC);
 		}
 
 	}
@@ -248,7 +248,7 @@ void Router::routeNorthPort()
 	#endif
 				virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
 
-				virtualChannel.m_localClock.tickLocalClock();
+				virtualChannel.m_localClock.tickLocalClock(CYCLES_ROUTER_RC);
 			}
 		}
 	}
@@ -349,7 +349,7 @@ void Router::routeSouthPort()
 	#endif
 				virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
 
-				virtualChannel.m_localClock.tickLocalClock();
+				virtualChannel.m_localClock.tickLocalClock(CYCLES_ROUTER_RC);
 			}
 		}
 	}
@@ -450,7 +450,7 @@ void Router::routeWestPort()
 	#endif
 				virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
 
-				virtualChannel.m_localClock.tickLocalClock();
+				virtualChannel.m_localClock.tickLocalClock(CYCLES_ROUTER_RC);
 			}
 		}
 	}
@@ -551,7 +551,7 @@ void Router::routeEastPort()
 	#endif
 				virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
 
-				virtualChannel.m_localClock.tickLocalClock();
+				virtualChannel.m_localClock.tickLocalClock(CYCLES_ROUTER_RC);
 			}
 		}
 	}
@@ -2264,7 +2264,7 @@ void Router::activateVirtualChannel()
 	{
 		m_terminalPort.m_virtualChannelState = VirtualChannelState::A;
 
-		m_terminalPort.m_localClock.tickLocalClock();
+		m_terminalPort.m_localClock.tickLocalClock(CYCLES_ROUTER_VA);
 	}
 	if (m_terminalPort.m_downstreamVirtualChannelState == VirtualChannelState::V)
 		m_terminalPort.m_downstreamVirtualChannelState = VirtualChannelState::A;
@@ -2277,7 +2277,7 @@ void Router::activateVirtualChannel()
 		{
 			m_northPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::A;
 
-			m_northPort.m_virtualChannels.at(i).m_localClock.tickLocalClock();
+			m_northPort.m_virtualChannels.at(i).m_localClock.tickLocalClock(CYCLES_ROUTER_VA);
 		}
 		if (m_northPort.m_downstreamVirtualChannelStates.at(i) == VirtualChannelState::V)
 			m_northPort.m_downstreamVirtualChannelStates.at(i) = VirtualChannelState::A;
@@ -2291,7 +2291,7 @@ void Router::activateVirtualChannel()
 		{
 			m_southPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::A;
 
-			m_southPort.m_virtualChannels.at(i).m_localClock.tickLocalClock();
+			m_southPort.m_virtualChannels.at(i).m_localClock.tickLocalClock(CYCLES_ROUTER_VA);
 		}
 		if (m_southPort.m_downstreamVirtualChannelStates.at(i) == VirtualChannelState::V)
 			m_southPort.m_downstreamVirtualChannelStates.at(i) = VirtualChannelState::A;
@@ -2305,7 +2305,7 @@ void Router::activateVirtualChannel()
 		{
 			m_westPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::A;
 
-			m_westPort.m_virtualChannels.at(i).m_localClock.tickLocalClock();
+			m_westPort.m_virtualChannels.at(i).m_localClock.tickLocalClock(CYCLES_ROUTER_VA);
 		}
 		if (m_westPort.m_downstreamVirtualChannelStates.at(i) == VirtualChannelState::V)
 			m_westPort.m_downstreamVirtualChannelStates.at(i) = VirtualChannelState::A;
@@ -2319,7 +2319,7 @@ void Router::activateVirtualChannel()
 		{
 			m_eastPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::A;
 
-			m_eastPort.m_virtualChannels.at(i).m_localClock.tickLocalClock();
+			m_eastPort.m_virtualChannels.at(i).m_localClock.tickLocalClock(CYCLES_ROUTER_VA);
 		}
 		if (m_eastPort.m_downstreamVirtualChannelStates.at(i) == VirtualChannelState::V)
 			m_eastPort.m_downstreamVirtualChannelStates.at(i) = VirtualChannelState::A;
@@ -3227,7 +3227,7 @@ void Router::getOneFlitOut()
 			m_terminalPort.m_crossbarInputRegister.flit = flit;
 			m_terminalPort.m_crossbarInputRegister.valid = true;
 
-			m_terminalPort.m_localClock.tickLocalClock();
+			m_terminalPort.m_localClock.tickLocalClock(CYCLES_ROUTER_SA);
 		}
 	}
 
@@ -3240,7 +3240,7 @@ void Router::getOneFlitOut()
 		m_northPort.m_crossbarInputRegister.flit = flit;
 		m_northPort.m_crossbarInputRegister.valid = true;
 
-		m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_localClock.tickLocalClock();
+		m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_localClock.tickLocalClock(CYCLES_ROUTER_SA);
 	}
 
 	// south port
@@ -3252,7 +3252,7 @@ void Router::getOneFlitOut()
 		m_southPort.m_crossbarInputRegister.flit = flit;
 		m_southPort.m_crossbarInputRegister.valid = true;
 
-		m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_localClock.tickLocalClock();
+		m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_localClock.tickLocalClock(CYCLES_ROUTER_SA);
 	}
 
 	// west port
@@ -3264,7 +3264,7 @@ void Router::getOneFlitOut()
 		m_westPort.m_crossbarInputRegister.flit = flit;
 		m_westPort.m_crossbarInputRegister.valid = true;
 
-		m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_localClock.tickLocalClock();
+		m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_localClock.tickLocalClock(CYCLES_ROUTER_SA);
 	}
 
 	// east port
@@ -3276,7 +3276,7 @@ void Router::getOneFlitOut()
 		m_eastPort.m_crossbarInputRegister.flit = flit;
 		m_eastPort.m_crossbarInputRegister.valid = true;
 
-		m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_localClock.tickLocalClock();
+		m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_localClock.tickLocalClock(CYCLES_ROUTER_SA);
 	}
 }
 
@@ -3444,7 +3444,7 @@ void Router::resetFields()
 			if (connection.second->m_outFlitRegister.flit.flitType == FlitType::HeadTailFlit
 				|| connection.second->m_outFlitRegister.flit.flitType == FlitType::TailFlit)
 			{
-				m_terminalPort.m_localClock.tickLocalClock();
+				m_terminalPort.m_localClock.tickLocalClock(CYCLES_ROUTER_ST);
 
 				resetRCVAOutputFields(m_terminalPort.m_outputPortRouted, m_terminalPort.m_outputVirtualChannelAllocated);
 				resetRCVAInputFields(PortType::TerminalPort, m_terminalPort.m_virtualChannelSwitched);
@@ -3457,7 +3457,7 @@ void Router::resetFields()
 			if (connection.second->m_outFlitRegister.flit.flitType == FlitType::HeadTailFlit
 				|| connection.second->m_outFlitRegister.flit.flitType == FlitType::TailFlit)
 			{
-				m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_localClock.tickLocalClock();
+				m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_localClock.tickLocalClock(CYCLES_ROUTER_ST);
 
 				resetRCVAOutputFields(m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_outputPortRouted, m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_outputVirtualChannelAllocated);
 				resetRCVAInputFields(PortType::NorthPort, m_northPort.m_virtualChannelSwitched);
@@ -3470,7 +3470,7 @@ void Router::resetFields()
 			if (connection.second->m_outFlitRegister.flit.flitType == FlitType::HeadTailFlit
 				|| connection.second->m_outFlitRegister.flit.flitType == FlitType::TailFlit)
 			{
-				m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_localClock.tickLocalClock();
+				m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_localClock.tickLocalClock(CYCLES_ROUTER_ST);
 
 				resetRCVAOutputFields(m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_outputPortRouted, m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_outputVirtualChannelAllocated);
 				resetRCVAInputFields(PortType::SouthPort, m_southPort.m_virtualChannelSwitched);
@@ -3483,7 +3483,7 @@ void Router::resetFields()
 			if (connection.second->m_outFlitRegister.flit.flitType == FlitType::HeadTailFlit
 				|| connection.second->m_outFlitRegister.flit.flitType == FlitType::TailFlit)
 			{
-				m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_localClock.tickLocalClock();
+				m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_localClock.tickLocalClock(CYCLES_ROUTER_ST);
 
 				resetRCVAOutputFields(m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_outputPortRouted, m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_outputVirtualChannelAllocated);
 				resetRCVAInputFields(PortType::WestPort, m_westPort.m_virtualChannelSwitched);
@@ -3496,7 +3496,7 @@ void Router::resetFields()
 			if (connection.second->m_outFlitRegister.flit.flitType == FlitType::HeadTailFlit
 				|| connection.second->m_outFlitRegister.flit.flitType == FlitType::TailFlit)
 			{
-				m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_localClock.tickLocalClock();
+				m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_localClock.tickLocalClock(CYCLES_ROUTER_ST);
 
 				resetRCVAOutputFields(m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_outputPortRouted, m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_outputVirtualChannelAllocated);
 				resetRCVAInputFields(PortType::EastPort, m_eastPort.m_virtualChannelSwitched);

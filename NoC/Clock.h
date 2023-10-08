@@ -9,6 +9,7 @@ public:
 
 	inline void tickGlobalClock() { s_globalClock++; }
 	inline void tickLocalClock() { m_localClock++; }
+	inline void tickLocalClock(const int cycles) { m_localClock += cycles; }
 	inline bool triggerLocalEvent() { return ((s_globalClock == m_localClock) ? true : false); }
 	inline void synchronizeClocks() { if (s_globalClock == m_localClock) m_localClock++; }
 

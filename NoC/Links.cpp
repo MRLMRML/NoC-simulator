@@ -30,43 +30,47 @@ void Links::terminateAllConnections()
 
 void Links::runOneStep()
 {
-	// transfer one element in Port pair bidirectionaliy
-	for (auto& connection : m_connections)
+	if (m_localClock.triggerLocalEvent())
 	{
-		if (connection.first->m_outFlitRegister.valid == true 
-			&& connection.second->m_inFlitRegister.valid == false)
+		// transfer one element in Port pair bidirectionaliy
+		for (auto& connection : m_connections)
 		{
-			connection.second->m_inFlitRegister.flit = connection.first->m_outFlitRegister.flit;
-			connection.first->m_outFlitRegister.valid = false;
-			connection.second->m_inFlitRegister.valid = true;
-			log(" Links: flit transferred (LHS -> RHS) ");
-		}
+			if (connection.first->m_outFlitRegister.valid == true 
+				&& connection.second->m_inFlitRegister.valid == false)
+			{
+				connection.second->m_inFlitRegister.flit = connection.first->m_outFlitRegister.flit;
+				connection.first->m_outFlitRegister.valid = false;
+				connection.second->m_inFlitRegister.valid = true;
+				log(" Links: flit transferred (LHS -> RHS) ");
+			}
 
-		if (connection.second->m_outCreditRegister.valid == true
-			&& connection.first->m_inCreditRegister.valid == false)
-		{
-			connection.first->m_inCreditRegister.credit = connection.second->m_outCreditRegister.credit;
-			connection.second->m_outCreditRegister.valid = false;
-			connection.first->m_inCreditRegister.valid = true;
-			log(" Links: credit transferred (LHS <- RHS) ");
-		}
+			if (connection.second->m_outCreditRegister.valid == true
+				&& connection.first->m_inCreditRegister.valid == false)
+			{
+				connection.first->m_inCreditRegister.credit = connection.second->m_outCreditRegister.credit;
+				connection.second->m_outCreditRegister.valid = false;
+				connection.first->m_inCreditRegister.valid = true;
+				log(" Links: credit transferred (LHS <- RHS) ");
+			}
 
-		if (connection.second->m_outFlitRegister.valid == true
-			&& connection.first->m_inFlitRegister.valid == false)
-		{
-			connection.first->m_inFlitRegister.flit = connection.second->m_outFlitRegister.flit;
-			connection.second->m_outFlitRegister.valid = false;
-			connection.first->m_inFlitRegister.valid = true;
-			log(" Links: flit transferred (LHS <- RHS) ");
-		}
+			if (connection.second->m_outFlitRegister.valid == true
+				&& connection.first->m_inFlitRegister.valid == false)
+			{
+				connection.first->m_inFlitRegister.flit = connection.second->m_outFlitRegister.flit;
+				connection.second->m_outFlitRegister.valid = false;
+				connection.first->m_inFlitRegister.valid = true;
+				log(" Links: flit transferred (LHS <- RHS) ");
+			}
 
-		if (connection.first->m_outCreditRegister.valid == true
-			&& connection.second->m_inCreditRegister.valid == false)
-		{
-			connection.second->m_inCreditRegister.credit = connection.first->m_outCreditRegister.credit;
-			connection.first->m_outCreditRegister.valid = false;
-			connection.second->m_inCreditRegister.valid = true;
-			log(" Links: credit transferred (LHS <- RHS) ");
+			if (connection.first->m_outCreditRegister.valid == true
+				&& connection.second->m_inCreditRegister.valid == false)
+			{
+				connection.second->m_inCreditRegister.credit = connection.first->m_outCreditRegister.credit;
+				connection.first->m_outCreditRegister.valid = false;
+				connection.second->m_inCreditRegister.valid = true;
+				log(" Links: credit transferred (LHS <- RHS) ");
+			}
 		}
+		m_localClock.tickLocalClock(CYCLES_LINK);
 	}
 }
