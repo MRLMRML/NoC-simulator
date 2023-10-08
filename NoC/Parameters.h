@@ -12,6 +12,16 @@
 #define MESH
 //#define TORUS
 
+// Flit size
+#define FLIT_SIZE 16 // bytes
+
+// Virtual channel
+#define VC_NUMBER 2
+#define BUFFER_SIZE 4
+
+// Injection rate (packet per cycle)
+#define INJECTION_RATE 0.1
+
 // Cycles
 #define CYCLES_ROUTER_RC 1
 #define CYCLES_ROUTER_VA 1
@@ -35,10 +45,3 @@
 //
 //// PE cycle 
 //#define CHANNEL
-
-//// Flit size
-#define FLIT_SIZE 16 // bytes
-
-// Virtual channel
-#define VC_NUMBER 2
-#define BUFFER_SIZE 4

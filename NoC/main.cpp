@@ -1,5 +1,10 @@
 #include "Network.h"
 
+void GenerateTraffic()
+{
+
+}
+
 int main()
 {
 	// timing
