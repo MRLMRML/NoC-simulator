@@ -61,8 +61,11 @@ public:
 	void resetRCVAInputFields(const PortType port, const int virtualChannel);
 	void resetRCVAOutputFields(const PortType port, const int virtualChannel); // when credits are full: A -> I
 
-	//// CC
-	//void compensateCycle();
+	// ST and SA in parallel
+	void traverseThisSwitchThenAllocateNextSwitch();
+
+	// Timing
+	void synchronizeClocks();
 
 	// debug
 	void viewData();

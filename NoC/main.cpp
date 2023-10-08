@@ -120,5 +120,33 @@ int main()
 	network->m_routers.at(1).runOneStep();
 	globalClock.tickGlobalClock();
 
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
+
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
+	
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
+
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
+
 	std::cout << Clock::s_globalClock << std::endl;
 }

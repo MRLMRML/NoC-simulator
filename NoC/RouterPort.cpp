@@ -13,7 +13,7 @@ void RouterPort::receiveFlit()
 				{
 					m_inFlitRegister.valid = false;
 					m_virtualChannels.at(m_inFlitRegister.flit.virtualChannel).m_virtualChannelState = VirtualChannelState::R; // I -> R
-					log(" Router port: body or tail flit received ");
+					log(" Router port: head or headtail flit received ");
 				}
 			}
 		}
@@ -24,7 +24,7 @@ void RouterPort::receiveFlit()
 				if (m_virtualChannels.at(m_inFlitRegister.flit.virtualChannel).pushbackFlit(m_inFlitRegister.flit) == true)
 				{
 					m_inFlitRegister.valid = false;
-					log(" Router port: head or headtail flit received ");
+					log(" Router port: body or tail flit received ");
 				}
 			}
 		}
