@@ -1,6 +1,6 @@
 #include "Network.h"
 
-void GenerateTraffic()
+void generateTraffic()
 {
 
 }
