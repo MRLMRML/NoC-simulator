@@ -1,7 +1,7 @@
 #include "Network.h"
 
 // global variables
-std::string g_dataFolderPath{ "C:\\Users\\Hubiao\\source\\repos\\NoC\\NoC\\Data" };
+std::string g_dataFolderPath{ "C:\\Users\\Hubiao\\source\\repos\\NoC\\NoC\\Data\\" };
 std::string g_packetRecordPath{ "PacketRecord.csv" };
 
 void generateTraffic()
@@ -21,20 +21,20 @@ void generateTraffic()
 		<< "-" << ","
 		<< "-" << ","
 		<< std::endl;
-	writePacketRecord << "0" << ","
-		<< "1" << ","
-		<< "2" << ","
-		<< "intact" << ","
-		<< "-" << ","
-		<< "-" << ","
-		<< std::endl;
-	writePacketRecord << "0" << ","
-		<< "2" << ","
-		<< "2" << ","
-		<< "intact" << ","
-		<< "-" << ","
-		<< "-" << ","
-		<< std::endl;
+	//writePacketRecord << "0" << ","
+	//	<< "1" << ","
+	//	<< "2" << ","
+	//	<< "intact" << ","
+	//	<< "-" << ","
+	//	<< "-" << ","
+	//	<< std::endl;
+	//writePacketRecord << "0" << ","
+	//	<< "1" << ","
+	//	<< "3" << ","
+	//	<< "intact" << ","
+	//	<< "-" << ","
+	//	<< "-" << ","
+	//	<< std::endl;
 	writePacketRecord.close();
 }
 

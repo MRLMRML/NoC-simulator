@@ -96,4 +96,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Data\PacketRecord.csv">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

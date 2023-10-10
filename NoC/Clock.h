@@ -3,20 +3,20 @@
 class Clock
 {
 public:
-	static inline size_t s_globalClock{};
+	static inline float s_globalClock{ 0.0f };
 
 	Clock() = default;
 
 	inline void tickGlobalClock() { s_globalClock++; }
 	inline void tickLocalClock() { m_localClock++; }
-	inline void tickLocalClock(const int cycles) { m_localClock += cycles; }
-	inline bool triggerLocalEvent() { return ((s_globalClock == m_localClock) ? true : false); }
+	inline void tickLocalClock(const float cycles) { m_localClock += cycles; }
+	inline bool triggerLocalEvent() { return ((s_globalClock >= m_localClock) ? true : false); }
 	inline void synchronizeClocks() { if (s_globalClock == m_localClock) m_localClock++; }
 
-	inline void accumulateLocalIncrement(const int inc) { m_localIncrement += inc; }
-	inline void resetLocalIncrement() { m_localIncrement = 0; }
+	inline void accumulateLocalIncrement(const float inc) { m_localIncrement += inc; }
 	inline void increaseLocalClock() { m_localClock += m_localIncrement; }
+	inline void resetLocalIncrement() { m_localIncrement = 0.0f; }
 private:
-	size_t m_localClock{};
-	size_t m_localIncrement{};
+	float m_localClock{ 0.0f };
+	float m_localIncrement{ 0.0f };
 };

@@ -13,6 +13,7 @@
 //#define TORUS
 
 // Flit size
+#define PACKET_SIZE 64 // bytes
 #define FLIT_SIZE 16 // bytes
 
 // Virtual channel

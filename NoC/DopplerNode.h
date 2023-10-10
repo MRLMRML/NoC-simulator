@@ -26,21 +26,21 @@ public:
 	void viewFlit(const Flit& flit);
 
 	void injectTraffic();
-	void generatePacket();
-	void readPacket();
+	//void generatePacket();
+	bool readPacket();
 	void dismantlePacket();
-	void recordInputTime(const int packetInputTime);
+	void recordInputTime(const float packetInputTime);
 	void sendFlit();
 
 	void collectTraffic();
 	bool receiveFlit();
 	void assemblePacket();
-	void recordOutputTime(const int packetInputTime);
+	void recordOutputTime(const float packetInputTime);
 
 public:
 	Port m_port{ PortType::TerminalPort };
 	int m_NID{}; // node ID of this DopplerNode
-	Clock m_localClock{};
+	Clock m_localClock{}; // only useful for traffic injection
 
 private:
 	bool m_isSilent{ true };

@@ -158,6 +158,9 @@
     <ClCompile Include="DopplerNode.cpp" />
     <ClCompile Include="VirtualChannel.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Data\PacketRecord.csv" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

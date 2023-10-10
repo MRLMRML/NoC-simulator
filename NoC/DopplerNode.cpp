@@ -21,28 +21,33 @@ void DopplerNode::viewFlit(const Flit& flit)
 
 void DopplerNode::injectTraffic()
 {
-	// packet rate??
-	// if generate packet:
-	if (m_injectTimes)
+	while (m_localClock.triggerLocalEvent())
 	{
-		generatePacket();
-		viewPacket(m_packetGenerated);
-		dismantlePacket();
-		recordInputTime();
+		if (readPacket())
+		{
+			viewPacket(m_packetGenerated);
+			dismantlePacket();
+			recordInputTime(m_localClock.s_globalClock);
+
+			m_localClock.tickLocalClock(static_cast<float>(1 / INJECTION_RATE));
+		}
+		else
+		{
+			m_localClock.synchronizeClocks();
+		}
 	}
 
 	sendFlit(); // every cycle; it may stall when network is busy
 }
 
-void DopplerNode::generatePacket()
-{
-	readPacket();
-	//m_packetGenerated.destination = 1;
-	//m_packetGenerated.xID = 1919;
-	//m_packetGenerated.xDATA = { 1, 1, 4, 5, 1, 4 };
-}
+//void DopplerNode::generatePacket()
+//{
+//	//m_packetGenerated.destination = 1;
+//	//m_packetGenerated.xID = 1919;
+//	//m_packetGenerated.xDATA = { 1, 1, 4, 5, 1, 4 };
+//}
 
-void DopplerNode::readPacket()
+bool DopplerNode::readPacket()
 {
 	// read packet
 	// open the file
@@ -53,8 +58,8 @@ void DopplerNode::readPacket()
 	std::string packetID{};
 	std::string destination{};
 	std::string status{};
-	//std::string inputTime{};
-	//std::string outputTime{};
+	std::string inputTime{};
+	std::string outputTime{};
 	std::istringstream lineInString{};
 	// read the head line
 	std::getline(readPacket, line);
@@ -67,8 +72,8 @@ void DopplerNode::readPacket()
 		std::getline(lineInString, packetID, ',');
 		std::getline(lineInString, destination, ',');
 		std::getline(lineInString, status, ',');
-		//std::getline(lineInString, inputTime, ',');
-		//std::getline(lineInString, outputTime, ',');
+		std::getline(lineInString, inputTime, ',');
+		std::getline(lineInString, outputTime, ',');
 		// find the correct packet to sent
 		if (source == std::to_string(m_NID) 
 			&& packetID == std::to_string(m_packetIDTracker)
@@ -81,15 +86,18 @@ void DopplerNode::readPacket()
 			m_packetGenerated.SID = std::stoi(destination);
 
 			m_packetIDTracker++;
-			break;
+			readPacket.close();
+			return true;
 		}
 	}
 	readPacket.close();
+	return false;
 }
 
 void DopplerNode::dismantlePacket()
 {
-	double flitCount{ ceil(sizeof(m_packetGenerated) / FLIT_SIZE) }; // number of flits in total
+	double flitCount{ ceil(PACKET_SIZE / FLIT_SIZE) }; // number of flits in total
+	//double flitCount{ ceil(sizeof(m_packetGenerated) / FLIT_SIZE) }; // number of flits in total
 
 	if (flitCount == 1) // H/T flit
 	{
@@ -135,7 +143,7 @@ void DopplerNode::dismantlePacket()
 	viewFlit(tailFlit);
 }
 
-void DopplerNode::recordInputTime(const int packetInputTime)
+void DopplerNode::recordInputTime(const float packetInputTime)
 {
 	// record input time
 	// open the current file
@@ -148,8 +156,8 @@ void DopplerNode::recordInputTime(const int packetInputTime)
 	std::string source{};
 	std::string packetID{};
 	std::string destination{};
-	//std::string status{};
-	//std::string inputTime{};
+	std::string status{};
+	std::string inputTime{};
 	std::string outputTime{};
 	std::istringstream lineInString{};
 	// read the head line
@@ -164,8 +172,8 @@ void DopplerNode::recordInputTime(const int packetInputTime)
 		std::getline(lineInString, source, ',');
 		std::getline(lineInString, packetID, ',');
 		std::getline(lineInString, destination, ',');
-		//std::getline(lineInString, status, ',');
-		//std::getline(lineInString, inputTime, ',');
+		std::getline(lineInString, status, ',');
+		std::getline(lineInString, inputTime, ',');
 		std::getline(lineInString, outputTime, ',');
 		// decide whether to change each line, and/or write it into a new file
 		if (source == std::to_string(m_packetGenerated.MID) && packetID == std::to_string(m_packetGenerated.xID))
@@ -175,7 +183,7 @@ void DopplerNode::recordInputTime(const int packetInputTime)
 				<< packetID << ","
 				<< destination << ","
 				<< "sent" << ","
-				<< packetInputTime << ","
+				<< std::to_string(packetInputTime) << ","
 				<< outputTime << ","
 				<< std::endl;
 		}
@@ -187,8 +195,8 @@ void DopplerNode::recordInputTime(const int packetInputTime)
 	readPacketRecord.close();
 	t_readPacketRecord.close();
 	// when finished, delete the current file and rename the new file to the deleted file
-	std::cout << std::remove((g_dataFolderPath + g_packetRecordPath).c_str()) << std::endl;
-	std::cout << std::rename(t_packetRecord.c_str(), (g_dataFolderPath + g_packetRecordPath).c_str()) << std::endl;
+	std::remove((g_dataFolderPath + g_packetRecordPath).c_str());
+	std::rename(t_packetRecord.c_str(), (g_dataFolderPath + g_packetRecordPath).c_str());
 }
 
 void DopplerNode::sendFlit()
@@ -237,7 +245,7 @@ void DopplerNode::assemblePacket()
 			m_packetReceived.AxADDR = m_flitReorderBuffer.back().AxADDR;
 			m_packetReceived.xDATA = m_flitReorderBuffer.back().xDATA;
 			viewPacket(m_packetReceived);
-			recordOutputTime();
+			recordOutputTime(m_localClock.s_globalClock + 1);
 			return;
 		}
 
@@ -259,7 +267,7 @@ void DopplerNode::assemblePacket()
 					m_packetReceived.AxADDR = m_flitReorderBuffer.back().AxADDR;
 					m_packetReceived.xDATA = m_flitReorderBuffer.back().xDATA;
 					viewPacket(m_packetReceived);
-					recordOutputTime();
+					recordOutputTime(m_localClock.s_globalClock + 1);
 					return;
 				}
 			}
@@ -267,7 +275,7 @@ void DopplerNode::assemblePacket()
 	}
 }
 
-void DopplerNode::recordOutputTime(const int packetOutputTime)
+void DopplerNode::recordOutputTime(const float packetOutputTime)
 {
 	// record output time
 	// open the current file
@@ -280,9 +288,9 @@ void DopplerNode::recordOutputTime(const int packetOutputTime)
 	std::string source{};
 	std::string packetID{};
 	std::string destination{};
-	//std::string status{};
+	std::string status{};
 	std::string inputTime{};
-	//std::string outputTime{};
+	std::string outputTime{};
 	std::istringstream lineInString{};
 	// read the head line
 	std::getline(readPacketRecord, line);
@@ -296,9 +304,9 @@ void DopplerNode::recordOutputTime(const int packetOutputTime)
 		std::getline(lineInString, source, ',');
 		std::getline(lineInString, packetID, ',');
 		std::getline(lineInString, destination, ',');
-		//std::getline(lineInString, status, ',');
+		std::getline(lineInString, status, ',');
 		std::getline(lineInString, inputTime, ',');
-		//std::getline(lineInString, outputTime, ',');
+		std::getline(lineInString, outputTime, ',');
 		// decide whether to change each line, and/or write it into a new file
 		if (source == std::to_string(m_packetReceived.MID) && packetID == std::to_string(m_packetReceived.xID))
 		{
@@ -308,7 +316,7 @@ void DopplerNode::recordOutputTime(const int packetOutputTime)
 				<< destination << ","
 				<< "received" << ","
 				<< inputTime << ","
-				<< packetOutputTime << ","
+				<< std::to_string(packetOutputTime) << ","
 				<< std::endl;
 		}
 		else
@@ -319,6 +327,6 @@ void DopplerNode::recordOutputTime(const int packetOutputTime)
 	readPacketRecord.close();
 	t_readPacketRecord.close();
 	// when finished, delete the current file and rename the new file to the deleted file
-	std::cout << std::remove((g_dataFolderPath + g_packetRecordPath).c_str()) << std::endl;
-	std::cout << std::rename(t_packetRecord.c_str(), (g_dataFolderPath + g_packetRecordPath).c_str()) << std::endl;
+	std::remove((g_dataFolderPath + g_packetRecordPath).c_str());
+	std::rename(t_packetRecord.c_str(), (g_dataFolderPath + g_packetRecordPath).c_str());
 }
