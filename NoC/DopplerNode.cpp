@@ -29,7 +29,6 @@ void DopplerNode::injectTraffic()
 		viewPacket(m_packetGenerated);
 		dismantlePacket();
 		recordInputTime();
-		m_injectTimes--;
 	}
 
 	sendFlit(); // every cycle; it may stall when network is busy
@@ -37,9 +36,55 @@ void DopplerNode::injectTraffic()
 
 void DopplerNode::generatePacket()
 {
-	m_packetGenerated.destination = 1;
-	m_packetGenerated.xID = 1919;
-	m_packetGenerated.xDATA = { 1, 1, 4, 5, 1, 4 };
+	readPacket();
+	//m_packetGenerated.destination = 1;
+	//m_packetGenerated.xID = 1919;
+	//m_packetGenerated.xDATA = { 1, 1, 4, 5, 1, 4 };
+}
+
+void DopplerNode::readPacket()
+{
+	// read packet
+	// open the file
+	std::ifstream readPacket(g_dataFolderPath + g_packetRecordPath, std::ios::in);
+	// preparation 
+	std::string line{};
+	std::string source{};
+	std::string packetID{};
+	std::string destination{};
+	std::string status{};
+	//std::string inputTime{};
+	//std::string outputTime{};
+	std::istringstream lineInString{};
+	// read the head line
+	std::getline(readPacket, line);
+	// read file line by line
+	while (std::getline(readPacket, line))
+	{
+		lineInString.str(line);
+		// read each data field
+		std::getline(lineInString, source, ',');
+		std::getline(lineInString, packetID, ',');
+		std::getline(lineInString, destination, ',');
+		std::getline(lineInString, status, ',');
+		//std::getline(lineInString, inputTime, ',');
+		//std::getline(lineInString, outputTime, ',');
+		// find the correct packet to sent
+		if (source == std::to_string(m_NID) 
+			&& packetID == std::to_string(m_packetIDTracker)
+			&& status == "intact")
+		{
+			m_packetGenerated.destination = std::stoi(destination);
+			m_packetGenerated.xID = std::stoi(packetID);
+			m_packetGenerated.RWQB = PacketType::Default;
+			m_packetGenerated.MID = std::stoi(source);
+			m_packetGenerated.SID = std::stoi(destination);
+
+			m_packetIDTracker++;
+			break;
+		}
+	}
+	readPacket.close();
 }
 
 void DopplerNode::dismantlePacket()
@@ -90,9 +135,60 @@ void DopplerNode::dismantlePacket()
 	viewFlit(tailFlit);
 }
 
-void DopplerNode::recordInputTime()
+void DopplerNode::recordInputTime(const int packetInputTime)
 {
 	// record input time
+	// open the current file
+	std::ifstream readPacketRecord(g_dataFolderPath + g_packetRecordPath, std::ios::in);
+	// create a new file
+	std::string t_packetRecord{ g_dataFolderPath + "t_PacketRecord.csv" };
+	std::ofstream t_readPacketRecord(t_packetRecord);
+	// preparation 
+	std::string line{};
+	std::string source{};
+	std::string packetID{};
+	std::string destination{};
+	//std::string status{};
+	//std::string inputTime{};
+	std::string outputTime{};
+	std::istringstream lineInString{};
+	// read the head line
+	std::getline(readPacketRecord, line);
+	// write the head line into the new file
+	t_readPacketRecord << line << std::endl;
+	// read current file line by line
+	while (std::getline(readPacketRecord, line))
+	{
+		lineInString.str(line);
+		// read each data field
+		std::getline(lineInString, source, ',');
+		std::getline(lineInString, packetID, ',');
+		std::getline(lineInString, destination, ',');
+		//std::getline(lineInString, status, ',');
+		//std::getline(lineInString, inputTime, ',');
+		std::getline(lineInString, outputTime, ',');
+		// decide whether to change each line, and/or write it into a new file
+		if (source == std::to_string(m_packetGenerated.MID) && packetID == std::to_string(m_packetGenerated.xID))
+		{
+			t_readPacketRecord
+				<< source << ","
+				<< packetID << ","
+				<< destination << ","
+				<< "sent" << ","
+				<< packetInputTime << ","
+				<< outputTime << ","
+				<< std::endl;
+		}
+		else
+		{
+			t_readPacketRecord << line << std::endl;
+		}
+	}
+	readPacketRecord.close();
+	t_readPacketRecord.close();
+	// when finished, delete the current file and rename the new file to the deleted file
+	std::cout << std::remove((g_dataFolderPath + g_packetRecordPath).c_str()) << std::endl;
+	std::cout << std::rename(t_packetRecord.c_str(), (g_dataFolderPath + g_packetRecordPath).c_str()) << std::endl;
 }
 
 void DopplerNode::sendFlit()
@@ -171,7 +267,58 @@ void DopplerNode::assemblePacket()
 	}
 }
 
-void DopplerNode::recordOutputTime()
+void DopplerNode::recordOutputTime(const int packetOutputTime)
 {
 	// record output time
+	// open the current file
+	std::ifstream readPacketRecord(g_dataFolderPath + g_packetRecordPath, std::ios::in);
+	// create a new file
+	std::string t_packetRecord{ g_dataFolderPath + "t_PacketRecord.csv" };
+	std::ofstream t_readPacketRecord(t_packetRecord);
+	// preparation 
+	std::string line{};
+	std::string source{};
+	std::string packetID{};
+	std::string destination{};
+	//std::string status{};
+	std::string inputTime{};
+	//std::string outputTime{};
+	std::istringstream lineInString{};
+	// read the head line
+	std::getline(readPacketRecord, line);
+	// write the head line into the new file
+	t_readPacketRecord << line << std::endl;
+	// read current file line by line
+	while (std::getline(readPacketRecord, line))
+	{
+		lineInString.str(line);
+		// read each data field
+		std::getline(lineInString, source, ',');
+		std::getline(lineInString, packetID, ',');
+		std::getline(lineInString, destination, ',');
+		//std::getline(lineInString, status, ',');
+		std::getline(lineInString, inputTime, ',');
+		//std::getline(lineInString, outputTime, ',');
+		// decide whether to change each line, and/or write it into a new file
+		if (source == std::to_string(m_packetReceived.MID) && packetID == std::to_string(m_packetReceived.xID))
+		{
+			t_readPacketRecord
+				<< source << ","
+				<< packetID << ","
+				<< destination << ","
+				<< "received" << ","
+				<< inputTime << ","
+				<< packetOutputTime << ","
+				<< std::endl;
+		}
+		else
+		{
+			t_readPacketRecord << line << std::endl;
+		}
+	}
+	readPacketRecord.close();
+	t_readPacketRecord.close();
+	// when finished, delete the current file and rename the new file to the deleted file
+	std::cout << std::remove((g_dataFolderPath + g_packetRecordPath).c_str()) << std::endl;
+	std::cout << std::rename(t_packetRecord.c_str(), (g_dataFolderPath + g_packetRecordPath).c_str()) << std::endl;
 }

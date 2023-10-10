@@ -1,12 +1,48 @@
 #include "Network.h"
 
+// global variables
+std::string g_dataFolderPath{ "C:\\Users\\Hubiao\\source\\repos\\NoC\\NoC\\Data" };
+std::string g_packetRecordPath{ "PacketRecord.csv" };
+
 void generateTraffic()
 {
-
+	std::ofstream writePacketRecord(g_dataFolderPath + g_packetRecordPath, std::ios::out);
+	writePacketRecord << "Source" << ","
+		<< "Packet_ID" << ","
+		<< "Destination" << ","
+		<< "Status" << ","
+		<< "Input_time" << ","
+		<< "Output_time" << ","
+		<< std::endl;
+	writePacketRecord << "0" << ","
+		<< "0" << ","
+		<< "1" << ","
+		<< "intact" << ","
+		<< "-" << ","
+		<< "-" << ","
+		<< std::endl;
+	writePacketRecord << "0" << ","
+		<< "1" << ","
+		<< "2" << ","
+		<< "intact" << ","
+		<< "-" << ","
+		<< "-" << ","
+		<< std::endl;
+	writePacketRecord << "0" << ","
+		<< "2" << ","
+		<< "2" << ","
+		<< "intact" << ","
+		<< "-" << ","
+		<< "-" << ","
+		<< std::endl;
+	writePacketRecord.close();
 }
 
 int main()
 {
+	// generate traffic
+	generateTraffic();
+
 	// timing
 	Clock globalClock{};
 

@@ -4,6 +4,7 @@
 #include <vector>
 #include <array>
 #include <deque>
+#include <string>
 #include <iostream>
 
 // << overloading for std::vector

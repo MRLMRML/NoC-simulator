@@ -1,6 +1,13 @@
 #pragma once
 #include "DataStructures.h"
 #include "Port.h"
+#include "Clock.h"
+#include <fstream>
+#include <sstream>
+#include <cstdio>
+
+extern std::string g_dataFolderPath;
+extern std::string g_packetRecordPath;
 
 class DopplerNode
 {
@@ -20,22 +27,24 @@ public:
 
 	void injectTraffic();
 	void generatePacket();
+	void readPacket();
 	void dismantlePacket();
-	void recordInputTime();
+	void recordInputTime(const int packetInputTime);
 	void sendFlit();
 
 	void collectTraffic();
 	bool receiveFlit();
 	void assemblePacket();
-	void recordOutputTime();
+	void recordOutputTime(const int packetInputTime);
 
 public:
 	Port m_port{ PortType::TerminalPort };
 	int m_NID{}; // node ID of this DopplerNode
+	Clock m_localClock{};
 
 private:
 	bool m_isSilent{ true };
-	int m_injectTimes{ 1 };
+	int m_packetIDTracker{ 0 };
 	Packet m_packetGenerated{};
 	Packet m_packetReceived{};
 	std::deque<Flit> m_sourceQueue{};
