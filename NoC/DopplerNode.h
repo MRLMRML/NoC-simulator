@@ -26,7 +26,6 @@ public:
 	void viewFlit(const Flit& flit);
 
 	void injectTraffic();
-	//void generatePacket();
 	bool readPacket();
 	void dismantlePacket();
 	void recordInputTime(const float packetInputTime);

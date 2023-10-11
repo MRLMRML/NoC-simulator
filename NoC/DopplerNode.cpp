@@ -40,13 +40,6 @@ void DopplerNode::injectTraffic()
 	sendFlit(); // every cycle; it may stall when network is busy
 }
 
-//void DopplerNode::generatePacket()
-//{
-//	//m_packetGenerated.destination = 1;
-//	//m_packetGenerated.xID = 1919;
-//	//m_packetGenerated.xDATA = { 1, 1, 4, 5, 1, 4 };
-//}
-
 bool DopplerNode::readPacket()
 {
 	// read packet
