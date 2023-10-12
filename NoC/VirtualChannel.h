@@ -12,6 +12,8 @@ public:
 
 	Flit popfrontFlit();
 
+	bool isEmpty();
+
 	//void runOneStep();
 
 	// Data

@@ -55,7 +55,7 @@ public:
 	// ST
 	void traverseSwitch();
 	void setUpCrossbarConnections();
-	void updateCredits();
+	void transmitCredits();
 	void resetFields();
 	void resetSAFields(const PortType port);
 	void resetRCVAInputFields(const PortType port, const int virtualChannel);

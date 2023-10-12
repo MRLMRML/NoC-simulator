@@ -14,12 +14,14 @@ bool VirtualChannel::pushbackFlit(Flit flit)
 
 Flit VirtualChannel::popfrontFlit()
 {
-	if (m_buffer.size() == 0)
-	{
-		log(" Virtual channel: buffer empty ");
-	}
 	Flit flit{ m_buffer.front() };
 	m_buffer.pop_front();
 	log(" Virtual channel: flit pop front from buffer ");
 	return flit;
 }
+
+bool VirtualChannel::isEmpty()
+{
+	return m_buffer.empty();
+}
+

@@ -18,7 +18,7 @@
 
 // Virtual channel
 #define VC_NUMBER 2
-#define BUFFER_SIZE 2
+#define BUFFER_SIZE 4
 
 // Injection rate (packet per cycle)
 #define INJECTION_RATE 0.1
