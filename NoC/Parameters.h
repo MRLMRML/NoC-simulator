@@ -14,7 +14,7 @@
 
 // Flit size
 #define PACKET_SIZE 64 // bytes
-#define FLIT_SIZE 16 // bytes
+#define FLIT_SIZE 16 // bytes, link width
 
 // Virtual channel
 #define VC_NUMBER 2
