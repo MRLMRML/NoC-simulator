@@ -5,20 +5,20 @@
 #define MAX_XID 16
 
 // Network.h
-#define NETWORK_DIMENSION_X 3
-#define NETWORK_DIMENSION_Y 3
+#define NETWORK_DIMENSION_X 2
+#define NETWORK_DIMENSION_Y 1
 #define ROUTER_NUMBER NETWORK_DIMENSION_X * NETWORK_DIMENSION_Y
 // choose network type:
 #define MESH
 //#define TORUS
 
 // Flit size
-#define PACKET_SIZE 64 // bytes
-#define FLIT_SIZE 16 // bytes, link width
+#define PACKET_SIZE 16 // bytes
+#define FLIT_SIZE 4 // bytes, link width
 
 // Virtual channel
 #define VC_NUMBER 2
-#define BUFFER_SIZE 4
+#define BUFFER_SIZE 2
 
 // Injection rate (packet per cycle)
 #define INJECTION_RATE 0.1
@@ -38,7 +38,10 @@
 //#define LINKS_CYCLES 1
 //
 //
-//#define SIMULATION_CYCLES 500
+#define SIMULATION_CYCLES 500
+#define WARMUP_CYCLES 7
+#define MEASUREMENT_CYCLES 20
+#define DRAIN_CYCLES 0
 
 //// Memory cycle
 //#define MEMORY_READ_CYCLES 

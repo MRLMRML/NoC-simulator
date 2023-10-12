@@ -2478,36 +2478,36 @@ void Router::allocateTerminalPortSwitch()
 			if (m_terminalPort.m_outputPortRouted == PortType::NorthPort)
 			{
 				if (m_northPort.m_credit.at(m_terminalPort.m_outputVirtualChannelAllocated) > 0)
-				{
 					m_terminalPort.m_outputPortSwitched = PortType::NorthPort;
-				}
+				else
+					log(" Terminal port: credit stall (north port credit is zero) ");
 			}
 
 			// if terminal port is routed to south port 
 			if (m_terminalPort.m_outputPortRouted == PortType::SouthPort)
 			{
 				if (m_southPort.m_credit.at(m_terminalPort.m_outputVirtualChannelAllocated) > 0)
-				{
 					m_terminalPort.m_outputPortSwitched = PortType::SouthPort;
-				}
+				else
+					log(" Terminal port: credit stall (south port credit is zero) ");
 			}
 
 			// if terminal port is routed to west port 
 			if (m_terminalPort.m_outputPortRouted == PortType::WestPort)
 			{
 				if (m_westPort.m_credit.at(m_terminalPort.m_outputVirtualChannelAllocated) > 0)
-				{
 					m_terminalPort.m_outputPortSwitched = PortType::WestPort;
-				}
+				else
+					log(" Terminal port: credit stall (west port credit is zero) ");
 			}
 
 			// if terminal port is routed to east port 
 			if (m_terminalPort.m_outputPortRouted == PortType::EastPort)
 			{
 				if (m_eastPort.m_credit.at(m_terminalPort.m_outputVirtualChannelAllocated) > 0)
-				{
 					m_terminalPort.m_outputPortSwitched = PortType::EastPort;
-				}
+				else
+					log(" Terminal port: credit stall (east port credit is zero) ");
 			}
 		}
 	}
@@ -2588,6 +2588,7 @@ void Router::allocateNorthPortSwitch()
 					break;
 				}
 
+
 				// if north port is routed to south port 
 				if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
 				{
@@ -2596,6 +2597,8 @@ void Router::allocateNorthPortSwitch()
 						m_northPort.m_outputPortSwitched = PortType::SouthPort;
 						break;
 					}
+					else
+						log(" North port: credit stall (south port credit is zero) ");
 				}
 
 				// if north port is routed to west port 
@@ -2606,6 +2609,8 @@ void Router::allocateNorthPortSwitch()
 						m_northPort.m_outputPortSwitched = PortType::WestPort;
 						break;
 					}
+					else
+						log(" North port: credit stall (west port credit is zero) ");
 				}
 
 				// if north port is routed to east port 
@@ -2616,6 +2621,8 @@ void Router::allocateNorthPortSwitch()
 						m_northPort.m_outputPortSwitched = PortType::EastPort;
 						break;
 					}
+					else
+						log(" North port: credit stall (east port credit is zero) ");
 				}
 			}
 		}
@@ -2716,6 +2723,8 @@ void Router::allocateSouthPortSwitch()
 						m_southPort.m_outputPortSwitched = PortType::NorthPort;
 						break;
 					}
+					else
+						log(" South port: credit stall (north port credit is zero) ");
 				}
 
 				// if south port is routed to west port 
@@ -2726,6 +2735,8 @@ void Router::allocateSouthPortSwitch()
 						m_southPort.m_outputPortSwitched = PortType::WestPort;
 						break;
 					}
+					else
+						log(" South port: credit stall (west port credit is zero) ");
 				}
 
 				// if south port is routed to east port 
@@ -2736,6 +2747,8 @@ void Router::allocateSouthPortSwitch()
 						m_southPort.m_outputPortSwitched = PortType::EastPort;
 						break;
 					}
+					else
+						log(" South port: credit stall (east port credit is zero) ");
 				}
 			}
 		}
@@ -2836,6 +2849,8 @@ void Router::allocateWestPortSwitch()
 						m_westPort.m_outputPortSwitched = PortType::NorthPort;
 						break;
 					}
+					else
+						log(" West port: credit stall (north port credit is zero) ");
 				}
 
 				// if west port is routed to south port 
@@ -2846,6 +2861,8 @@ void Router::allocateWestPortSwitch()
 						m_westPort.m_outputPortSwitched = PortType::SouthPort;
 						break;
 					}
+					else
+						log(" West port: credit stall (south port credit is zero) ");
 				}
 
 				// if west port is routed to east port 
@@ -2856,6 +2873,8 @@ void Router::allocateWestPortSwitch()
 						m_westPort.m_outputPortSwitched = PortType::EastPort;
 						break;
 					}
+					else
+						log(" West port: credit stall (east port credit is zero) ");
 				}
 			}
 		}
@@ -2956,6 +2975,8 @@ void Router::allocateEastPortSwitch()
 						m_eastPort.m_outputPortSwitched = PortType::NorthPort;
 						break;
 					}
+					else
+						log(" East port: credit stall (north port credit is zero) ");
 				}
 
 				// if east port is routed to south port 
@@ -2966,6 +2987,8 @@ void Router::allocateEastPortSwitch()
 						m_eastPort.m_outputPortSwitched = PortType::SouthPort;
 						break;
 					}
+					else
+						log(" East port: credit stall (south port credit is zero) ");
 				}
 
 				// if east port is routed to west port 
@@ -2976,6 +2999,8 @@ void Router::allocateEastPortSwitch()
 						m_eastPort.m_outputPortSwitched = PortType::WestPort;
 						break;
 					}
+					else
+						log(" East port: credit stall (west port credit is zero) ");
 				}
 			}
 		}
@@ -3654,23 +3679,23 @@ void Router::viewTerminalPortData()
 
 	std::cout << " In flit register: ";
 	if (m_terminalPort.m_inFlitRegister.valid == true)
-		std::cout << m_terminalPort.m_inFlitRegister.flit.xID << m_terminalPort.m_inFlitRegister.flit.flitType;
+		std::cout << m_terminalPort.m_inFlitRegister.flit.xID << m_terminalPort.m_inFlitRegister.flit.flitType << m_terminalPort.m_inFlitRegister.flit.bodyFlitNo;
 	std::cout << std::endl;
 
 	std::cout << " Flit register: ";
 	if (m_terminalPort.m_flitRegister.valid == true)
-		std::cout << m_terminalPort.m_flitRegister.flit.xID << m_terminalPort.m_flitRegister.flit.flitType;
+		std::cout << m_terminalPort.m_flitRegister.flit.xID << m_terminalPort.m_flitRegister.flit.flitType << m_terminalPort.m_flitRegister.flit.bodyFlitNo;
 	std::cout << std::endl;
 
 	std::cout << " Crossbar input register: ";
 	if (m_terminalPort.m_crossbarInputRegister.valid == true)
-		std::cout << m_terminalPort.m_crossbarInputRegister.flit.xID << m_terminalPort.m_crossbarInputRegister.flit.flitType;
+		std::cout << m_terminalPort.m_crossbarInputRegister.flit.xID << m_terminalPort.m_crossbarInputRegister.flit.flitType << m_terminalPort.m_crossbarInputRegister.flit.bodyFlitNo;
 	std::cout << std::endl;
 
 	std::cout << " Out flit register: ";
 	if (m_terminalPort.m_outFlitRegister.valid == true)
 	{
-		std::cout << m_terminalPort.m_outFlitRegister.flit.xID << m_terminalPort.m_outFlitRegister.flit.flitType;
+		std::cout << m_terminalPort.m_outFlitRegister.flit.xID << m_terminalPort.m_outFlitRegister.flit.flitType << m_terminalPort.m_outFlitRegister.flit.bodyFlitNo;
 	}
 	std::cout << std::endl;
 	log(" -------------------------------------- ");
@@ -3682,25 +3707,25 @@ void Router::viewNorthPortData()
 
 	std::cout << " In flit register: ";
 	if (m_northPort.m_inFlitRegister.valid == true)
-		std::cout << m_northPort.m_inFlitRegister.flit.xID << m_northPort.m_inFlitRegister.flit.flitType;
+		std::cout << m_northPort.m_inFlitRegister.flit.xID << m_northPort.m_inFlitRegister.flit.flitType << m_northPort.m_inFlitRegister.flit.bodyFlitNo;
 	std::cout << std::endl;
 
 	log(" Virtual channels: ");
 	for (int i{}; i < VC_NUMBER; ++i)
 	{
 		for (int j{}; j < m_northPort.m_virtualChannels.at(i).m_buffer.size(); ++j)
-			std::cout << " | " << m_northPort.m_virtualChannels.at(i).m_buffer.at(j).xID << m_northPort.m_virtualChannels.at(i).m_buffer.at(j).flitType;
+			std::cout << " | " << m_northPort.m_virtualChannels.at(i).m_buffer.at(j).xID << m_northPort.m_virtualChannels.at(i).m_buffer.at(j).flitType << m_northPort.m_virtualChannels.at(i).m_buffer.at(j).bodyFlitNo;
 		std::cout << " | " << std::endl;
 	}
 
 	std::cout << " Crossbar input register: ";
 	if (m_northPort.m_crossbarInputRegister.valid == true)
-		std::cout << m_northPort.m_crossbarInputRegister.flit.xID << m_northPort.m_crossbarInputRegister.flit.flitType;
+		std::cout << m_northPort.m_crossbarInputRegister.flit.xID << m_northPort.m_crossbarInputRegister.flit.flitType << m_northPort.m_crossbarInputRegister.flit.bodyFlitNo;
 	std::cout << std::endl;
 
 	std::cout << " Out flit register: ";
 	if (m_northPort.m_outFlitRegister.valid == true)
-		std::cout << m_northPort.m_outFlitRegister.flit.xID << m_northPort.m_outFlitRegister.flit.flitType;
+		std::cout << m_northPort.m_outFlitRegister.flit.xID << m_northPort.m_outFlitRegister.flit.flitType << m_northPort.m_outFlitRegister.flit.bodyFlitNo;
 	std::cout << std::endl;
 	log(" -------------------------------------- ");
 }
@@ -3711,25 +3736,25 @@ void Router::viewSouthPortData()
 
 	std::cout << " In flit register: ";
 	if (m_southPort.m_inFlitRegister.valid == true)
-		std::cout << m_southPort.m_inFlitRegister.flit.xID << m_southPort.m_inFlitRegister.flit.flitType;
+		std::cout << m_southPort.m_inFlitRegister.flit.xID << m_southPort.m_inFlitRegister.flit.flitType << m_southPort.m_inFlitRegister.flit.bodyFlitNo;
 	std::cout << std::endl;
 
 	log(" Virtual channels: ");
 	for (int i{}; i < VC_NUMBER; ++i)
 	{
 		for (int j{}; j < m_southPort.m_virtualChannels.at(i).m_buffer.size(); ++j)
-			std::cout << " | " << m_southPort.m_virtualChannels.at(i).m_buffer.at(j).xID << m_southPort.m_virtualChannels.at(i).m_buffer.at(j).flitType;
+			std::cout << " | " << m_southPort.m_virtualChannels.at(i).m_buffer.at(j).xID << m_southPort.m_virtualChannels.at(i).m_buffer.at(j).flitType << m_southPort.m_virtualChannels.at(i).m_buffer.at(j).bodyFlitNo;
 		std::cout << " | " << std::endl;
 	}
 
 	std::cout << " Crossbar input register: ";
 	if (m_southPort.m_crossbarInputRegister.valid == true)
-		std::cout << m_southPort.m_crossbarInputRegister.flit.xID << m_southPort.m_crossbarInputRegister.flit.flitType;
+		std::cout << m_southPort.m_crossbarInputRegister.flit.xID << m_southPort.m_crossbarInputRegister.flit.flitType << m_southPort.m_crossbarInputRegister.flit.bodyFlitNo;
 	std::cout << std::endl;
 
 	std::cout << " Out flit register: ";
 	if (m_southPort.m_outFlitRegister.valid == true)
-		std::cout << m_southPort.m_outFlitRegister.flit.xID << m_southPort.m_outFlitRegister.flit.flitType;
+		std::cout << m_southPort.m_outFlitRegister.flit.xID << m_southPort.m_outFlitRegister.flit.flitType << m_southPort.m_outFlitRegister.flit.bodyFlitNo;
 	std::cout << std::endl;
 	log(" -------------------------------------- ");
 }
@@ -3740,25 +3765,25 @@ void Router::viewWestPortData()
 
 	std::cout << " In flit register: ";
 	if (m_westPort.m_inFlitRegister.valid == true)
-		std::cout << m_westPort.m_inFlitRegister.flit.xID << m_westPort.m_inFlitRegister.flit.flitType;
+		std::cout << m_westPort.m_inFlitRegister.flit.xID << m_westPort.m_inFlitRegister.flit.flitType << m_westPort.m_inFlitRegister.flit.bodyFlitNo;
 	std::cout << std::endl;
 
 	log(" Virtual channels: ");
 	for (int i{}; i < VC_NUMBER; ++i)
 	{
 		for (int j{}; j < m_westPort.m_virtualChannels.at(i).m_buffer.size(); ++j)
-			std::cout << " | " << m_westPort.m_virtualChannels.at(i).m_buffer.at(j).xID << m_westPort.m_virtualChannels.at(i).m_buffer.at(j).flitType;
+			std::cout << " | " << m_westPort.m_virtualChannels.at(i).m_buffer.at(j).xID << m_westPort.m_virtualChannels.at(i).m_buffer.at(j).flitType << m_westPort.m_virtualChannels.at(i).m_buffer.at(j).bodyFlitNo;
 		std::cout << " | " << std::endl;
 	}
 
 	std::cout << " Crossbar input register: ";
 	if (m_westPort.m_crossbarInputRegister.valid == true)
-		std::cout << m_westPort.m_crossbarInputRegister.flit.xID << m_westPort.m_crossbarInputRegister.flit.flitType;
+		std::cout << m_westPort.m_crossbarInputRegister.flit.xID << m_westPort.m_crossbarInputRegister.flit.flitType << m_westPort.m_crossbarInputRegister.flit.bodyFlitNo;
 	std::cout << std::endl;
 
 	std::cout << " Out flit register: ";
 	if (m_westPort.m_outFlitRegister.valid == true)
-		std::cout << m_westPort.m_outFlitRegister.flit.xID << m_westPort.m_outFlitRegister.flit.flitType;
+		std::cout << m_westPort.m_outFlitRegister.flit.xID << m_westPort.m_outFlitRegister.flit.flitType << m_westPort.m_outFlitRegister.flit.bodyFlitNo;
 	std::cout << std::endl;
 	log(" -------------------------------------- ");
 }
@@ -3769,25 +3794,25 @@ void Router::viewEastPortData()
 
 	std::cout << " In flit register: ";
 	if (m_eastPort.m_inFlitRegister.valid == true)
-		std::cout << m_eastPort.m_inFlitRegister.flit.xID << m_eastPort.m_inFlitRegister.flit.flitType;
+		std::cout << m_eastPort.m_inFlitRegister.flit.xID << m_eastPort.m_inFlitRegister.flit.flitType << m_eastPort.m_inFlitRegister.flit.bodyFlitNo;
 	std::cout << std::endl;
 
 	log(" Virtual channels: ");
 	for (int i{}; i < VC_NUMBER; ++i)
 	{
 		for (int j{}; j < m_eastPort.m_virtualChannels.at(i).m_buffer.size(); ++j)
-			std::cout << " | " << m_eastPort.m_virtualChannels.at(i).m_buffer.at(j).xID << m_eastPort.m_virtualChannels.at(i).m_buffer.at(j).flitType;
+			std::cout << " | " << m_eastPort.m_virtualChannels.at(i).m_buffer.at(j).xID << m_eastPort.m_virtualChannels.at(i).m_buffer.at(j).flitType << m_eastPort.m_virtualChannels.at(i).m_buffer.at(j).bodyFlitNo;
 		std::cout << " | " << std::endl;
 	}
 
 	std::cout << " Crossbar input register: ";
 	if (m_eastPort.m_crossbarInputRegister.valid == true)
-		std::cout << m_eastPort.m_crossbarInputRegister.flit.xID << m_eastPort.m_crossbarInputRegister.flit.flitType;
+		std::cout << m_eastPort.m_crossbarInputRegister.flit.xID << m_eastPort.m_crossbarInputRegister.flit.flitType << m_eastPort.m_crossbarInputRegister.flit.bodyFlitNo;
 	std::cout << std::endl;
 
 	std::cout << " Out flit register: ";
 	if (m_eastPort.m_outFlitRegister.valid == true)
-		std::cout << m_eastPort.m_outFlitRegister.flit.xID << m_eastPort.m_outFlitRegister.flit.flitType;
+		std::cout << m_eastPort.m_outFlitRegister.flit.xID << m_eastPort.m_outFlitRegister.flit.flitType << m_eastPort.m_outFlitRegister.flit.bodyFlitNo;
 	std::cout << std::endl;
 	log(" -------------------------------------- ");
 }

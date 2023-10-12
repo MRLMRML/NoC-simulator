@@ -2,9 +2,6 @@
 #include "Router.h"
 #include "Links.h"
 #include "DopplerNode.h"
-//#include <array>
-
-//extern size_t globalCycle;
 
 class Network
 {
@@ -34,5 +31,4 @@ public:
 
 private:
 	std::vector<MappingTableLine> m_mappingTable{};
-	//size_t m_networkCycle{};
 };

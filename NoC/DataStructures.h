@@ -141,6 +141,7 @@ struct Flit
 	Flit(const PortType port,
 		const int virtualChannel,
 		const FlitType flitType,
+		const int bodyFlitNo,
 		const int xID,
 		const int MID,
 		const int SEQID)
@@ -148,6 +149,7 @@ struct Flit
 		port{ port },
 		virtualChannel{ virtualChannel },
 		flitType{ flitType },
+		bodyFlitNo{ bodyFlitNo },
 		xID{ xID },
 		MID{ MID },
 		SEQID{ SEQID } {}
@@ -192,6 +194,7 @@ struct Flit
 	PortType port{PortType::Unselected};
 	int virtualChannel{-1};
 	FlitType flitType{ FlitType::DefaultFlit };
+	int bodyFlitNo{0};
 	int destination{-1};
 	int xID{-1};
 	PacketType RWQB{PacketType::Default};

@@ -88,7 +88,27 @@ int main()
 	//dopplerNodes.push_back(node5);
 	//dopplerNodes.push_back(node7);
 
-	//while (true)
+	//for (int i{}; i < WARMUP_CYCLES; ++i)
+	//{
+	//	for (auto& node : dopplerNodes)
+	//	{
+	//		node->runOneStep();
+	//	}
+	//	network->runOneStep();
+	//	globalClock.tickGlobalClock();
+	//}
+
+	//for (int i{}; i < MEASUREMENT_CYCLES; ++i)
+	//{
+	//	for (auto& node : dopplerNodes)
+	//	{
+	//		node->runOneStep();
+	//	}
+	//	network->runOneStep();
+	//	globalClock.tickGlobalClock();
+	//}
+
+	//for (int i{}; i < DRAIN_CYCLES; ++i)
 	//{
 	//	for (auto& node : dopplerNodes)
 	//	{
@@ -175,6 +195,34 @@ int main()
 	network->m_routers.at(1).runOneStep();
 	globalClock.tickGlobalClock();
 	
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
+
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
+
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
+
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
+
 	node0->runOneStep();
 	node1->runOneStep();
 	network->m_links.runOneStep();

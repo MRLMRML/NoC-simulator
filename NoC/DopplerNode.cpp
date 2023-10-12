@@ -122,9 +122,9 @@ void DopplerNode::dismantlePacket()
 	viewFlit(headFlit);
 
 	// BodyFlit
-	for (size_t i{}; i < (flitCount - 2); ++i)
+	for (int i{}; i < (flitCount - 2); ++i)
 	{
-		Flit bodyFlit{ PortType::Unselected, -1, FlitType::BodyFlit, m_packetGenerated.xID, m_packetGenerated.MID, m_packetGenerated.SEQID };
+		Flit bodyFlit{ PortType::Unselected, -1, FlitType::BodyFlit, i+1, m_packetGenerated.xID, m_packetGenerated.MID, m_packetGenerated.SEQID };
 		m_sourceQueue.push_back(bodyFlit);
 		viewFlit(bodyFlit);
 	}

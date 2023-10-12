@@ -126,6 +126,7 @@ std::ostream& operator<<(std::ostream& stream, const Flit& flit)
 		<< flit.virtualChannel << "|"
 		<< flit.flitType << "|"
 		<< flit.destination << "|"
+		<< flit.bodyFlitNo << "|"
 		<< flit.xID << "|"
 		<< flit.RWQB << "|"
 		<< flit.MID << "|"

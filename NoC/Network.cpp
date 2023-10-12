@@ -3,9 +3,9 @@
 void Network::setUpConnections()
 {
 #if defined(MESH)
-	for (size_t j{}; j < NETWORK_DIMENSION_Y; ++j)
+	for (int j{}; j < NETWORK_DIMENSION_Y; ++j)
 	{
-		for (size_t i{}; i < NETWORK_DIMENSION_X; ++i)
+		for (int i{}; i < NETWORK_DIMENSION_X; ++i)
 		{
 			if (i != NETWORK_DIMENSION_X - 1)
 				m_links.setUpConnection(m_routers[i + j * NETWORK_DIMENSION_Y].m_eastPort, m_routers[(i + 1) + j * NETWORK_DIMENSION_Y].m_westPort);
@@ -17,9 +17,9 @@ void Network::setUpConnections()
 #endif
 
 #if defined(TORUS)
-	for (size_t j{}; j < NETWORK_DIMENSION_Y; ++j)
+	for (int j{}; j < NETWORK_DIMENSION_Y; ++j)
 	{
-		for (size_t i{}; i < NETWORK_DIMENSION_X; ++i)
+		for (int i{}; i < NETWORK_DIMENSION_X; ++i)
 		{
 			if (i == NETWORK_DIMENSION_X - 1)
 				m_links.setUpConnection(m_routers[i + j * NETWORK_DIMENSION_Y].m_eastPort, m_routers[0 + j * NETWORK_DIMENSION_Y].m_westPort);
@@ -40,9 +40,9 @@ void Network::setUpConnections()
 void Network::printRouterIDs()
 {
 	log(" Network: below is routers ID ");
-	for (size_t j{}; j < NETWORK_DIMENSION_Y; ++j)
+	for (int j{}; j < NETWORK_DIMENSION_Y; ++j)
 	{
-		for (size_t i{}; i < NETWORK_DIMENSION_X; ++i)
+		for (int i{}; i < NETWORK_DIMENSION_X; ++i)
 		{
 			std::cout << m_routers[i + j * NETWORK_DIMENSION_Y].m_routerID;
 		}
@@ -61,9 +61,9 @@ void Network::mountNode(RouterID routerID, DopplerNode* node)
 void Network::printNodeIDs()
 {
 	log(" Network: below is nodes ID ");
-	for (size_t j{}; j < NETWORK_DIMENSION_Y; ++j)
+	for (int j{}; j < NETWORK_DIMENSION_Y; ++j)
 	{
-		for (size_t i{}; i < NETWORK_DIMENSION_X; ++i)
+		for (int i{}; i < NETWORK_DIMENSION_X; ++i)
 		{
 			if (m_routers[i + j * NETWORK_DIMENSION_Y].m_NID != -1)
 				std::cout << " " << m_routers[i + j * NETWORK_DIMENSION_Y].m_NID;
