@@ -194,13 +194,12 @@ void DopplerNode::recordInputTime(const float packetInputTime)
 
 void DopplerNode::sendFlit()
 {
-	if (m_port.m_outFlitRegister.valid == false)
+	if (m_port.m_outFlitRegister.size() < REGISTER_DEPTH)
 	{
 		if (!m_sourceQueue.empty())
 		{
-			m_port.m_outFlitRegister.flit = m_sourceQueue.front();
+			m_port.m_outFlitRegister.push_back(m_sourceQueue.front());
 			m_sourceQueue.pop_front();
-			m_port.m_outFlitRegister.valid = true;
 		}
 	}
 }
@@ -212,10 +211,10 @@ void DopplerNode::collectTraffic()
 
 bool DopplerNode::receiveFlit()
 {
-	if (m_port.m_inFlitRegister.valid == true)
+	if (!m_port.m_inFlitRegister.empty())
 	{
-		Flit flit{ m_port.m_inFlitRegister.flit };
-		m_port.m_inFlitRegister.valid = false;
+		Flit flit{ m_port.m_inFlitRegister.front()};
+		m_port.m_inFlitRegister.pop_front();
 		m_flitReorderBuffer.push_back(flit);
 		return true;
 	}

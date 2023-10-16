@@ -12,6 +12,8 @@
 #define MESH
 //#define TORUS
 
+#define REGISTER_DEPTH 2
+
 // Flit size
 #define PACKET_SIZE 16 // bytes
 #define FLIT_SIZE 4 // bytes, link width

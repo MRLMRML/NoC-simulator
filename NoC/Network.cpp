@@ -60,7 +60,7 @@ void Network::mountNode(RouterID routerID, DopplerNode* node)
 
 void Network::printNodeIDs()
 {
-	log(" Network: below is nodes ID ");
+	log(" Network: below is node IDs ");
 	for (int j{}; j < NETWORK_DIMENSION_Y; ++j)
 	{
 		for (int i{}; i < NETWORK_DIMENSION_X; ++i)
@@ -76,7 +76,8 @@ void Network::printNodeIDs()
 
 void Network::viewMappingTable()
 {
-	log(" Network: below is mapping table: router ID | node ID ");
+	log(" Network: below is mapping table: ");
+	log(" router ID | node ID ");
 	for (auto& mappingTableLine : m_mappingTable)
 	{
 		std::cout << mappingTableLine.routerID << "| " << mappingTableLine.NID << std::endl;

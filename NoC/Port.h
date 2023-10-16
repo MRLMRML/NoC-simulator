@@ -12,13 +12,13 @@ public:
 	virtual void receiveFlit() {};
 
 	// Input port
-	FlitRegister m_inFlitRegister;
-	CreditRegister m_outCreditRegister;
-	FlitRegister m_crossbarInputRegister;
+	std::deque<Flit> m_inFlitRegister;
+	std::deque<Credit> m_outCreditRegister;
+	std::deque<Flit> m_crossbarInputRegister;
 
 	// Output port
-	FlitRegister m_outFlitRegister;
-	CreditRegister m_inCreditRegister;
+	std::deque<Flit> m_outFlitRegister;
+	std::deque<Credit> m_inCreditRegister;
 
 	// port type
 	PortType m_portType{};

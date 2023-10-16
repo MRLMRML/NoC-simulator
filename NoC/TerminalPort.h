@@ -11,7 +11,7 @@ public:
 	void receiveFlit() override;
 
 	// Input units
-	FlitRegister m_flitRegister{};
+	std::deque<Flit> m_flitRegister{};
 	VirtualChannelState m_virtualChannelState{}; // I(default) -> R -> V -> A
 	PortType m_outputPortRouted{}; // Unselected (default)
 	int m_outputVirtualChannelAllocated{ -1 }; // -1 is default

@@ -1,2 +1,2 @@
 Source,Packet_ID,Destination,Status,Input_time,Output_time,
-0,0,1,received,0.000000,13.000000,
+0,0,1,sent,0.000000,-,

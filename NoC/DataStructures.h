@@ -212,17 +212,17 @@ struct Credit
 	int virtualChannel{};
 };
 
-struct FlitRegister
-{
-	bool valid{ false };
-	Flit flit{};
-};
-
-struct CreditRegister
-{
-	bool valid{ false };
-	Credit credit{};
-};
+//struct FlitRegister
+//{
+//	bool valid{ false };
+//	Flit flit{};
+//};
+//
+//struct CreditRegister
+//{
+//	bool valid{ false };
+//	Credit credit{};
+//};
 
 enum class PEType
 {

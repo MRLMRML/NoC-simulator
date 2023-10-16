@@ -1,8 +1,6 @@
 #pragma once
-#include "Port.h"
+#include "Link.h"
 #include "Log.h"
-#include "Clock.h"
-#include <utility>
 #include <set>
 
 class Links
@@ -21,7 +19,7 @@ public:
 	void runOneStep();
 
 	// Timing
-	Clock m_localClock{};
+	//Clock m_localClock{};
 private:
-	std::set<std::pair<Port*, Port*>> m_connections{};
+	std::set<Link> m_connections{};
 };
