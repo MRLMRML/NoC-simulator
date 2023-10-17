@@ -21,13 +21,13 @@ void generateTraffic()
 		<< "-" << ","
 		<< "-" << ","
 		<< std::endl;
-	//writePacketRecord << "0" << ","
-	//	<< "1" << ","
-	//	<< "2" << ","
-	//	<< "intact" << ","
-	//	<< "-" << ","
-	//	<< "-" << ","
-	//	<< std::endl;
+	writePacketRecord << "0" << ","
+		<< "1" << ","
+		<< "1" << ","
+		<< "intact" << ","
+		<< "-" << ","
+		<< "-" << ","
+		<< std::endl;
 	//writePacketRecord << "0" << ","
 	//	<< "1" << ","
 	//	<< "3" << ","
@@ -100,8 +100,13 @@ int main()
 
 	//for (int i{}; i < MEASUREMENT_CYCLES; ++i)
 	//{
-	//// update enable signals
-	//  
+	//	// update enable signals
+	//	network->updateEnable();
+	//	for (auto& node : dopplerNodes)
+	//	{
+	//		node->updateEnable();
+	//	}
+
 	//	for (auto& node : dopplerNodes)
 	//	{
 	//		node->runOneStep();
@@ -230,6 +235,136 @@ int main()
 	network->m_routers.at(1).runOneStep();
 	globalClock.tickGlobalClock();
 	
+	network->updateEnable();
+	node0->updateEnable();
+	node1->updateEnable();
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	node0->updateEnable();
+	node1->updateEnable();
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	node0->updateEnable();
+	node1->updateEnable();
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	node0->updateEnable();
+	node1->updateEnable();
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	node0->updateEnable();
+	node1->updateEnable();
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	node0->updateEnable();
+	node1->updateEnable();
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	node0->updateEnable();
+	node1->updateEnable();
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	node0->updateEnable();
+	node1->updateEnable();
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	node0->updateEnable();
+	node1->updateEnable();
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	node0->updateEnable();
+	node1->updateEnable();
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	node0->updateEnable();
+	node1->updateEnable();
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	node0->updateEnable();
+	node1->updateEnable();
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	node0->updateEnable();
+	node1->updateEnable();
+	node0->runOneStep();
+	node1->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	globalClock.tickGlobalClock();
+
 	network->updateEnable();
 	node0->updateEnable();
 	node1->updateEnable();

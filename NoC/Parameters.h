@@ -42,7 +42,7 @@
 //
 #define SIMULATION_CYCLES 500
 #define WARMUP_CYCLES 7
-#define MEASUREMENT_CYCLES 20
+#define MEASUREMENT_CYCLES 50
 #define DRAIN_CYCLES 0
 
 //// Memory cycle

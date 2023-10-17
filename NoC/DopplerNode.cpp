@@ -31,10 +31,7 @@ void DopplerNode::injectTraffic()
 
 			m_localClock.tickLocalClock(static_cast<float>(1 / INJECTION_RATE));
 		}
-		else
-		{
-			m_localClock.synchronizeClock();
-		}
+		m_localClock.synchronizeClock();
 	}
 
 	sendFlit(); // every cycle; it may stall when network is busy
