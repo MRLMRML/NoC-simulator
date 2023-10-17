@@ -24,6 +24,7 @@ public:
 	void updateMappingTables();
 	void terminateConnections();
 	//bool isQuiet();
+	void updateEnable();
 
 public:
 	std::array<Router, ROUTER_NUMBER> m_routers{};

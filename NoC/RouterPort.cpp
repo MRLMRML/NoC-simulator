@@ -4,27 +4,30 @@ void RouterPort::receiveFlit()
 {
 	if (!m_inFlitRegister.empty())
 	{
-		if (m_inFlitRegister.front().flitType == FlitType::HeadFlit
-			|| m_inFlitRegister.front().flitType == FlitType::HeadTailFlit)
+		if (m_enable)
 		{
-			if (m_virtualChannels.at(m_inFlitRegister.front().virtualChannel).m_virtualChannelState == VirtualChannelState::I)
+			if (m_inFlitRegister.front().flitType == FlitType::HeadFlit
+				|| m_inFlitRegister.front().flitType == FlitType::HeadTailFlit)
 			{
-				if (m_virtualChannels.at(m_inFlitRegister.front().virtualChannel).pushbackFlit(m_inFlitRegister.front()))
+				if (m_virtualChannels.at(m_inFlitRegister.front().virtualChannel).m_virtualChannelState == VirtualChannelState::I)
 				{
-					m_virtualChannels.at(m_inFlitRegister.front().virtualChannel).m_virtualChannelState = VirtualChannelState::R; // I -> R
-					m_inFlitRegister.pop_front();
-					log(" Router port: head or headtail flit received ");
+					if (m_virtualChannels.at(m_inFlitRegister.front().virtualChannel).pushbackFlit(m_inFlitRegister.front()))
+					{
+						m_virtualChannels.at(m_inFlitRegister.front().virtualChannel).m_virtualChannelState = VirtualChannelState::R; // I -> R
+						m_inFlitRegister.pop_front();
+						log(" Router port: head or headtail flit received ");
+					}
 				}
 			}
-		}
-		else
-		{
-			if (m_virtualChannels.at(m_inFlitRegister.front().virtualChannel).m_virtualChannelState == VirtualChannelState::A)
+			else
 			{
-				if (m_virtualChannels.at(m_inFlitRegister.front().virtualChannel).pushbackFlit(m_inFlitRegister.front()) == true)
+				if (m_virtualChannels.at(m_inFlitRegister.front().virtualChannel).m_virtualChannelState == VirtualChannelState::A)
 				{
-					m_inFlitRegister.pop_front();
-					log(" Router port: body or tail flit received ");
+					if (m_virtualChannels.at(m_inFlitRegister.front().virtualChannel).pushbackFlit(m_inFlitRegister.front()) == true)
+					{
+						m_inFlitRegister.pop_front();
+						log(" Router port: body or tail flit received ");
+					}
 				}
 			}
 		}

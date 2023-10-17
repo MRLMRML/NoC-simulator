@@ -14,6 +14,8 @@ public:
 
 	void terminateAllConnections();
 
+	void updateEnable();
+
 	//bool areEmpty();
 
 	void runOneStep();

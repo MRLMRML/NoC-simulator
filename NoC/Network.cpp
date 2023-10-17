@@ -111,6 +111,15 @@ void Network::runOneStep()
 	}
 }
 
+void Network::updateEnable()
+{
+	m_links.updateEnable();
+	for (auto& router : m_routers)
+	{
+		router.updateEnable();
+	}
+}
+
 //void Network::runOneStep()
 //{
 //	if (globalCycle >= m_networkCycle)

@@ -67,6 +67,9 @@ public:
 	// Timing
 	void synchronizeClocks();
 
+	// Enable
+	void updateEnable();
+
 	// debug
 	void viewData();
 	void viewTerminalPortData();

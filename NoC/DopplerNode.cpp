@@ -33,7 +33,7 @@ void DopplerNode::injectTraffic()
 		}
 		else
 		{
-			m_localClock.synchronizeClocks();
+			m_localClock.synchronizeClock();
 		}
 	}
 

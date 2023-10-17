@@ -36,6 +36,8 @@ public:
 	void assemblePacket();
 	void recordOutputTime(const float packetInputTime);
 
+	void updateEnable() { m_port.updateEnable(); }
+
 public:
 	Port m_port{ PortType::TerminalPort };
 	int m_NID{}; // node ID of this DopplerNode

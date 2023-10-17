@@ -3642,14 +3642,23 @@ void Router::traverseThisSwitchThenAllocateNextSwitch()
 
 void Router::synchronizeClocks()
 {
-	m_terminalPort.m_localClock.synchronizeClocks();
+	m_terminalPort.m_localClock.synchronizeClock();
 	for (int i{}; i < VC_NUMBER; ++i)
 	{
-		m_northPort.m_virtualChannels.at(i).m_localClock.synchronizeClocks();
-		m_southPort.m_virtualChannels.at(i).m_localClock.synchronizeClocks();
-		m_westPort.m_virtualChannels.at(i).m_localClock.synchronizeClocks();
-		m_eastPort.m_virtualChannels.at(i).m_localClock.synchronizeClocks();
+		m_northPort.m_virtualChannels.at(i).m_localClock.synchronizeClock();
+		m_southPort.m_virtualChannels.at(i).m_localClock.synchronizeClock();
+		m_westPort.m_virtualChannels.at(i).m_localClock.synchronizeClock();
+		m_eastPort.m_virtualChannels.at(i).m_localClock.synchronizeClock();
 	}
+}
+
+void Router::updateEnable()
+{
+	m_terminalPort.updateEnable();
+	m_northPort.updateEnable();
+	m_southPort.updateEnable();
+	m_westPort.updateEnable();
+	m_eastPort.updateEnable();
 }
 
 void Router::viewData()
