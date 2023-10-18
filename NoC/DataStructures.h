@@ -50,6 +50,7 @@ struct VirtualChannelArbitrationRecorderLine
 	bool operator==(const VirtualChannelArbitrationRecorderLine& record) const;
 	PortType port{};
 	int virtualChannel{};
+	int virtualChannelPriority{};
 };
 
 struct SwitchArbitrationRecorderLine

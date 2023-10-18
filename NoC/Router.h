@@ -33,8 +33,8 @@ public:
 	void allocateSouthPortVirtualChannel();
 	void allocateWestPortVirtualChannel();
 	void allocateEastPortVirtualChannel();
-	void winVirtualChannelArbitration(const PortType port, const int virtualChannel);
-	void loseVirtualChannelArbitration(const PortType port, const int virtualChannel);
+	void winVirtualChannelArbitration(const PortType port, const int virtualChannel, const int virtualChannelPriority);
+	void loseVirtualChannelArbitration(const PortType port, const int virtualChannel, const int virtualChannelPriority);
 	void activateVirtualChannel();
 	void updateVirtualChannelPriority();
 	
