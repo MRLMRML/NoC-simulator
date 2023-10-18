@@ -40,7 +40,7 @@ void Crossbar::traversal()
 		}
 
 		else
-			throw std::runtime_error{ " Crossbar: out flit register is not set to false " };
+			throw std::runtime_error{ " Crossbar: out flit register is not empty " };
 	}
 
 	//// create a set that contains input ports only
