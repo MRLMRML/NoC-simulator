@@ -23,14 +23,14 @@ void generateTraffic()
 		<< std::endl;
 	writePacketRecord << "0" << ","
 		<< "1" << ","
-		<< "1" << ","
+		<< "2" << ","
 		<< "intact" << ","
 		<< "-" << ","
 		<< "-" << ","
 		<< std::endl;
 	writePacketRecord << "0" << ","
 		<< "2" << ","
-		<< "1" << ","
+		<< "3" << ","
 		<< "intact" << ","
 		<< "-" << ","
 		<< "-" << ","
@@ -52,6 +52,8 @@ int main()
 	// create doppler nodes
 	DopplerNode* node0{ new DopplerNode{0, false} };
 	DopplerNode* node1{ new DopplerNode{1} };
+	DopplerNode* node2{ new DopplerNode{2} };
+	DopplerNode* node3{ new DopplerNode{3} };
 	//DopplerNode* node2{ new DopplerNode{2} };
 	//DopplerNode* node3{ new DopplerNode{3, packet3} };
 	//DopplerNode* node4{ new DopplerNode{4} };
@@ -68,6 +70,8 @@ int main()
 	// mount nodes on the network
 	network->mountNode({ 0, 0 }, node0);
 	network->mountNode({ 0, 1 }, node1);
+	network->mountNode({ 1, 0 }, node2);
+	network->mountNode({ 1, 1 }, node3);
 	//network->mountNode({ 0, 2 }, node2);
 	//network->mountNode({ 1, 0 }, node3);
 	//network->mountNode({ 1, 1 }, node4);
@@ -83,6 +87,8 @@ int main()
 	std::vector<DopplerNode*> dopplerNodes;
 	dopplerNodes.push_back(node0);
 	dopplerNodes.push_back(node1);
+	dopplerNodes.push_back(node2);
+	dopplerNodes.push_back(node3);
 	//dopplerNodes.push_back(node3);
 	//dopplerNodes.push_back(node4);
 	//dopplerNodes.push_back(node5);
