@@ -6,7 +6,8 @@ void Router::runOneStep()
 	computeRoute();
 	allocateVirtualChannel();
 	traverseThisSwitchThenAllocateNextSwitch();
-	synchronizeClocks();
+	synchronizeTriggerClocks();
+	synchronizeExecutionClocks();
 	viewData(); // debug
 }
 
@@ -56,71 +57,32 @@ void Router::routeTerminalPort()
 	{
 		if (m_terminalPort.m_virtualChannelState == VirtualChannelState::R)
 		{
-			//if (m_terminalPort.m_inFlitRegister.flit.flitType != FlitType::HeadFlit ||
-			//	m_terminalPort.m_inFlitRegister.flit.flitType != FlitType::HeadTailFlit)
-			//{
-			//	throw std::runtime_error{ " Terminal port routing error: not head flit " };
-			//}
-
-			RouterID destination{};
-			// lookup mapping table and find the routerID by flit.destination
-			for (auto& mappingTableLine : m_mappingTable)
+			if (!m_terminalPort.m_localClock.isWaitingForExecution())
 			{
-				if (mappingTableLine.NID == m_terminalPort.m_flitRegister.front().destination)
-				{
-					destination = mappingTableLine.routerID;
-					break;
-				}
+				m_terminalPort.m_localClock.tickExecutionClock(EXECUTION_TIME_ROUTER_RC - 1);
+				m_terminalPort.m_localClock.toggleWaitingForExecution();
 			}
 
-			// XY routing
-	#if defined(MESH)
-			if (destination.x == m_routerID.x)
+			if (m_terminalPort.m_localClock.executeLocalEvent())
 			{
-				if (destination.y < m_routerID.y)
+				RouterID destination{};
+				// lookup mapping table and find the routerID by flit.destination
+				for (auto& mappingTableLine : m_mappingTable)
 				{
-					m_terminalPort.m_outputPortRouted = PortType::NorthPort;
-					log(" Terminal port: routed to north port ");
-				}
-				else
-				{
-					m_terminalPort.m_outputPortRouted = PortType::SouthPort;
-					log(" Terminal port: routed to south port ");
-				}
-			}
-			else if (destination.x < m_routerID.x)
-			{
-				m_terminalPort.m_outputPortRouted = PortType::WestPort;
-				log(" Terminal port: routed to west port ");
-			}
-			else
-			{
-				m_terminalPort.m_outputPortRouted = PortType::EastPort;
-				log(" Terminal port: routed to east port ");
-			}
-	#endif
-
-	#if defined(TORUS)
-			if (destination.x == m_routerID.x)
-			{
-				if (destination.y < m_routerID.y)
-				{
-					if ((m_routerID.y - destination.y) > (NETWORK_DIMENSION_Y / 2))
+					if (mappingTableLine.NID == m_terminalPort.m_flitRegister.front().destination)
 					{
-						m_terminalPort.m_outputPortRouted = PortType::SouthPort; // TORUS
-						log(" Terminal port: routed to south port ");
+						destination = mappingTableLine.routerID;
+						break;
 					}
-					else
+				}
+
+				// XY routing
+#if defined(MESH)
+				if (destination.x == m_routerID.x)
+				{
+					if (destination.y < m_routerID.y)
 					{
 						m_terminalPort.m_outputPortRouted = PortType::NorthPort;
-						log(" Terminal port: routed to north port ");
-					}
-				}
-				else
-				{
-					if ((destination.y - m_routerID.y) > (NETWORK_DIMENSION_Y / 2))
-					{
-						m_terminalPort.m_outputPortRouted = PortType::NorthPort; // TORUS
 						log(" Terminal port: routed to north port ");
 					}
 					else
@@ -129,25 +91,9 @@ void Router::routeTerminalPort()
 						log(" Terminal port: routed to south port ");
 					}
 				}
-			}
-			else if (destination.x < m_routerID.x)
-			{
-				if ((m_routerID.x - destination.x) > (NETWORK_DIMENSION_X / 2))
-				{
-					m_terminalPort.m_outputPortRouted = PortType::EastPort; // TORUS
-					log(" Terminal port: routed to east port ");
-				}
-				else
+				else if (destination.x < m_routerID.x)
 				{
 					m_terminalPort.m_outputPortRouted = PortType::WestPort;
-					log(" Terminal port: routed to west port ");
-				}
-			}
-			else
-			{
-				if ((destination.x - m_routerID.x) > (NETWORK_DIMENSION_X / 2))
-				{
-					m_terminalPort.m_outputPortRouted = PortType::WestPort; // TORUS
 					log(" Terminal port: routed to west port ");
 				}
 				else
@@ -155,13 +101,70 @@ void Router::routeTerminalPort()
 					m_terminalPort.m_outputPortRouted = PortType::EastPort;
 					log(" Terminal port: routed to east port ");
 				}
+#endif
+
+#if defined(TORUS)
+				if (destination.x == m_routerID.x)
+				{
+					if (destination.y < m_routerID.y)
+					{
+						if ((m_routerID.y - destination.y) > (NETWORK_DIMENSION_Y / 2))
+						{
+							m_terminalPort.m_outputPortRouted = PortType::SouthPort; // TORUS
+							log(" Terminal port: routed to south port ");
+						}
+						else
+						{
+							m_terminalPort.m_outputPortRouted = PortType::NorthPort;
+							log(" Terminal port: routed to north port ");
+						}
+					}
+					else
+					{
+						if ((destination.y - m_routerID.y) > (NETWORK_DIMENSION_Y / 2))
+						{
+							m_terminalPort.m_outputPortRouted = PortType::NorthPort; // TORUS
+							log(" Terminal port: routed to north port ");
+						}
+						else
+						{
+							m_terminalPort.m_outputPortRouted = PortType::SouthPort;
+							log(" Terminal port: routed to south port ");
+						}
+					}
+				}
+				else if (destination.x < m_routerID.x)
+				{
+					if ((m_routerID.x - destination.x) > (NETWORK_DIMENSION_X / 2))
+					{
+						m_terminalPort.m_outputPortRouted = PortType::EastPort; // TORUS
+						log(" Terminal port: routed to east port ");
+					}
+					else
+					{
+						m_terminalPort.m_outputPortRouted = PortType::WestPort;
+						log(" Terminal port: routed to west port ");
+					}
+				}
+				else
+				{
+					if ((destination.x - m_routerID.x) > (NETWORK_DIMENSION_X / 2))
+					{
+						m_terminalPort.m_outputPortRouted = PortType::WestPort; // TORUS
+						log(" Terminal port: routed to west port ");
+					}
+					else
+					{
+						m_terminalPort.m_outputPortRouted = PortType::EastPort;
+						log(" Terminal port: routed to east port ");
+					}
+				}
+#endif
+				m_terminalPort.m_virtualChannelState = VirtualChannelState::V; // R -> V
+				m_terminalPort.m_localClock.tickTriggerClock(PERIOD_ROUTER_RC - EXECUTION_TIME_ROUTER_RC + 1);
+				m_terminalPort.m_localClock.toggleWaitingForExecution();
 			}
-	#endif
-			m_terminalPort.m_virtualChannelState = VirtualChannelState::V; // R -> V
-
-			m_terminalPort.m_localClock.tickLocalClock(CYCLES_ROUTER_RC);
 		}
-
 	}
 }
 
@@ -173,82 +176,43 @@ void Router::routeNorthPort()
 		{
 			if (virtualChannel.m_virtualChannelState == VirtualChannelState::R)
 			{
-				//if (virtualChannel.m_buffer.front().flitType != FlitType::HeadFlit ||
-				//	virtualChannel.m_buffer.front().flitType != FlitType::HeadTailFlit)
-				//{
-				//	throw std::runtime_error{ " Nouth port routing error: not head flit " };
-				//}
-
-				RouterID destination{};
-				// lookup mapping table and find the routerID by flit.destination
-				for (auto& mappingTableLine : m_mappingTable)
+				if (!virtualChannel.m_localClock.isWaitingForExecution())
 				{
-					if (mappingTableLine.NID == virtualChannel.m_buffer.front().destination)
-					{
-						destination = mappingTableLine.routerID;
-						break;
-					}
+					virtualChannel.m_localClock.tickExecutionClock(EXECUTION_TIME_ROUTER_RC - 1);
+					virtualChannel.m_localClock.toggleWaitingForExecution();
 				}
 
-				// XY routing
-	#if defined(MESH)
-				if (destination.x == m_routerID.x)
+				if (virtualChannel.m_localClock.executeLocalEvent())
 				{
-					if (destination.y == m_routerID.y)
+					RouterID destination{};
+					// lookup mapping table and find the routerID by flit.destination
+					for (auto& mappingTableLine : m_mappingTable)
 					{
-						virtualChannel.m_outputPortRouted = PortType::TerminalPort;
-						log(" North port: routed to terminal port ");
+						if (mappingTableLine.NID == virtualChannel.m_buffer.front().destination)
+						{
+							destination = mappingTableLine.routerID;
+							break;
+						}
 					}
-					else
-					{
-						virtualChannel.m_outputPortRouted = PortType::SouthPort;
-						log(" North port: routed to south port ");
-					}
-				}
-				else if (destination.x < m_routerID.x)
-				{
-					virtualChannel.m_outputPortRouted = PortType::WestPort;
-					log(" North port: routed to west port ");
-				}
-				else
-				{
-					virtualChannel.m_outputPortRouted = PortType::EastPort;
-					log(" North port: routed to east port ");
-				}
-	#endif
 
-	#if defined(TORUS)
-				if (destination.x == m_routerID.x)
-				{
-					if (destination.y == m_routerID.y)
+					// XY routing
+		#if defined(MESH)
+					if (destination.x == m_routerID.x)
 					{
-						virtualChannel.m_outputPortRouted = PortType::TerminalPort;
-						log(" North port: routed to terminal port ");
+						if (destination.y == m_routerID.y)
+						{
+							virtualChannel.m_outputPortRouted = PortType::TerminalPort;
+							log(" North port: routed to terminal port ");
+						}
+						else
+						{
+							virtualChannel.m_outputPortRouted = PortType::SouthPort;
+							log(" North port: routed to south port ");
+						}
 					}
-					else
-					{
-						virtualChannel.m_outputPortRouted = PortType::SouthPort;
-						log(" North port: routed to south port ");
-					}
-				}
-				else if (destination.x < m_routerID.x)
-				{
-					if ((m_routerID.x - destination.x) > (NETWORK_DIMENSION_X / 2))
-					{
-						virtualChannel.m_outputPortRouted = PortType::EastPort; // TORUS
-						log(" North port: routed to east port ");
-					}
-					else
+					else if (destination.x < m_routerID.x)
 					{
 						virtualChannel.m_outputPortRouted = PortType::WestPort;
-						log(" North port: routed to west port ");
-					}
-				}
-				else
-				{
-					if ((destination.x - m_routerID.x) > (NETWORK_DIMENSION_X / 2))
-					{
-						virtualChannel.m_outputPortRouted = PortType::WestPort; // TORUS
 						log(" North port: routed to west port ");
 					}
 					else
@@ -256,11 +220,53 @@ void Router::routeNorthPort()
 						virtualChannel.m_outputPortRouted = PortType::EastPort;
 						log(" North port: routed to east port ");
 					}
-				}
-	#endif
-				virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
+		#endif
 
-				virtualChannel.m_localClock.tickLocalClock(CYCLES_ROUTER_RC);
+		#if defined(TORUS)
+					if (destination.x == m_routerID.x)
+					{
+						if (destination.y == m_routerID.y)
+						{
+							virtualChannel.m_outputPortRouted = PortType::TerminalPort;
+							log(" North port: routed to terminal port ");
+						}
+						else
+						{
+							virtualChannel.m_outputPortRouted = PortType::SouthPort;
+							log(" North port: routed to south port ");
+						}
+					}
+					else if (destination.x < m_routerID.x)
+					{
+						if ((m_routerID.x - destination.x) > (NETWORK_DIMENSION_X / 2))
+						{
+							virtualChannel.m_outputPortRouted = PortType::EastPort; // TORUS
+							log(" North port: routed to east port ");
+						}
+						else
+						{
+							virtualChannel.m_outputPortRouted = PortType::WestPort;
+							log(" North port: routed to west port ");
+						}
+					}
+					else
+					{
+						if ((destination.x - m_routerID.x) > (NETWORK_DIMENSION_X / 2))
+						{
+							virtualChannel.m_outputPortRouted = PortType::WestPort; // TORUS
+							log(" North port: routed to west port ");
+						}
+						else
+						{
+							virtualChannel.m_outputPortRouted = PortType::EastPort;
+							log(" North port: routed to east port ");
+						}
+					}
+		#endif
+					virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
+					virtualChannel.m_localClock.tickTriggerClock(PERIOD_ROUTER_RC - EXECUTION_TIME_ROUTER_RC + 1);
+					virtualChannel.m_localClock.toggleWaitingForExecution();
+				}
 			}
 		}
 	}
@@ -274,82 +280,43 @@ void Router::routeSouthPort()
 		{
 			if (virtualChannel.m_virtualChannelState == VirtualChannelState::R)
 			{
-				//if (virtualChannel.m_buffer.front().flitType != FlitType::HeadFlit ||
-				//	virtualChannel.m_buffer.front().flitType != FlitType::HeadTailFlit)
-				//{
-				//	throw std::runtime_error{ " South port routing error: not head flit " };
-				//}
-
-				RouterID destination{};
-				// lookup mapping table and find the routerID by flit.destination
-				for (auto& mappingTableLine : m_mappingTable)
+				if (!virtualChannel.m_localClock.isWaitingForExecution())
 				{
-					if (mappingTableLine.NID == virtualChannel.m_buffer.front().destination)
-					{
-						destination = mappingTableLine.routerID;
-						break;
-					}
+					virtualChannel.m_localClock.tickExecutionClock(EXECUTION_TIME_ROUTER_RC - 1);
+					virtualChannel.m_localClock.toggleWaitingForExecution();
 				}
 
-				// XY routing
-	#if defined(MESH)
-				if (destination.x == m_routerID.x)
+				if (virtualChannel.m_localClock.executeLocalEvent())
 				{
-					if (destination.y == m_routerID.y)
+					RouterID destination{};
+					// lookup mapping table and find the routerID by flit.destination
+					for (auto& mappingTableLine : m_mappingTable)
 					{
-						virtualChannel.m_outputPortRouted = PortType::TerminalPort;
-						log(" South port: routed to terminal port ");
+						if (mappingTableLine.NID == virtualChannel.m_buffer.front().destination)
+						{
+							destination = mappingTableLine.routerID;
+							break;
+						}
 					}
-					else
-					{
-						virtualChannel.m_outputPortRouted = PortType::NorthPort;
-						log(" South port: routed to north port ");
-					}
-				}
-				else if (destination.x < m_routerID.x)
-				{
-					virtualChannel.m_outputPortRouted = PortType::WestPort;
-					log(" South port: routed to west port ");
-				}
-				else
-				{
-					virtualChannel.m_outputPortRouted = PortType::EastPort;
-					log(" South port: routed to east port ");
-				}
-	#endif
 
-	#if defined(TORUS)
-				if (destination.x == m_routerID.x)
-				{
-					if (destination.y == m_routerID.y)
+					// XY routing
+		#if defined(MESH)
+					if (destination.x == m_routerID.x)
 					{
-						virtualChannel.m_outputPortRouted = PortType::TerminalPort;
-						log(" South port: routed to terminal port ");
+						if (destination.y == m_routerID.y)
+						{
+							virtualChannel.m_outputPortRouted = PortType::TerminalPort;
+							log(" South port: routed to terminal port ");
+						}
+						else
+						{
+							virtualChannel.m_outputPortRouted = PortType::NorthPort;
+							log(" South port: routed to north port ");
+						}
 					}
-					else
-					{
-						virtualChannel.m_outputPortRouted = PortType::NorthPort;
-						log(" South port: routed to north port ");
-					}
-				}
-				else if (destination.x < m_routerID.x)
-				{
-					if ((m_routerID.x - destination.x) > (NETWORK_DIMENSION_X / 2))
-					{
-						virtualChannel.m_outputPortRouted = PortType::EastPort; // TORUS
-						log(" South port: routed to east port ");
-					}
-					else
+					else if (destination.x < m_routerID.x)
 					{
 						virtualChannel.m_outputPortRouted = PortType::WestPort;
-						log(" South port: routed to west port ");
-					}
-				}
-				else
-				{
-					if ((destination.x - m_routerID.x) > (NETWORK_DIMENSION_X / 2))
-					{
-						virtualChannel.m_outputPortRouted = PortType::WestPort; // TORUS
 						log(" South port: routed to west port ");
 					}
 					else
@@ -357,11 +324,53 @@ void Router::routeSouthPort()
 						virtualChannel.m_outputPortRouted = PortType::EastPort;
 						log(" South port: routed to east port ");
 					}
-				}
-	#endif
-				virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
+		#endif
 
-				virtualChannel.m_localClock.tickLocalClock(CYCLES_ROUTER_RC);
+		#if defined(TORUS)
+					if (destination.x == m_routerID.x)
+					{
+						if (destination.y == m_routerID.y)
+						{
+							virtualChannel.m_outputPortRouted = PortType::TerminalPort;
+							log(" South port: routed to terminal port ");
+						}
+						else
+						{
+							virtualChannel.m_outputPortRouted = PortType::NorthPort;
+							log(" South port: routed to north port ");
+						}
+					}
+					else if (destination.x < m_routerID.x)
+					{
+						if ((m_routerID.x - destination.x) > (NETWORK_DIMENSION_X / 2))
+						{
+							virtualChannel.m_outputPortRouted = PortType::EastPort; // TORUS
+							log(" South port: routed to east port ");
+						}
+						else
+						{
+							virtualChannel.m_outputPortRouted = PortType::WestPort;
+							log(" South port: routed to west port ");
+						}
+					}
+					else
+					{
+						if ((destination.x - m_routerID.x) > (NETWORK_DIMENSION_X / 2))
+						{
+							virtualChannel.m_outputPortRouted = PortType::WestPort; // TORUS
+							log(" South port: routed to west port ");
+						}
+						else
+						{
+							virtualChannel.m_outputPortRouted = PortType::EastPort;
+							log(" South port: routed to east port ");
+						}
+					}
+		#endif
+					virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
+					virtualChannel.m_localClock.tickTriggerClock(PERIOD_ROUTER_RC - EXECUTION_TIME_ROUTER_RC + 1);
+					virtualChannel.m_localClock.toggleWaitingForExecution();
+				}
 			}
 		}
 	}
@@ -375,76 +384,37 @@ void Router::routeWestPort()
 		{
 			if (virtualChannel.m_virtualChannelState == VirtualChannelState::R)
 			{
-				//if (virtualChannel.m_buffer.front().flitType != FlitType::HeadFlit ||
-				//	virtualChannel.m_buffer.front().flitType != FlitType::HeadTailFlit)
-				//{
-				//	throw std::runtime_error{ " West port routing error: not head flit " };
-				//}
-
-				RouterID destination{};
-				// lookup mapping table and find the routerID by flit.destination
-				for (auto& mappingTableLine : m_mappingTable)
+				if (!virtualChannel.m_localClock.isWaitingForExecution())
 				{
-					if (mappingTableLine.NID == virtualChannel.m_buffer.front().destination)
-					{
-						destination = mappingTableLine.routerID;
-						break;
-					}
+					virtualChannel.m_localClock.tickExecutionClock(EXECUTION_TIME_ROUTER_RC - 1);
+					virtualChannel.m_localClock.toggleWaitingForExecution();
 				}
 
-				// XY routing
-	#if defined(MESH)
-				if (destination.x == m_routerID.x)
+				if (virtualChannel.m_localClock.executeLocalEvent())
 				{
-					if (destination.y == m_routerID.y)
+					RouterID destination{};
+					// lookup mapping table and find the routerID by flit.destination
+					for (auto& mappingTableLine : m_mappingTable)
 					{
-						virtualChannel.m_outputPortRouted = PortType::TerminalPort;
-						log(" West port: routed to terminal port ");
-					}
-					else if (destination.y < m_routerID.y)
-					{
-						virtualChannel.m_outputPortRouted = PortType::NorthPort;
-						log(" West port: routed to north port ");
-					}
-					else
-					{
-						virtualChannel.m_outputPortRouted = PortType::SouthPort;
-						log(" West port: routed to south port ");
-					}
-				}
-				else
-				{
-					virtualChannel.m_outputPortRouted = PortType::EastPort;
-					log(" West port: routed to east port ");
-				}
-	#endif
-
-	#if defined(TORUS)
-				if (destination.x == m_routerID.x)
-				{
-					if (destination.y == m_routerID.y)
-					{
-						virtualChannel.m_outputPortRouted = PortType::TerminalPort;
-						log(" West port: routed to terminal port ");
-					}
-					else if (destination.y < m_routerID.y)
-					{
-						if ((m_routerID.y - destination.y) > (NETWORK_DIMENSION_Y / 2))
+						if (mappingTableLine.NID == virtualChannel.m_buffer.front().destination)
 						{
-							virtualChannel.m_outputPortRouted = PortType::SouthPort; // TORUS
-							log(" West port: routed to south port ");
+							destination = mappingTableLine.routerID;
+							break;
 						}
-						else
+					}
+
+					// XY routing
+		#if defined(MESH)
+					if (destination.x == m_routerID.x)
+					{
+						if (destination.y == m_routerID.y)
+						{
+							virtualChannel.m_outputPortRouted = PortType::TerminalPort;
+							log(" West port: routed to terminal port ");
+						}
+						else if (destination.y < m_routerID.y)
 						{
 							virtualChannel.m_outputPortRouted = PortType::NorthPort;
-							log(" West port: routed to north port ");
-						}
-					}
-					else
-					{
-						if ((destination.y - m_routerID.y) > (NETWORK_DIMENSION_Y / 2))
-						{
-							virtualChannel.m_outputPortRouted = PortType::NorthPort; //TORUS
 							log(" West port: routed to north port ");
 						}
 						else
@@ -453,16 +423,58 @@ void Router::routeWestPort()
 							log(" West port: routed to south port ");
 						}
 					}
-				}
-				else
-				{
-					virtualChannel.m_outputPortRouted = PortType::EastPort;
-					log(" West port: routed to east port ");
-				}
-	#endif
-				virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
+					else
+					{
+						virtualChannel.m_outputPortRouted = PortType::EastPort;
+						log(" West port: routed to east port ");
+					}
+		#endif
 
-				virtualChannel.m_localClock.tickLocalClock(CYCLES_ROUTER_RC);
+		#if defined(TORUS)
+					if (destination.x == m_routerID.x)
+					{
+						if (destination.y == m_routerID.y)
+						{
+							virtualChannel.m_outputPortRouted = PortType::TerminalPort;
+							log(" West port: routed to terminal port ");
+						}
+						else if (destination.y < m_routerID.y)
+						{
+							if ((m_routerID.y - destination.y) > (NETWORK_DIMENSION_Y / 2))
+							{
+								virtualChannel.m_outputPortRouted = PortType::SouthPort; // TORUS
+								log(" West port: routed to south port ");
+							}
+							else
+							{
+								virtualChannel.m_outputPortRouted = PortType::NorthPort;
+								log(" West port: routed to north port ");
+							}
+						}
+						else
+						{
+							if ((destination.y - m_routerID.y) > (NETWORK_DIMENSION_Y / 2))
+							{
+								virtualChannel.m_outputPortRouted = PortType::NorthPort; //TORUS
+								log(" West port: routed to north port ");
+							}
+							else
+							{
+								virtualChannel.m_outputPortRouted = PortType::SouthPort;
+								log(" West port: routed to south port ");
+							}
+						}
+					}
+					else
+					{
+						virtualChannel.m_outputPortRouted = PortType::EastPort;
+						log(" West port: routed to east port ");
+					}
+		#endif
+					virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
+					virtualChannel.m_localClock.tickTriggerClock(PERIOD_ROUTER_RC - EXECUTION_TIME_ROUTER_RC + 1);
+					virtualChannel.m_localClock.toggleWaitingForExecution();
+				}
 			}
 		}
 	}
@@ -476,76 +488,37 @@ void Router::routeEastPort()
 		{
 			if (virtualChannel.m_virtualChannelState == VirtualChannelState::R)
 			{
-				//if (virtualChannel.m_buffer.front().flitType != FlitType::HeadFlit ||
-				//	virtualChannel.m_buffer.front().flitType != FlitType::HeadTailFlit)
-				//{
-				//	throw std::runtime_error{ " East port routing error: not head flit " };
-				//}
-
-				RouterID destination{};
-				// lookup mapping table and find the routerID by flit.destination
-				for (auto& mappingTableLine : m_mappingTable)
+				if (!virtualChannel.m_localClock.isWaitingForExecution())
 				{
-					if (mappingTableLine.NID == virtualChannel.m_buffer.front().destination)
-					{
-						destination = mappingTableLine.routerID;
-						break;
-					}
+					virtualChannel.m_localClock.tickExecutionClock(EXECUTION_TIME_ROUTER_RC - 1);
+					virtualChannel.m_localClock.toggleWaitingForExecution();
 				}
 
-				// XY routing
-	#if defined(MESH)
-				if (destination.x == m_routerID.x)
+				if (virtualChannel.m_localClock.executeLocalEvent())
 				{
-					if (destination.y == m_routerID.y)
+					RouterID destination{};
+					// lookup mapping table and find the routerID by flit.destination
+					for (auto& mappingTableLine : m_mappingTable)
 					{
-						virtualChannel.m_outputPortRouted = PortType::TerminalPort;
-						log(" East port: routed to terminal port ");
-					}
-					else if (destination.y < m_routerID.y)
-					{
-						virtualChannel.m_outputPortRouted = PortType::NorthPort;
-						log(" East port: routed to north port ");
-					}
-					else
-					{
-						virtualChannel.m_outputPortRouted = PortType::SouthPort;
-						log(" East port: routed to south port ");
-					}
-				}
-				else
-				{
-					virtualChannel.m_outputPortRouted = PortType::WestPort;
-					log(" East port: routed to west port ");
-				}
-	#endif
-
-	#if defined(TORUS)
-				if (destination.x == m_routerID.x)
-				{
-					if (destination.y == m_routerID.y)
-					{
-						virtualChannel.m_outputPortRouted = PortType::TerminalPort;
-						log(" East port: routed to terminal port ");
-					}
-					else if (destination.y < m_routerID.y)
-					{
-						if ((m_routerID.y - destination.y) > (NETWORK_DIMENSION_Y / 2))
+						if (mappingTableLine.NID == virtualChannel.m_buffer.front().destination)
 						{
-							virtualChannel.m_outputPortRouted = PortType::SouthPort; // TORUS
-							log(" East port: routed to south port ");
+							destination = mappingTableLine.routerID;
+							break;
 						}
-						else
+					}
+
+					// XY routing
+		#if defined(MESH)
+					if (destination.x == m_routerID.x)
+					{
+						if (destination.y == m_routerID.y)
+						{
+							virtualChannel.m_outputPortRouted = PortType::TerminalPort;
+							log(" East port: routed to terminal port ");
+						}
+						else if (destination.y < m_routerID.y)
 						{
 							virtualChannel.m_outputPortRouted = PortType::NorthPort;
-							log(" East port: routed to north port ");
-						}
-					}
-					else
-					{
-						if ((destination.y - m_routerID.y) > (NETWORK_DIMENSION_Y / 2))
-						{
-							virtualChannel.m_outputPortRouted = PortType::NorthPort; // TORUS
 							log(" East port: routed to north port ");
 						}
 						else
@@ -554,16 +527,58 @@ void Router::routeEastPort()
 							log(" East port: routed to south port ");
 						}
 					}
-				}
-				else
-				{
-					virtualChannel.m_outputPortRouted = PortType::WestPort;
-					log(" East port: routed to west port ");
-				}
-	#endif
-				virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
+					else
+					{
+						virtualChannel.m_outputPortRouted = PortType::WestPort;
+						log(" East port: routed to west port ");
+					}
+		#endif
 
-				virtualChannel.m_localClock.tickLocalClock(CYCLES_ROUTER_RC);
+		#if defined(TORUS)
+					if (destination.x == m_routerID.x)
+					{
+						if (destination.y == m_routerID.y)
+						{
+							virtualChannel.m_outputPortRouted = PortType::TerminalPort;
+							log(" East port: routed to terminal port ");
+						}
+						else if (destination.y < m_routerID.y)
+						{
+							if ((m_routerID.y - destination.y) > (NETWORK_DIMENSION_Y / 2))
+							{
+								virtualChannel.m_outputPortRouted = PortType::SouthPort; // TORUS
+								log(" East port: routed to south port ");
+							}
+							else
+							{
+								virtualChannel.m_outputPortRouted = PortType::NorthPort;
+								log(" East port: routed to north port ");
+							}
+						}
+						else
+						{
+							if ((destination.y - m_routerID.y) > (NETWORK_DIMENSION_Y / 2))
+							{
+								virtualChannel.m_outputPortRouted = PortType::NorthPort; // TORUS
+								log(" East port: routed to north port ");
+							}
+							else
+							{
+								virtualChannel.m_outputPortRouted = PortType::SouthPort;
+								log(" East port: routed to south port ");
+							}
+						}
+					}
+					else
+					{
+						virtualChannel.m_outputPortRouted = PortType::WestPort;
+						log(" East port: routed to west port ");
+					}
+		#endif
+					virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
+					virtualChannel.m_localClock.tickTriggerClock(PERIOD_ROUTER_RC - EXECUTION_TIME_ROUTER_RC + 1);
+					virtualChannel.m_localClock.toggleWaitingForExecution();
+				}
 			}
 		}
 	}
@@ -633,332 +648,344 @@ void Router::allocateTerminalPortVirtualChannel()
 	{
 		if (m_terminalPort.m_virtualChannelState == VirtualChannelState::V)
 		{
-			// if terminal port is routed to north port
-			if (m_terminalPort.m_outputPortRouted == PortType::NorthPort)
+			if (!m_terminalPort.m_localClock.isWaitingForExecution())
 			{
-				for (int i{}; i < VC_NUMBER; ++i)
+				m_terminalPort.m_localClock.tickExecutionClock(EXECUTION_TIME_ROUTER_VA - 1);
+				m_terminalPort.m_localClock.toggleWaitingForExecution();
+			}
+
+			if (m_terminalPort.m_localClock.executeLocalEvent())
+			{
+				// if terminal port is routed to north port
+				if (m_terminalPort.m_outputPortRouted == PortType::NorthPort)
 				{
-					if (m_northPort.m_downstreamVirtualChannelStates.at(i)
-						== VirtualChannelState::I)
+					for (int i{}; i < VC_NUMBER; ++i)
 					{
-						// insert an entry in m_virtualChannelArbitrationRecorder
-						winVirtualChannelArbitration(PortType::TerminalPort, 0, m_terminalPort.m_virtualChannelPriority);
-
-						// change input fields
-						m_terminalPort.m_outputVirtualChannelAllocated = i;
-
-						// change output fields
-						m_northPort.m_downstreamVirtualChannelStates.at(i) = VirtualChannelState::V;
-						m_northPort.m_inputPortRouted.at(i) = PortType::TerminalPort;
-						m_northPort.m_inputVirtualChannelAllocated.at(i) = 0; // no virtual channel for ternimal port
-						m_northPort.m_inputVirtualChannelPriority.at(i) = m_terminalPort.m_virtualChannelPriority;
-						goto allocateTerminalToNorthDone;
-					}
-				}
-
-				// If there is no I downstream virtual channel states;
-				// meaning states are either A or V;
-				// do the following round-robin arbitration based on virtual channel priority
-				// with DVCS set to V;
-				for (int i{}; i < VC_NUMBER; ++i)
-				{
-					if (m_northPort.m_downstreamVirtualChannelStates.at(i)
-						== VirtualChannelState::V)
-					{
-						// find the item with the lowest virtual channel priority (maximum) 
-						// and in V state; record priority and index;
-						int priority{};
-						int index{};
-						for (int j{}; j < VC_NUMBER; ++j)
+						if (m_northPort.m_downstreamVirtualChannelStates.at(i)
+							== VirtualChannelState::I)
 						{
-							if (m_northPort.m_downstreamVirtualChannelStates.at(j) == VirtualChannelState::V
-								&& m_northPort.m_inputVirtualChannelPriority.at(j) > priority)
-							{
-								priority = m_northPort.m_inputVirtualChannelPriority.at(j);
-								index = j;
-							}
-						}
-
-						// compare the lowest priority with the challenger and arbitrate 
-						// to the challenger if challenger's priority is higher (smaller)
-						if (m_terminalPort.m_virtualChannelPriority < priority)
-						{
-							// find loser's record and delete it in m_virtualChannelArbitrationRecorder
-							loseVirtualChannelArbitration(m_northPort.m_inputPortRouted.at(index), m_northPort.m_inputVirtualChannelAllocated.at(index), m_northPort.m_inputVirtualChannelPriority.at(index));
-						
-							// deallocate the loser's vc
-							// note that output port cannot be routed to input port with the same type
-							// and in this input port case, there is no vc for input terminal port;
-							// meaning in other input port cases, there should be four cases  
-							if (m_northPort.m_inputPortRouted.at(index) == PortType::SouthPort)
-								m_southPort.m_virtualChannels.at(m_northPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-							if (m_northPort.m_inputPortRouted.at(index) == PortType::WestPort)
-								m_westPort.m_virtualChannels.at(m_northPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-							if (m_northPort.m_inputPortRouted.at(index) == PortType::EastPort)
-								m_eastPort.m_virtualChannels.at(m_northPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-
-							// record winner in arbitration recorder
+							// insert an entry in m_virtualChannelArbitrationRecorder
 							winVirtualChannelArbitration(PortType::TerminalPort, 0, m_terminalPort.m_virtualChannelPriority);
 
-							// allocate vc to the challenger
 							// change input fields
-							m_terminalPort.m_outputVirtualChannelAllocated = index;
+							m_terminalPort.m_outputVirtualChannelAllocated = i;
 
 							// change output fields
-							m_northPort.m_inputPortRouted.at(index) = PortType::TerminalPort;
-							m_northPort.m_inputVirtualChannelAllocated.at(index) = 0; // no virtual channel for ternimal port
-							m_northPort.m_inputVirtualChannelPriority.at(index) = m_terminalPort.m_virtualChannelPriority;
+							m_northPort.m_downstreamVirtualChannelStates.at(i) = VirtualChannelState::V;
+							m_northPort.m_inputPortRouted.at(i) = PortType::TerminalPort;
+							m_northPort.m_inputVirtualChannelAllocated.at(i) = 0; // no virtual channel for ternimal port
+							m_northPort.m_inputVirtualChannelPriority.at(i) = m_terminalPort.m_virtualChannelPriority;
 							goto allocateTerminalToNorthDone;
 						}
 					}
-				}
-			allocateTerminalToNorthDone: ; // goto statement
-			}
 
-			// if terminal port is routed to south port
-			if (m_terminalPort.m_outputPortRouted == PortType::SouthPort)
-			{
-				for (int i{}; i < VC_NUMBER; ++i)
-				{
-					if (m_southPort.m_downstreamVirtualChannelStates.at(i)
-						== VirtualChannelState::I)
+					// If there is no I downstream virtual channel states;
+					// meaning states are either A or V;
+					// do the following round-robin arbitration based on virtual channel priority
+					// with DVCS set to V;
+					for (int i{}; i < VC_NUMBER; ++i)
 					{
-						// insert an entry in m_virtualChannelArbitrationRecorder
-						winVirtualChannelArbitration(PortType::TerminalPort, 0, m_terminalPort.m_virtualChannelPriority);
-
-						// change input fields
-						m_terminalPort.m_outputVirtualChannelAllocated = i;
-
-						// change output fields
-						m_southPort.m_downstreamVirtualChannelStates.at(i) = VirtualChannelState::V;
-						m_southPort.m_inputPortRouted.at(i) = PortType::TerminalPort;
-						m_southPort.m_inputVirtualChannelAllocated.at(i) = 0; // no virtual channel for ternimal port
-						m_southPort.m_inputVirtualChannelPriority.at(i) = m_terminalPort.m_virtualChannelPriority;
-						goto allocateTerminalToSouthDone;
-					}
-				}
-
-				// If there is no I downstream virtual channel states;
-				// meaning states are either A or V;
-				// do the following round-robin arbitration based on virtual channel priority
-				// with DVCS set to V;
-				for (int i{}; i < VC_NUMBER; ++i)
-				{
-					if (m_southPort.m_downstreamVirtualChannelStates.at(i)
-						== VirtualChannelState::V)
-					{
-						// find the item with the lowest virtual channel priority (maximum) 
-						// and in V state; record priority and index;
-						int priority{};
-						int index{};
-						for (int j{}; j < VC_NUMBER; ++j)
+						if (m_northPort.m_downstreamVirtualChannelStates.at(i)
+							== VirtualChannelState::V)
 						{
-							if (m_southPort.m_downstreamVirtualChannelStates.at(j) == VirtualChannelState::V
-								&& m_southPort.m_inputVirtualChannelPriority.at(j) > priority)
+							// find the item with the lowest virtual channel priority (maximum) 
+							// and in V state; record priority and index;
+							int priority{};
+							int index{};
+							for (int j{}; j < VC_NUMBER; ++j)
 							{
-								priority = m_southPort.m_inputVirtualChannelPriority.at(j);
-								index = j;
+								if (m_northPort.m_downstreamVirtualChannelStates.at(j) == VirtualChannelState::V
+									&& m_northPort.m_inputVirtualChannelPriority.at(j) > priority)
+								{
+									priority = m_northPort.m_inputVirtualChannelPriority.at(j);
+									index = j;
+								}
+							}
+
+							// compare the lowest priority with the challenger and arbitrate 
+							// to the challenger if challenger's priority is higher (smaller)
+							if (m_terminalPort.m_virtualChannelPriority < priority)
+							{
+								// find loser's record and delete it in m_virtualChannelArbitrationRecorder
+								loseVirtualChannelArbitration(m_northPort.m_inputPortRouted.at(index), m_northPort.m_inputVirtualChannelAllocated.at(index), m_northPort.m_inputVirtualChannelPriority.at(index));
+						
+								// deallocate the loser's vc
+								// note that output port cannot be routed to input port with the same type
+								// and in this input port case, there is no vc for input terminal port;
+								// meaning in other input port cases, there should be four cases  
+								if (m_northPort.m_inputPortRouted.at(index) == PortType::SouthPort)
+									m_southPort.m_virtualChannels.at(m_northPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+								if (m_northPort.m_inputPortRouted.at(index) == PortType::WestPort)
+									m_westPort.m_virtualChannels.at(m_northPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+								if (m_northPort.m_inputPortRouted.at(index) == PortType::EastPort)
+									m_eastPort.m_virtualChannels.at(m_northPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+
+								// record winner in arbitration recorder
+								winVirtualChannelArbitration(PortType::TerminalPort, 0, m_terminalPort.m_virtualChannelPriority);
+
+								// allocate vc to the challenger
+								// change input fields
+								m_terminalPort.m_outputVirtualChannelAllocated = index;
+
+								// change output fields
+								m_northPort.m_inputPortRouted.at(index) = PortType::TerminalPort;
+								m_northPort.m_inputVirtualChannelAllocated.at(index) = 0; // no virtual channel for ternimal port
+								m_northPort.m_inputVirtualChannelPriority.at(index) = m_terminalPort.m_virtualChannelPriority;
+								goto allocateTerminalToNorthDone;
 							}
 						}
+					}
+				allocateTerminalToNorthDone: ; // goto statement
+				}
 
-						// compare the lowest priority with the challenger and arbitrate 
-						// to the challenger if challenger's priority is higher (smaller)
-						if (m_terminalPort.m_virtualChannelPriority < priority)
+				// if terminal port is routed to south port
+				if (m_terminalPort.m_outputPortRouted == PortType::SouthPort)
+				{
+					for (int i{}; i < VC_NUMBER; ++i)
+					{
+						if (m_southPort.m_downstreamVirtualChannelStates.at(i)
+							== VirtualChannelState::I)
 						{
-							// find loser's record and delete it in m_virtualChannelArbitrationRecorder
-							loseVirtualChannelArbitration(m_southPort.m_inputPortRouted.at(index), m_southPort.m_inputVirtualChannelAllocated.at(index), m_southPort.m_inputVirtualChannelPriority.at(index));
-
-							// deallocate the loser's vc
-							// note that output port cannot be routed to input port with the same type
-							// and in this input port case, there is no vc for input terminal port;
-							// meaning in other input port cases, there should be four cases  
-							if (m_southPort.m_inputPortRouted.at(index) == PortType::NorthPort)
-								m_northPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-							if (m_southPort.m_inputPortRouted.at(index) == PortType::WestPort)
-								m_westPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-							if (m_southPort.m_inputPortRouted.at(index) == PortType::EastPort)
-								m_eastPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-
-							// record winner in arbitration recorder
+							// insert an entry in m_virtualChannelArbitrationRecorder
 							winVirtualChannelArbitration(PortType::TerminalPort, 0, m_terminalPort.m_virtualChannelPriority);
 
-							// allocate vc to the challenger
 							// change input fields
-							m_terminalPort.m_outputVirtualChannelAllocated = index;
+							m_terminalPort.m_outputVirtualChannelAllocated = i;
 
 							// change output fields
-							m_southPort.m_inputPortRouted.at(index) = PortType::TerminalPort;
-							m_southPort.m_inputVirtualChannelAllocated.at(index) = 0; // no virtual channel for ternimal port
-							m_southPort.m_inputVirtualChannelPriority.at(index) = m_terminalPort.m_virtualChannelPriority;
+							m_southPort.m_downstreamVirtualChannelStates.at(i) = VirtualChannelState::V;
+							m_southPort.m_inputPortRouted.at(i) = PortType::TerminalPort;
+							m_southPort.m_inputVirtualChannelAllocated.at(i) = 0; // no virtual channel for ternimal port
+							m_southPort.m_inputVirtualChannelPriority.at(i) = m_terminalPort.m_virtualChannelPriority;
 							goto allocateTerminalToSouthDone;
 						}
 					}
-				}
-			allocateTerminalToSouthDone: ;
-			}
 
-			// if terminal port is routed to west port
-			if (m_terminalPort.m_outputPortRouted == PortType::WestPort)
-			{
-				for (int i{}; i < VC_NUMBER; ++i)
-				{
-					if (m_westPort.m_downstreamVirtualChannelStates.at(i)
-						== VirtualChannelState::I)
+					// If there is no I downstream virtual channel states;
+					// meaning states are either A or V;
+					// do the following round-robin arbitration based on virtual channel priority
+					// with DVCS set to V;
+					for (int i{}; i < VC_NUMBER; ++i)
 					{
-						// insert an entry in m_virtualChannelArbitrationRecorder
-						winVirtualChannelArbitration(PortType::TerminalPort, 0, m_terminalPort.m_virtualChannelPriority);
-
-						// change input fields
-						m_terminalPort.m_outputVirtualChannelAllocated = i;
-
-						// change output fields
-						m_westPort.m_downstreamVirtualChannelStates.at(i) = VirtualChannelState::V;
-						m_westPort.m_inputPortRouted.at(i) = PortType::TerminalPort;
-						m_westPort.m_inputVirtualChannelAllocated.at(i) = 0; // no virtual channel for ternimal port
-						m_westPort.m_inputVirtualChannelPriority.at(i) = m_terminalPort.m_virtualChannelPriority;
-						goto allocateTerminalToWestDone;
-					}
-				}
-
-				// If there is no I downstream virtual channel states;
-				// meaning states are either A or V;
-				// do the following round-robin arbitration based on virtual channel priority
-				// with DVCS set to V;
-				for (int i{}; i < VC_NUMBER; ++i)
-				{
-					if (m_westPort.m_downstreamVirtualChannelStates.at(i)
-						== VirtualChannelState::V)
-					{
-						// find the item with the lowest virtual channel priority (maximum) 
-						// and in V state; record priority and index;
-						int priority{};
-						int index{};
-						for (int j{}; j < VC_NUMBER; ++j)
+						if (m_southPort.m_downstreamVirtualChannelStates.at(i)
+							== VirtualChannelState::V)
 						{
-							if (m_westPort.m_downstreamVirtualChannelStates.at(j) == VirtualChannelState::V
-								&& m_westPort.m_inputVirtualChannelPriority.at(j) > priority)
+							// find the item with the lowest virtual channel priority (maximum) 
+							// and in V state; record priority and index;
+							int priority{};
+							int index{};
+							for (int j{}; j < VC_NUMBER; ++j)
 							{
-								priority = m_westPort.m_inputVirtualChannelPriority.at(j);
-								index = j;
+								if (m_southPort.m_downstreamVirtualChannelStates.at(j) == VirtualChannelState::V
+									&& m_southPort.m_inputVirtualChannelPriority.at(j) > priority)
+								{
+									priority = m_southPort.m_inputVirtualChannelPriority.at(j);
+									index = j;
+								}
+							}
+
+							// compare the lowest priority with the challenger and arbitrate 
+							// to the challenger if challenger's priority is higher (smaller)
+							if (m_terminalPort.m_virtualChannelPriority < priority)
+							{
+								// find loser's record and delete it in m_virtualChannelArbitrationRecorder
+								loseVirtualChannelArbitration(m_southPort.m_inputPortRouted.at(index), m_southPort.m_inputVirtualChannelAllocated.at(index), m_southPort.m_inputVirtualChannelPriority.at(index));
+
+								// deallocate the loser's vc
+								// note that output port cannot be routed to input port with the same type
+								// and in this input port case, there is no vc for input terminal port;
+								// meaning in other input port cases, there should be four cases  
+								if (m_southPort.m_inputPortRouted.at(index) == PortType::NorthPort)
+									m_northPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+								if (m_southPort.m_inputPortRouted.at(index) == PortType::WestPort)
+									m_westPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+								if (m_southPort.m_inputPortRouted.at(index) == PortType::EastPort)
+									m_eastPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+
+								// record winner in arbitration recorder
+								winVirtualChannelArbitration(PortType::TerminalPort, 0, m_terminalPort.m_virtualChannelPriority);
+
+								// allocate vc to the challenger
+								// change input fields
+								m_terminalPort.m_outputVirtualChannelAllocated = index;
+
+								// change output fields
+								m_southPort.m_inputPortRouted.at(index) = PortType::TerminalPort;
+								m_southPort.m_inputVirtualChannelAllocated.at(index) = 0; // no virtual channel for ternimal port
+								m_southPort.m_inputVirtualChannelPriority.at(index) = m_terminalPort.m_virtualChannelPriority;
+								goto allocateTerminalToSouthDone;
 							}
 						}
+					}
+				allocateTerminalToSouthDone: ;
+				}
 
-						// compare the lowest priority with the challenger and arbitrate 
-						// to the challenger if challenger's priority is higher (smaller)
-						if (m_terminalPort.m_virtualChannelPriority < priority)
+				// if terminal port is routed to west port
+				if (m_terminalPort.m_outputPortRouted == PortType::WestPort)
+				{
+					for (int i{}; i < VC_NUMBER; ++i)
+					{
+						if (m_westPort.m_downstreamVirtualChannelStates.at(i)
+							== VirtualChannelState::I)
 						{
-							// find loser's record and delete it in m_virtualChannelArbitrationRecorder
-							loseVirtualChannelArbitration(m_westPort.m_inputPortRouted.at(index), m_westPort.m_inputVirtualChannelAllocated.at(index), m_westPort.m_inputVirtualChannelPriority.at(index));
-						
-							// deallocate the loser's vc
-							// note that output port cannot be routed to input port with the same type
-							// and in this input port case, there is no vc for input terminal port;
-							// meaning in other input port cases, there should be four cases  
-							if (m_westPort.m_inputPortRouted.at(index) == PortType::NorthPort)
-								m_northPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-							if (m_westPort.m_inputPortRouted.at(index) == PortType::SouthPort)
-								m_southPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-							if (m_westPort.m_inputPortRouted.at(index) == PortType::EastPort)
-								m_eastPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-
-							// record winner in arbitration recorder
+							// insert an entry in m_virtualChannelArbitrationRecorder
 							winVirtualChannelArbitration(PortType::TerminalPort, 0, m_terminalPort.m_virtualChannelPriority);
 
-							// allocate vc to the challenger
 							// change input fields
-							m_terminalPort.m_outputVirtualChannelAllocated = index;
+							m_terminalPort.m_outputVirtualChannelAllocated = i;
 
 							// change output fields
-							m_westPort.m_inputPortRouted.at(index) = PortType::TerminalPort;
-							m_westPort.m_inputVirtualChannelAllocated.at(index) = 0; // no virtual channel for ternimal port
-							m_westPort.m_inputVirtualChannelPriority.at(index) = m_terminalPort.m_virtualChannelPriority;
+							m_westPort.m_downstreamVirtualChannelStates.at(i) = VirtualChannelState::V;
+							m_westPort.m_inputPortRouted.at(i) = PortType::TerminalPort;
+							m_westPort.m_inputVirtualChannelAllocated.at(i) = 0; // no virtual channel for ternimal port
+							m_westPort.m_inputVirtualChannelPriority.at(i) = m_terminalPort.m_virtualChannelPriority;
 							goto allocateTerminalToWestDone;
 						}
 					}
-				}
-			allocateTerminalToWestDone: ;
-			}
 
-			// if terminal port is routed to east port
-			if (m_terminalPort.m_outputPortRouted == PortType::EastPort)
-			{
-				for (int i{}; i < VC_NUMBER; ++i)
-				{
-					if (m_eastPort.m_downstreamVirtualChannelStates.at(i)
-						== VirtualChannelState::I)
+					// If there is no I downstream virtual channel states;
+					// meaning states are either A or V;
+					// do the following round-robin arbitration based on virtual channel priority
+					// with DVCS set to V;
+					for (int i{}; i < VC_NUMBER; ++i)
 					{
-						// insert an entry in m_virtualChannelArbitrationRecorder
-						winVirtualChannelArbitration(PortType::TerminalPort, 0, m_terminalPort.m_virtualChannelPriority);
-					
-						// change input fields
-						m_terminalPort.m_outputVirtualChannelAllocated = i;
-
-						// change output fields
-						m_eastPort.m_downstreamVirtualChannelStates.at(i) = VirtualChannelState::V;
-						m_eastPort.m_inputPortRouted.at(i) = PortType::TerminalPort;
-						m_eastPort.m_inputVirtualChannelAllocated.at(i) = 0; // no virtual channel for ternimal port
-						m_eastPort.m_inputVirtualChannelPriority.at(i) = m_terminalPort.m_virtualChannelPriority;
-						goto allocateTerminalToEastDone;
-					}
-				}
-
-				// If there is no I downstream virtual channel states;
-				// meaning states are either A or V;
-				// do the following round-robin arbitration based on virtual channel priority
-				// with DVCS set to V;
-				for (int i{}; i < VC_NUMBER; ++i)
-				{
-					if (m_eastPort.m_downstreamVirtualChannelStates.at(i)
-						== VirtualChannelState::V)
-					{
-						// find the item with the lowest virtual channel priority (maximum) 
-						// and in V state; record priority and index;
-						int priority{};
-						int index{};
-						for (int j{}; j < VC_NUMBER; ++j)
+						if (m_westPort.m_downstreamVirtualChannelStates.at(i)
+							== VirtualChannelState::V)
 						{
-							if (m_eastPort.m_downstreamVirtualChannelStates.at(j) == VirtualChannelState::V
-								&& m_eastPort.m_inputVirtualChannelPriority.at(j) > priority)
+							// find the item with the lowest virtual channel priority (maximum) 
+							// and in V state; record priority and index;
+							int priority{};
+							int index{};
+							for (int j{}; j < VC_NUMBER; ++j)
 							{
-								priority = m_eastPort.m_inputVirtualChannelPriority.at(j);
-								index = j;
+								if (m_westPort.m_downstreamVirtualChannelStates.at(j) == VirtualChannelState::V
+									&& m_westPort.m_inputVirtualChannelPriority.at(j) > priority)
+								{
+									priority = m_westPort.m_inputVirtualChannelPriority.at(j);
+									index = j;
+								}
+							}
+
+							// compare the lowest priority with the challenger and arbitrate 
+							// to the challenger if challenger's priority is higher (smaller)
+							if (m_terminalPort.m_virtualChannelPriority < priority)
+							{
+								// find loser's record and delete it in m_virtualChannelArbitrationRecorder
+								loseVirtualChannelArbitration(m_westPort.m_inputPortRouted.at(index), m_westPort.m_inputVirtualChannelAllocated.at(index), m_westPort.m_inputVirtualChannelPriority.at(index));
+						
+								// deallocate the loser's vc
+								// note that output port cannot be routed to input port with the same type
+								// and in this input port case, there is no vc for input terminal port;
+								// meaning in other input port cases, there should be four cases  
+								if (m_westPort.m_inputPortRouted.at(index) == PortType::NorthPort)
+									m_northPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+								if (m_westPort.m_inputPortRouted.at(index) == PortType::SouthPort)
+									m_southPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+								if (m_westPort.m_inputPortRouted.at(index) == PortType::EastPort)
+									m_eastPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+
+								// record winner in arbitration recorder
+								winVirtualChannelArbitration(PortType::TerminalPort, 0, m_terminalPort.m_virtualChannelPriority);
+
+								// allocate vc to the challenger
+								// change input fields
+								m_terminalPort.m_outputVirtualChannelAllocated = index;
+
+								// change output fields
+								m_westPort.m_inputPortRouted.at(index) = PortType::TerminalPort;
+								m_westPort.m_inputVirtualChannelAllocated.at(index) = 0; // no virtual channel for ternimal port
+								m_westPort.m_inputVirtualChannelPriority.at(index) = m_terminalPort.m_virtualChannelPriority;
+								goto allocateTerminalToWestDone;
 							}
 						}
+					}
+				allocateTerminalToWestDone: ;
+				}
 
-						// compare the lowest priority with the challenger and arbitrate 
-						// to the challenger if challenger's priority is higher (smaller)
-						if (m_terminalPort.m_virtualChannelPriority < priority)
+				// if terminal port is routed to east port
+				if (m_terminalPort.m_outputPortRouted == PortType::EastPort)
+				{
+					for (int i{}; i < VC_NUMBER; ++i)
+					{
+						if (m_eastPort.m_downstreamVirtualChannelStates.at(i)
+							== VirtualChannelState::I)
 						{
-							// find loser's record and delete it in m_virtualChannelArbitrationRecorder
-							loseVirtualChannelArbitration(m_eastPort.m_inputPortRouted.at(index), m_eastPort.m_inputVirtualChannelAllocated.at(index), m_eastPort.m_inputVirtualChannelPriority.at(index));
-
-							// deallocate the loser's vc
-							// note that output port cannot be routed to input port with the same type
-							// and in this input port case, there is no vc for input terminal port;
-							// meaning in other input port cases, there should be four cases  
-							if (m_eastPort.m_inputPortRouted.at(index) == PortType::NorthPort)
-								m_northPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-							if (m_eastPort.m_inputPortRouted.at(index) == PortType::SouthPort)
-								m_southPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-							if (m_eastPort.m_inputPortRouted.at(index) == PortType::WestPort)
-								m_westPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-
-							// record winner in arbitration recorder
+							// insert an entry in m_virtualChannelArbitrationRecorder
 							winVirtualChannelArbitration(PortType::TerminalPort, 0, m_terminalPort.m_virtualChannelPriority);
-
-							// allocate vc to the challenger
+					
 							// change input fields
-							m_terminalPort.m_outputVirtualChannelAllocated = index;
+							m_terminalPort.m_outputVirtualChannelAllocated = i;
 
 							// change output fields
-							m_eastPort.m_inputPortRouted.at(index) = PortType::TerminalPort;
-							m_eastPort.m_inputVirtualChannelAllocated.at(index) = 0; // no virtual channel for ternimal port
-							m_eastPort.m_inputVirtualChannelPriority.at(index) = m_terminalPort.m_virtualChannelPriority;
+							m_eastPort.m_downstreamVirtualChannelStates.at(i) = VirtualChannelState::V;
+							m_eastPort.m_inputPortRouted.at(i) = PortType::TerminalPort;
+							m_eastPort.m_inputVirtualChannelAllocated.at(i) = 0; // no virtual channel for ternimal port
+							m_eastPort.m_inputVirtualChannelPriority.at(i) = m_terminalPort.m_virtualChannelPriority;
 							goto allocateTerminalToEastDone;
 						}
 					}
+
+					// If there is no I downstream virtual channel states;
+					// meaning states are either A or V;
+					// do the following round-robin arbitration based on virtual channel priority
+					// with DVCS set to V;
+					for (int i{}; i < VC_NUMBER; ++i)
+					{
+						if (m_eastPort.m_downstreamVirtualChannelStates.at(i)
+							== VirtualChannelState::V)
+						{
+							// find the item with the lowest virtual channel priority (maximum) 
+							// and in V state; record priority and index;
+							int priority{};
+							int index{};
+							for (int j{}; j < VC_NUMBER; ++j)
+							{
+								if (m_eastPort.m_downstreamVirtualChannelStates.at(j) == VirtualChannelState::V
+									&& m_eastPort.m_inputVirtualChannelPriority.at(j) > priority)
+								{
+									priority = m_eastPort.m_inputVirtualChannelPriority.at(j);
+									index = j;
+								}
+							}
+
+							// compare the lowest priority with the challenger and arbitrate 
+							// to the challenger if challenger's priority is higher (smaller)
+							if (m_terminalPort.m_virtualChannelPriority < priority)
+							{
+								// find loser's record and delete it in m_virtualChannelArbitrationRecorder
+								loseVirtualChannelArbitration(m_eastPort.m_inputPortRouted.at(index), m_eastPort.m_inputVirtualChannelAllocated.at(index), m_eastPort.m_inputVirtualChannelPriority.at(index));
+
+								// deallocate the loser's vc
+								// note that output port cannot be routed to input port with the same type
+								// and in this input port case, there is no vc for input terminal port;
+								// meaning in other input port cases, there should be four cases  
+								if (m_eastPort.m_inputPortRouted.at(index) == PortType::NorthPort)
+									m_northPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+								if (m_eastPort.m_inputPortRouted.at(index) == PortType::SouthPort)
+									m_southPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+								if (m_eastPort.m_inputPortRouted.at(index) == PortType::WestPort)
+									m_westPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+
+								// record winner in arbitration recorder
+								winVirtualChannelArbitration(PortType::TerminalPort, 0, m_terminalPort.m_virtualChannelPriority);
+
+								// allocate vc to the challenger
+								// change input fields
+								m_terminalPort.m_outputVirtualChannelAllocated = index;
+
+								// change output fields
+								m_eastPort.m_inputPortRouted.at(index) = PortType::TerminalPort;
+								m_eastPort.m_inputVirtualChannelAllocated.at(index) = 0; // no virtual channel for ternimal port
+								m_eastPort.m_inputVirtualChannelPriority.at(index) = m_terminalPort.m_virtualChannelPriority;
+								goto allocateTerminalToEastDone;
+							}
+						}
+					}
+				allocateTerminalToEastDone: ;
 				}
-			allocateTerminalToEastDone: ;
+				
+				m_terminalPort.m_localClock.tickTriggerClock(PERIOD_ROUTER_VA - EXECUTION_TIME_ROUTER_VA + 1);
+				m_terminalPort.m_localClock.toggleWaitingForExecution();
 			}
 		}
 	}
@@ -972,315 +999,327 @@ void Router::allocateNorthPortVirtualChannel()
 		{
 			if (m_northPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::V)
 			{
-				// if north port is routed to terminal port
-				if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
+				if (!m_northPort.m_virtualChannels.at(i).m_localClock.isWaitingForExecution())
 				{
-					if (m_terminalPort.m_downstreamVirtualChannelState == VirtualChannelState::I)
+					m_northPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(EXECUTION_TIME_ROUTER_VA - 1);
+					m_northPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
+				}
+
+				if (m_northPort.m_virtualChannels.at(i).m_localClock.executeLocalEvent())
+				{
+					// if north port is routed to terminal port
+					if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
 					{
-						// insert an entry in m_virtualChannelArbitrationRecorder
-						winVirtualChannelArbitration(PortType::NorthPort, i, m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-
-						// change input fields
-						m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = 0; // there is no virtual channel in terminal port
-
-						// change output fields
-						m_terminalPort.m_downstreamVirtualChannelState = VirtualChannelState::V;
-						m_terminalPort.m_inputPortRouted = PortType::NorthPort;
-						m_terminalPort.m_inputVirtualChannelAllocated = i;
-						m_terminalPort.m_inputVirtualChannelPriority = m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority;
-						goto allocateNorthToTerminalDone;
-					}
-
-					// If there is no I downstream virtual channel states;
-					// meaning states are either A or V;
-					// do the following round-robin arbitration based on virtual channel priority
-					// with DVCS set to V;
-					if (m_terminalPort.m_downstreamVirtualChannelState == VirtualChannelState::V)
-					{
-						// compare the priority with the challenger and arbitrate 
-						// to the challenger if challenger's priority is higher (smaller)
-						int priority{ m_terminalPort.m_inputVirtualChannelPriority };
-						if (m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
+						if (m_terminalPort.m_downstreamVirtualChannelState == VirtualChannelState::I)
 						{
-							// find loser's record and delete it in m_virtualChannelArbitrationRecorder
-							loseVirtualChannelArbitration(m_terminalPort.m_inputPortRouted, m_terminalPort.m_inputVirtualChannelAllocated, m_terminalPort.m_inputVirtualChannelPriority);
-
-							// deallocate the loser's vc
-							// note that output port cannot be routed to input port with the same type
-							// there should be four cases
-							if (m_terminalPort.m_inputPortRouted == PortType::NorthPort)
-								m_northPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
-							if (m_terminalPort.m_inputPortRouted == PortType::SouthPort)
-								m_southPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
-							if (m_terminalPort.m_inputPortRouted == PortType::WestPort)
-								m_westPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
-							if (m_terminalPort.m_inputPortRouted == PortType::EastPort)
-								m_eastPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
-
-							// record winner in arbitration recorder
+							// insert an entry in m_virtualChannelArbitrationRecorder
 							winVirtualChannelArbitration(PortType::NorthPort, i, m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority);
 
-							// allocate vc to the challenger
 							// change input fields
 							m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = 0; // there is no virtual channel in terminal port
 
 							// change output fields
+							m_terminalPort.m_downstreamVirtualChannelState = VirtualChannelState::V;
 							m_terminalPort.m_inputPortRouted = PortType::NorthPort;
 							m_terminalPort.m_inputVirtualChannelAllocated = i;
 							m_terminalPort.m_inputVirtualChannelPriority = m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+							goto allocateNorthToTerminalDone;
 						}
-						goto allocateNorthToTerminalDone;
-					}
-				allocateNorthToTerminalDone: ;
-				}
 
-				// if north port is routed to south port
-				if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
-				{
-					for (int j{}; j < VC_NUMBER; ++j)
-					{
-						if (m_southPort.m_downstreamVirtualChannelStates.at(j)
-							== VirtualChannelState::I)
+						// If there is no I downstream virtual channel states;
+						// meaning states are either A or V;
+						// do the following round-robin arbitration based on virtual channel priority
+						// with DVCS set to V;
+						if (m_terminalPort.m_downstreamVirtualChannelState == VirtualChannelState::V)
 						{
-							// insert an entry in m_virtualChannelArbitrationRecorder
-							winVirtualChannelArbitration(PortType::NorthPort, i, m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-						
-							// change input fields
-							m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
-
-							// change output fields
-							m_southPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
-							m_southPort.m_inputPortRouted.at(j) = PortType::NorthPort;
-							m_southPort.m_inputVirtualChannelAllocated.at(j) = i;
-							m_southPort.m_inputVirtualChannelPriority.at(j) = m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority;
-							goto allocateNorthToSouthDone;
-						}
-					}
-
-					// If there is no I downstream virtual channel states;
-					// meaning states are either A or V;
-					// do the following round-robin arbitration based on virtual channel priority
-					// with DVCS set to V;
-					for (int j{}; j < VC_NUMBER; ++j)
-					{
-						if (m_southPort.m_downstreamVirtualChannelStates.at(j)
-							== VirtualChannelState::V)
-						{
-							// find the item with the lowest virtual channel priority (maximum) 
-							// and in V state; record priority and index;
-							int priority{};
-							int index{};
-							for (int k{}; k < VC_NUMBER; ++k)
-							{
-								if (m_southPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
-									&& m_southPort.m_inputVirtualChannelPriority.at(k) > priority)
-								{
-									priority = m_southPort.m_inputVirtualChannelPriority.at(k);
-									index = k;
-								}
-							}
-
-							// compare the lowest priority with the challenger and arbitrate 
+							// compare the priority with the challenger and arbitrate 
 							// to the challenger if challenger's priority is higher (smaller)
+							int priority{ m_terminalPort.m_inputVirtualChannelPriority };
 							if (m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
 							{
 								// find loser's record and delete it in m_virtualChannelArbitrationRecorder
-								loseVirtualChannelArbitration(m_southPort.m_inputPortRouted.at(index), m_southPort.m_inputVirtualChannelAllocated.at(index), m_southPort.m_inputVirtualChannelPriority.at(index));
+								loseVirtualChannelArbitration(m_terminalPort.m_inputPortRouted, m_terminalPort.m_inputVirtualChannelAllocated, m_terminalPort.m_inputVirtualChannelPriority);
 
 								// deallocate the loser's vc
 								// note that output port cannot be routed to input port with the same type
 								// there should be four cases
-								if (m_southPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
-									m_terminalPort.m_outputVirtualChannelAllocated = -1;
-								if (m_southPort.m_inputPortRouted.at(index) == PortType::NorthPort)
-									m_northPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-								if (m_southPort.m_inputPortRouted.at(index) == PortType::WestPort)
-									m_westPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-								if (m_southPort.m_inputPortRouted.at(index) == PortType::EastPort)
-									m_eastPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+								if (m_terminalPort.m_inputPortRouted == PortType::NorthPort)
+									m_northPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
+								if (m_terminalPort.m_inputPortRouted == PortType::SouthPort)
+									m_southPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
+								if (m_terminalPort.m_inputPortRouted == PortType::WestPort)
+									m_westPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
+								if (m_terminalPort.m_inputPortRouted == PortType::EastPort)
+									m_eastPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
 
 								// record winner in arbitration recorder
 								winVirtualChannelArbitration(PortType::NorthPort, i, m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority);
 
 								// allocate vc to the challenger
 								// change input fields
-								m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
+								m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = 0; // there is no virtual channel in terminal port
 
 								// change output fields
-								m_southPort.m_inputPortRouted.at(index) = PortType::NorthPort;
-								m_southPort.m_inputVirtualChannelAllocated.at(index) = i;
-								m_southPort.m_inputVirtualChannelPriority.at(index) = m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+								m_terminalPort.m_inputPortRouted = PortType::NorthPort;
+								m_terminalPort.m_inputVirtualChannelAllocated = i;
+								m_terminalPort.m_inputVirtualChannelPriority = m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+							}
+							goto allocateNorthToTerminalDone;
+						}
+					allocateNorthToTerminalDone: ;
+					}
+
+					// if north port is routed to south port
+					if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
+					{
+						for (int j{}; j < VC_NUMBER; ++j)
+						{
+							if (m_southPort.m_downstreamVirtualChannelStates.at(j)
+								== VirtualChannelState::I)
+							{
+								// insert an entry in m_virtualChannelArbitrationRecorder
+								winVirtualChannelArbitration(PortType::NorthPort, i, m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority);
+						
+								// change input fields
+								m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
+
+								// change output fields
+								m_southPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
+								m_southPort.m_inputPortRouted.at(j) = PortType::NorthPort;
+								m_southPort.m_inputVirtualChannelAllocated.at(j) = i;
+								m_southPort.m_inputVirtualChannelPriority.at(j) = m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority;
 								goto allocateNorthToSouthDone;
 							}
 						}
-					}
-				allocateNorthToSouthDone: ;
-				}
 
-				// if north port is routed to west port
-				if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
-				{
-					for (int j{}; j < VC_NUMBER; ++j)
-					{
-						if (m_westPort.m_downstreamVirtualChannelStates.at(j)
-							== VirtualChannelState::I)
+						// If there is no I downstream virtual channel states;
+						// meaning states are either A or V;
+						// do the following round-robin arbitration based on virtual channel priority
+						// with DVCS set to V;
+						for (int j{}; j < VC_NUMBER; ++j)
 						{
-							// insert an entry in m_virtualChannelArbitrationRecorder
-							winVirtualChannelArbitration(PortType::NorthPort, i, m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-						
-							// change input fields
-							m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
-
-							// change output fields
-							m_westPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
-							m_westPort.m_inputPortRouted.at(j) = PortType::NorthPort;
-							m_westPort.m_inputVirtualChannelAllocated.at(j) = i;
-							m_westPort.m_inputVirtualChannelPriority.at(j) = m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority;
-							goto allocateNorthToWestDone;
-						}
-					}
-
-					// If there is no I downstream virtual channel states;
-					// meaning states are either A or V;
-					// do the following round-robin arbitration based on virtual channel priority
-					// with DVCS set to V;
-					for (int j{}; j < VC_NUMBER; ++j)
-					{
-						if (m_westPort.m_downstreamVirtualChannelStates.at(j)
-							== VirtualChannelState::V)
-						{
-							// find the item with the lowest virtual channel priority (maximum) 
-							// and in V state; record priority and index;
-							int priority{};
-							int index{};
-							for (int k{}; k < VC_NUMBER; ++k)
+							if (m_southPort.m_downstreamVirtualChannelStates.at(j)
+								== VirtualChannelState::V)
 							{
-								if (m_westPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
-									&& m_westPort.m_inputVirtualChannelPriority.at(k) > priority)
+								// find the item with the lowest virtual channel priority (maximum) 
+								// and in V state; record priority and index;
+								int priority{};
+								int index{};
+								for (int k{}; k < VC_NUMBER; ++k)
 								{
-									priority = m_westPort.m_inputVirtualChannelPriority.at(k);
-									index = k;
+									if (m_southPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
+										&& m_southPort.m_inputVirtualChannelPriority.at(k) > priority)
+									{
+										priority = m_southPort.m_inputVirtualChannelPriority.at(k);
+										index = k;
+									}
+								}
+
+								// compare the lowest priority with the challenger and arbitrate 
+								// to the challenger if challenger's priority is higher (smaller)
+								if (m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
+								{
+									// find loser's record and delete it in m_virtualChannelArbitrationRecorder
+									loseVirtualChannelArbitration(m_southPort.m_inputPortRouted.at(index), m_southPort.m_inputVirtualChannelAllocated.at(index), m_southPort.m_inputVirtualChannelPriority.at(index));
+
+									// deallocate the loser's vc
+									// note that output port cannot be routed to input port with the same type
+									// there should be four cases
+									if (m_southPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
+										m_terminalPort.m_outputVirtualChannelAllocated = -1;
+									if (m_southPort.m_inputPortRouted.at(index) == PortType::NorthPort)
+										m_northPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+									if (m_southPort.m_inputPortRouted.at(index) == PortType::WestPort)
+										m_westPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+									if (m_southPort.m_inputPortRouted.at(index) == PortType::EastPort)
+										m_eastPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+
+									// record winner in arbitration recorder
+									winVirtualChannelArbitration(PortType::NorthPort, i, m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority);
+
+									// allocate vc to the challenger
+									// change input fields
+									m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
+
+									// change output fields
+									m_southPort.m_inputPortRouted.at(index) = PortType::NorthPort;
+									m_southPort.m_inputVirtualChannelAllocated.at(index) = i;
+									m_southPort.m_inputVirtualChannelPriority.at(index) = m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+									goto allocateNorthToSouthDone;
 								}
 							}
+						}
+					allocateNorthToSouthDone: ;
+					}
 
-							// compare the lowest priority with the challenger and arbitrate 
-							// to the challenger if challenger's priority is higher (smaller)
-							if (m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
+					// if north port is routed to west port
+					if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
+					{
+						for (int j{}; j < VC_NUMBER; ++j)
+						{
+							if (m_westPort.m_downstreamVirtualChannelStates.at(j)
+								== VirtualChannelState::I)
 							{
-								// find loser's record and delete it in m_virtualChannelArbitrationRecorder
-								loseVirtualChannelArbitration(m_westPort.m_inputPortRouted.at(index), m_westPort.m_inputVirtualChannelAllocated.at(index), m_westPort.m_inputVirtualChannelPriority.at(index));
-
-								// deallocate the loser's vc
-								// note that output port cannot be routed to input port with the same type
-								// there should be four cases
-								if (m_westPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
-									m_terminalPort.m_outputVirtualChannelAllocated = -1;
-								if (m_westPort.m_inputPortRouted.at(index) == PortType::NorthPort)
-									m_northPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-								if (m_westPort.m_inputPortRouted.at(index) == PortType::SouthPort)
-									m_southPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-								if (m_westPort.m_inputPortRouted.at(index) == PortType::EastPort)
-									m_eastPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-
-								// record winner in arbitration recorder
+								// insert an entry in m_virtualChannelArbitrationRecorder
 								winVirtualChannelArbitration(PortType::NorthPort, i, m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-							
-								// allocate vc to the challenger
+						
 								// change input fields
-								m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
+								m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
 
 								// change output fields
-								m_westPort.m_inputPortRouted.at(index) = PortType::NorthPort;
-								m_westPort.m_inputVirtualChannelAllocated.at(index) = i;
-								m_westPort.m_inputVirtualChannelPriority.at(index) = m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+								m_westPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
+								m_westPort.m_inputPortRouted.at(j) = PortType::NorthPort;
+								m_westPort.m_inputVirtualChannelAllocated.at(j) = i;
+								m_westPort.m_inputVirtualChannelPriority.at(j) = m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority;
 								goto allocateNorthToWestDone;
 							}
 						}
-					}
-				allocateNorthToWestDone: ;
-				}
 
-				// if north port is routed to east port
-				if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
-				{
-					for (int j{}; j < VC_NUMBER; ++j)
-					{
-						if (m_eastPort.m_downstreamVirtualChannelStates.at(j)
-							== VirtualChannelState::I)
+						// If there is no I downstream virtual channel states;
+						// meaning states are either A or V;
+						// do the following round-robin arbitration based on virtual channel priority
+						// with DVCS set to V;
+						for (int j{}; j < VC_NUMBER; ++j)
 						{
-							// insert an entry in m_virtualChannelArbitrationRecorder
-							winVirtualChannelArbitration(PortType::NorthPort, i, m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-
-							// change input fields
-							m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
-
-							// change output fields
-							m_eastPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
-							m_eastPort.m_inputPortRouted.at(j) = PortType::NorthPort;
-							m_eastPort.m_inputVirtualChannelAllocated.at(j) = i;
-							m_eastPort.m_inputVirtualChannelPriority.at(j) = m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority;
-							goto allocateNorthToEastDone;
-						}
-					}
-
-					// If there is no I downstream virtual channel states;
-					// meaning states are either A or V;
-					// do the following round-robin arbitration based on virtual channel priority
-					// with DVCS set to V;
-					for (int j{}; j < VC_NUMBER; ++j)
-					{
-						if (m_eastPort.m_downstreamVirtualChannelStates.at(j)
-							== VirtualChannelState::V)
-						{
-							// find the item with the lowest virtual channel priority (maximum) 
-							// and in V state; record priority and index;
-							int priority{};
-							int index{};
-							for (int k{}; k < VC_NUMBER; ++k)
+							if (m_westPort.m_downstreamVirtualChannelStates.at(j)
+								== VirtualChannelState::V)
 							{
-								if (m_eastPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
-									&& m_eastPort.m_inputVirtualChannelPriority.at(k) > priority)
+								// find the item with the lowest virtual channel priority (maximum) 
+								// and in V state; record priority and index;
+								int priority{};
+								int index{};
+								for (int k{}; k < VC_NUMBER; ++k)
 								{
-									priority = m_eastPort.m_inputVirtualChannelPriority.at(k);
-									index = k;
+									if (m_westPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
+										&& m_westPort.m_inputVirtualChannelPriority.at(k) > priority)
+									{
+										priority = m_westPort.m_inputVirtualChannelPriority.at(k);
+										index = k;
+									}
+								}
+
+								// compare the lowest priority with the challenger and arbitrate 
+								// to the challenger if challenger's priority is higher (smaller)
+								if (m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
+								{
+									// find loser's record and delete it in m_virtualChannelArbitrationRecorder
+									loseVirtualChannelArbitration(m_westPort.m_inputPortRouted.at(index), m_westPort.m_inputVirtualChannelAllocated.at(index), m_westPort.m_inputVirtualChannelPriority.at(index));
+
+									// deallocate the loser's vc
+									// note that output port cannot be routed to input port with the same type
+									// there should be four cases
+									if (m_westPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
+										m_terminalPort.m_outputVirtualChannelAllocated = -1;
+									if (m_westPort.m_inputPortRouted.at(index) == PortType::NorthPort)
+										m_northPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+									if (m_westPort.m_inputPortRouted.at(index) == PortType::SouthPort)
+										m_southPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+									if (m_westPort.m_inputPortRouted.at(index) == PortType::EastPort)
+										m_eastPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+
+									// record winner in arbitration recorder
+									winVirtualChannelArbitration(PortType::NorthPort, i, m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority);
+							
+									// allocate vc to the challenger
+									// change input fields
+									m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
+
+									// change output fields
+									m_westPort.m_inputPortRouted.at(index) = PortType::NorthPort;
+									m_westPort.m_inputVirtualChannelAllocated.at(index) = i;
+									m_westPort.m_inputVirtualChannelPriority.at(index) = m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+									goto allocateNorthToWestDone;
 								}
 							}
+						}
+					allocateNorthToWestDone: ;
+					}
 
-							// compare the lowest priority with the challenger and arbitrate 
-							// to the challenger if challenger's priority is higher (smaller)
-							if (m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
+					// if north port is routed to east port
+					if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
+					{
+						for (int j{}; j < VC_NUMBER; ++j)
+						{
+							if (m_eastPort.m_downstreamVirtualChannelStates.at(j)
+								== VirtualChannelState::I)
 							{
-								// find loser's record and delete it in m_virtualChannelArbitrationRecorder
-								loseVirtualChannelArbitration(m_eastPort.m_inputPortRouted.at(index), m_eastPort.m_inputVirtualChannelAllocated.at(index), m_eastPort.m_inputVirtualChannelPriority.at(index));
-
-								// deallocate the loser's vc
-								// note that output port cannot be routed to input port with the same type
-								// there should be four cases
-								if (m_eastPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
-									m_terminalPort.m_outputVirtualChannelAllocated = -1;
-								if (m_eastPort.m_inputPortRouted.at(index) == PortType::NorthPort)
-									m_northPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-								if (m_eastPort.m_inputPortRouted.at(index) == PortType::SouthPort)
-									m_southPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-								if (m_eastPort.m_inputPortRouted.at(index) == PortType::WestPort)
-									m_westPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-
-								// record winner in arbitration recorder
+								// insert an entry in m_virtualChannelArbitrationRecorder
 								winVirtualChannelArbitration(PortType::NorthPort, i, m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority);
 
-								// allocate vc to the challenger
 								// change input fields
-								m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
+								m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
 
 								// change output fields
-								m_eastPort.m_inputPortRouted.at(index) = PortType::NorthPort;
-								m_eastPort.m_inputVirtualChannelAllocated.at(index) = i;
-								m_eastPort.m_inputVirtualChannelPriority.at(index) = m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+								m_eastPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
+								m_eastPort.m_inputPortRouted.at(j) = PortType::NorthPort;
+								m_eastPort.m_inputVirtualChannelAllocated.at(j) = i;
+								m_eastPort.m_inputVirtualChannelPriority.at(j) = m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority;
 								goto allocateNorthToEastDone;
 							}
 						}
+
+						// If there is no I downstream virtual channel states;
+						// meaning states are either A or V;
+						// do the following round-robin arbitration based on virtual channel priority
+						// with DVCS set to V;
+						for (int j{}; j < VC_NUMBER; ++j)
+						{
+							if (m_eastPort.m_downstreamVirtualChannelStates.at(j)
+								== VirtualChannelState::V)
+							{
+								// find the item with the lowest virtual channel priority (maximum) 
+								// and in V state; record priority and index;
+								int priority{};
+								int index{};
+								for (int k{}; k < VC_NUMBER; ++k)
+								{
+									if (m_eastPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
+										&& m_eastPort.m_inputVirtualChannelPriority.at(k) > priority)
+									{
+										priority = m_eastPort.m_inputVirtualChannelPriority.at(k);
+										index = k;
+									}
+								}
+
+								// compare the lowest priority with the challenger and arbitrate 
+								// to the challenger if challenger's priority is higher (smaller)
+								if (m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
+								{
+									// find loser's record and delete it in m_virtualChannelArbitrationRecorder
+									loseVirtualChannelArbitration(m_eastPort.m_inputPortRouted.at(index), m_eastPort.m_inputVirtualChannelAllocated.at(index), m_eastPort.m_inputVirtualChannelPriority.at(index));
+
+									// deallocate the loser's vc
+									// note that output port cannot be routed to input port with the same type
+									// there should be four cases
+									if (m_eastPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
+										m_terminalPort.m_outputVirtualChannelAllocated = -1;
+									if (m_eastPort.m_inputPortRouted.at(index) == PortType::NorthPort)
+										m_northPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+									if (m_eastPort.m_inputPortRouted.at(index) == PortType::SouthPort)
+										m_southPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+									if (m_eastPort.m_inputPortRouted.at(index) == PortType::WestPort)
+										m_westPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+
+									// record winner in arbitration recorder
+									winVirtualChannelArbitration(PortType::NorthPort, i, m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority);
+
+									// allocate vc to the challenger
+									// change input fields
+									m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
+
+									// change output fields
+									m_eastPort.m_inputPortRouted.at(index) = PortType::NorthPort;
+									m_eastPort.m_inputVirtualChannelAllocated.at(index) = i;
+									m_eastPort.m_inputVirtualChannelPriority.at(index) = m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+									goto allocateNorthToEastDone;
+								}
+							}
+						}
+					allocateNorthToEastDone: ;
 					}
-				allocateNorthToEastDone: ;
+
+					m_northPort.m_virtualChannels.at(i).m_localClock.tickTriggerClock(PERIOD_ROUTER_VA - EXECUTION_TIME_ROUTER_VA + 1);
+					m_northPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 			}
 		}
@@ -1295,315 +1334,327 @@ void Router::allocateSouthPortVirtualChannel()
 		{
 			if (m_southPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::V)
 			{
-				// if south port is routed to terminal port
-				if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
+				if (!m_southPort.m_virtualChannels.at(i).m_localClock.isWaitingForExecution())
 				{
-					if (m_terminalPort.m_downstreamVirtualChannelState == VirtualChannelState::I)
-					{
-						// insert an entry in m_virtualChannelArbitrationRecorder
-						winVirtualChannelArbitration(PortType::SouthPort, i, m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-					
-						// change input fields
-						m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = 0; // there is no virtual channel in terminal port
+					m_southPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(EXECUTION_TIME_ROUTER_VA - 1);
+					m_southPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
+				}
 
-						// change output fields
-						m_terminalPort.m_downstreamVirtualChannelState = VirtualChannelState::V;
-						m_terminalPort.m_inputPortRouted = PortType::SouthPort;
-						m_terminalPort.m_inputVirtualChannelAllocated = i;
-						m_terminalPort.m_inputVirtualChannelPriority = m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority;
-						goto allocateSouthToTerminalDone;
-					}
-
-					// If there is no I downstream virtual channel states;
-					// meaning states are either A or V;
-					// do the following round-robin arbitration based on virtual channel priority
-					// with DVCS set to V;
-					if (m_terminalPort.m_downstreamVirtualChannelState == VirtualChannelState::V)
+				if (m_southPort.m_virtualChannels.at(i).m_localClock.executeLocalEvent())
+				{
+					// if south port is routed to terminal port
+					if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
 					{
-						// compare the priority with the challenger and arbitrate 
-						// to the challenger if challenger's priority is higher (smaller)
-						int priority{ m_terminalPort.m_inputVirtualChannelPriority };
-						if (m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
+						if (m_terminalPort.m_downstreamVirtualChannelState == VirtualChannelState::I)
 						{
-							// find loser's record and delete it in m_virtualChannelArbitrationRecorder
-							loseVirtualChannelArbitration(m_terminalPort.m_inputPortRouted, m_terminalPort.m_inputVirtualChannelAllocated, m_terminalPort.m_inputVirtualChannelPriority);
-
-							// deallocate the loser's vc
-							// note that output port cannot be routed to input port with the same type
-							// there should be four cases
-							if (m_terminalPort.m_inputPortRouted == PortType::NorthPort)
-								m_northPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
-							if (m_terminalPort.m_inputPortRouted == PortType::SouthPort)
-								m_southPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
-							if (m_terminalPort.m_inputPortRouted == PortType::WestPort)
-								m_westPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
-							if (m_terminalPort.m_inputPortRouted == PortType::EastPort)
-								m_eastPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
-						
-							// record winner in arbitration recorder
+							// insert an entry in m_virtualChannelArbitrationRecorder
 							winVirtualChannelArbitration(PortType::SouthPort, i, m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-
-							// allocate vc to the challenger
+					
 							// change input fields
 							m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = 0; // there is no virtual channel in terminal port
 
 							// change output fields
+							m_terminalPort.m_downstreamVirtualChannelState = VirtualChannelState::V;
 							m_terminalPort.m_inputPortRouted = PortType::SouthPort;
 							m_terminalPort.m_inputVirtualChannelAllocated = i;
 							m_terminalPort.m_inputVirtualChannelPriority = m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority;
 							goto allocateSouthToTerminalDone;
 						}
-					}
-				allocateSouthToTerminalDone: ;
-				}
 
-				// if south port is routed to north port
-				if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
-				{
-					for (int j{}; j < VC_NUMBER; ++j)
-					{
-						if (m_northPort.m_downstreamVirtualChannelStates.at(j)
-							== VirtualChannelState::I)
+						// If there is no I downstream virtual channel states;
+						// meaning states are either A or V;
+						// do the following round-robin arbitration based on virtual channel priority
+						// with DVCS set to V;
+						if (m_terminalPort.m_downstreamVirtualChannelState == VirtualChannelState::V)
 						{
-							// insert an entry in m_virtualChannelArbitrationRecorder
-							winVirtualChannelArbitration(PortType::SouthPort, i, m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-						
-							// change input fields
-							m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
-
-							// change output fields
-							m_northPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
-							m_northPort.m_inputPortRouted.at(j) = PortType::SouthPort;
-							m_northPort.m_inputVirtualChannelAllocated.at(j) = i;
-							m_northPort.m_inputVirtualChannelPriority.at(j) = m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority;
-							goto allocateSouthToNorthDone;
-						}
-					}
-
-					// If there is no I downstream virtual channel states;
-					// meaning states are either A or V;
-					// do the following round-robin arbitration based on virtual channel priority
-					// with DVCS set to V;
-					for (int j{}; j < VC_NUMBER; ++j)
-					{
-						if (m_northPort.m_downstreamVirtualChannelStates.at(j)
-							== VirtualChannelState::V)
-						{
-							// find the item with the lowest virtual channel priority (maximum) 
-							// and in V state; record priority and index;
-							int priority{};
-							int index{};
-							for (int k{}; k < VC_NUMBER; ++k)
-							{
-								if (m_northPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
-									&& m_northPort.m_inputVirtualChannelPriority.at(k) > priority)
-								{
-									priority = m_northPort.m_inputVirtualChannelPriority.at(k);
-									index = k;
-								}
-							}
-
-							// compare the lowest priority with the challenger and arbitrate 
+							// compare the priority with the challenger and arbitrate 
 							// to the challenger if challenger's priority is higher (smaller)
+							int priority{ m_terminalPort.m_inputVirtualChannelPriority };
 							if (m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
 							{
 								// find loser's record and delete it in m_virtualChannelArbitrationRecorder
-								loseVirtualChannelArbitration(m_northPort.m_inputPortRouted.at(index), m_northPort.m_inputVirtualChannelAllocated.at(index), m_northPort.m_inputVirtualChannelPriority.at(index));
+								loseVirtualChannelArbitration(m_terminalPort.m_inputPortRouted, m_terminalPort.m_inputVirtualChannelAllocated, m_terminalPort.m_inputVirtualChannelPriority);
 
 								// deallocate the loser's vc
 								// note that output port cannot be routed to input port with the same type
 								// there should be four cases
-								if (m_northPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
-									m_terminalPort.m_outputVirtualChannelAllocated = -1;
-								if (m_northPort.m_inputPortRouted.at(index) == PortType::SouthPort)
-									m_southPort.m_virtualChannels.at(m_northPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-								if (m_northPort.m_inputPortRouted.at(index) == PortType::WestPort)
-									m_westPort.m_virtualChannels.at(m_northPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-								if (m_northPort.m_inputPortRouted.at(index) == PortType::EastPort)
-									m_eastPort.m_virtualChannels.at(m_northPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-
+								if (m_terminalPort.m_inputPortRouted == PortType::NorthPort)
+									m_northPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
+								if (m_terminalPort.m_inputPortRouted == PortType::SouthPort)
+									m_southPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
+								if (m_terminalPort.m_inputPortRouted == PortType::WestPort)
+									m_westPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
+								if (m_terminalPort.m_inputPortRouted == PortType::EastPort)
+									m_eastPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
+						
 								// record winner in arbitration recorder
 								winVirtualChannelArbitration(PortType::SouthPort, i, m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-							
+
 								// allocate vc to the challenger
 								// change input fields
-								m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
+								m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = 0; // there is no virtual channel in terminal port
 
 								// change output fields
-								m_northPort.m_inputPortRouted.at(index) = PortType::SouthPort;
-								m_northPort.m_inputVirtualChannelAllocated.at(index) = i;
-								m_northPort.m_inputVirtualChannelPriority.at(index) = m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+								m_terminalPort.m_inputPortRouted = PortType::SouthPort;
+								m_terminalPort.m_inputVirtualChannelAllocated = i;
+								m_terminalPort.m_inputVirtualChannelPriority = m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+								goto allocateSouthToTerminalDone;
+							}
+						}
+					allocateSouthToTerminalDone: ;
+					}
+
+					// if south port is routed to north port
+					if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
+					{
+						for (int j{}; j < VC_NUMBER; ++j)
+						{
+							if (m_northPort.m_downstreamVirtualChannelStates.at(j)
+								== VirtualChannelState::I)
+							{
+								// insert an entry in m_virtualChannelArbitrationRecorder
+								winVirtualChannelArbitration(PortType::SouthPort, i, m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority);
+						
+								// change input fields
+								m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
+
+								// change output fields
+								m_northPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
+								m_northPort.m_inputPortRouted.at(j) = PortType::SouthPort;
+								m_northPort.m_inputVirtualChannelAllocated.at(j) = i;
+								m_northPort.m_inputVirtualChannelPriority.at(j) = m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority;
 								goto allocateSouthToNorthDone;
 							}
 						}
-					}
-				allocateSouthToNorthDone: ;
-				}
 
-				// if south port is routed to west port
-				if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
-				{
-					for (int j{}; j < VC_NUMBER; ++j)
-					{
-						if (m_westPort.m_downstreamVirtualChannelStates.at(j)
-							== VirtualChannelState::I)
+						// If there is no I downstream virtual channel states;
+						// meaning states are either A or V;
+						// do the following round-robin arbitration based on virtual channel priority
+						// with DVCS set to V;
+						for (int j{}; j < VC_NUMBER; ++j)
 						{
-							// insert an entry in m_virtualChannelArbitrationRecorder
-							winVirtualChannelArbitration(PortType::SouthPort, i, m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-						
-							// change input fields
-							m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
-
-							// change output fields
-							m_westPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
-							m_westPort.m_inputPortRouted.at(j) = PortType::SouthPort;
-							m_westPort.m_inputVirtualChannelAllocated.at(j) = i;
-							m_westPort.m_inputVirtualChannelPriority.at(j) = m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority;
-							goto allocateSouthToWestDone;
-						}
-					}
-
-					// If there is no I downstream virtual channel states;
-					// meaning states are either A or V;
-					// do the following round-robin arbitration based on virtual channel priority
-					// with DVCS set to V;
-					for (int j{}; j < VC_NUMBER; ++j)
-					{
-						if (m_westPort.m_downstreamVirtualChannelStates.at(j)
-							== VirtualChannelState::V)
-						{
-							// find the item with the lowest virtual channel priority (maximum) 
-							// and in V state; record priority and index;
-							int priority{};
-							int index{};
-							for (int k{}; k < VC_NUMBER; ++k)
+							if (m_northPort.m_downstreamVirtualChannelStates.at(j)
+								== VirtualChannelState::V)
 							{
-								if (m_westPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
-									&& m_westPort.m_inputVirtualChannelPriority.at(k) > priority)
+								// find the item with the lowest virtual channel priority (maximum) 
+								// and in V state; record priority and index;
+								int priority{};
+								int index{};
+								for (int k{}; k < VC_NUMBER; ++k)
 								{
-									priority = m_westPort.m_inputVirtualChannelPriority.at(k);
-									index = k;
+									if (m_northPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
+										&& m_northPort.m_inputVirtualChannelPriority.at(k) > priority)
+									{
+										priority = m_northPort.m_inputVirtualChannelPriority.at(k);
+										index = k;
+									}
+								}
+
+								// compare the lowest priority with the challenger and arbitrate 
+								// to the challenger if challenger's priority is higher (smaller)
+								if (m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
+								{
+									// find loser's record and delete it in m_virtualChannelArbitrationRecorder
+									loseVirtualChannelArbitration(m_northPort.m_inputPortRouted.at(index), m_northPort.m_inputVirtualChannelAllocated.at(index), m_northPort.m_inputVirtualChannelPriority.at(index));
+
+									// deallocate the loser's vc
+									// note that output port cannot be routed to input port with the same type
+									// there should be four cases
+									if (m_northPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
+										m_terminalPort.m_outputVirtualChannelAllocated = -1;
+									if (m_northPort.m_inputPortRouted.at(index) == PortType::SouthPort)
+										m_southPort.m_virtualChannels.at(m_northPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+									if (m_northPort.m_inputPortRouted.at(index) == PortType::WestPort)
+										m_westPort.m_virtualChannels.at(m_northPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+									if (m_northPort.m_inputPortRouted.at(index) == PortType::EastPort)
+										m_eastPort.m_virtualChannels.at(m_northPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+
+									// record winner in arbitration recorder
+									winVirtualChannelArbitration(PortType::SouthPort, i, m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority);
+							
+									// allocate vc to the challenger
+									// change input fields
+									m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
+
+									// change output fields
+									m_northPort.m_inputPortRouted.at(index) = PortType::SouthPort;
+									m_northPort.m_inputVirtualChannelAllocated.at(index) = i;
+									m_northPort.m_inputVirtualChannelPriority.at(index) = m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+									goto allocateSouthToNorthDone;
 								}
 							}
+						}
+					allocateSouthToNorthDone: ;
+					}
 
-							// compare the lowest priority with the challenger and arbitrate 
-							// to the challenger if challenger's priority is higher (smaller)
-							if (m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
+					// if south port is routed to west port
+					if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
+					{
+						for (int j{}; j < VC_NUMBER; ++j)
+						{
+							if (m_westPort.m_downstreamVirtualChannelStates.at(j)
+								== VirtualChannelState::I)
 							{
-								// find loser's record and delete it in m_virtualChannelArbitrationRecorder
-								loseVirtualChannelArbitration(m_westPort.m_inputPortRouted.at(index), m_westPort.m_inputVirtualChannelAllocated.at(index), m_westPort.m_inputVirtualChannelPriority.at(index));
-
-								// deallocate the loser's vc
-								// note that output port cannot be routed to input port with the same type
-								// there should be four cases
-								if (m_westPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
-									m_terminalPort.m_outputVirtualChannelAllocated = -1;
-								if (m_westPort.m_inputPortRouted.at(index) == PortType::NorthPort)
-									m_northPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-								if (m_westPort.m_inputPortRouted.at(index) == PortType::SouthPort)
-									m_southPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-								if (m_westPort.m_inputPortRouted.at(index) == PortType::EastPort)
-									m_eastPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-
-								// record winner in arbitration recorder
+								// insert an entry in m_virtualChannelArbitrationRecorder
 								winVirtualChannelArbitration(PortType::SouthPort, i, m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-							
-								// allocate vc to the challenger
+						
 								// change input fields
-								m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
+								m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
 
 								// change output fields
-								m_westPort.m_inputPortRouted.at(index) = PortType::SouthPort;
-								m_westPort.m_inputVirtualChannelAllocated.at(index) = i;
-								m_westPort.m_inputVirtualChannelPriority.at(index) = m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+								m_westPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
+								m_westPort.m_inputPortRouted.at(j) = PortType::SouthPort;
+								m_westPort.m_inputVirtualChannelAllocated.at(j) = i;
+								m_westPort.m_inputVirtualChannelPriority.at(j) = m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority;
 								goto allocateSouthToWestDone;
 							}
 						}
-					}
-				allocateSouthToWestDone: ;
-				}
 
-				// if south port is routed to east port
-				if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
-				{
-					for (int j{}; j < VC_NUMBER; ++j)
-					{
-						if (m_eastPort.m_downstreamVirtualChannelStates.at(j)
-							== VirtualChannelState::I)
+						// If there is no I downstream virtual channel states;
+						// meaning states are either A or V;
+						// do the following round-robin arbitration based on virtual channel priority
+						// with DVCS set to V;
+						for (int j{}; j < VC_NUMBER; ++j)
 						{
-							// insert an entry in m_virtualChannelArbitrationRecorder
-							winVirtualChannelArbitration(PortType::SouthPort, i, m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-						
-							// change input fields
-							m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
-
-							// change output fields
-							m_eastPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
-							m_eastPort.m_inputPortRouted.at(j) = PortType::SouthPort;
-							m_eastPort.m_inputVirtualChannelAllocated.at(j) = i;
-							m_eastPort.m_inputVirtualChannelPriority.at(j) = m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority;
-							goto allocateSouthToEastDone;
-						}
-					}
-
-					// If there is no I downstream virtual channel states;
-					// meaning states are either A or V;
-					// do the following round-robin arbitration based on virtual channel priority
-					// with DVCS set to V;
-					for (int j{}; j < VC_NUMBER; ++j)
-					{
-						if (m_eastPort.m_downstreamVirtualChannelStates.at(j)
-							== VirtualChannelState::V)
-						{
-							// find the item with the lowest virtual channel priority (maximum) 
-							// and in V state; record priority and index;
-							int priority{};
-							int index{};
-							for (int k{}; k < VC_NUMBER; ++k)
+							if (m_westPort.m_downstreamVirtualChannelStates.at(j)
+								== VirtualChannelState::V)
 							{
-								if (m_eastPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
-									&& m_eastPort.m_inputVirtualChannelPriority.at(k) > priority)
+								// find the item with the lowest virtual channel priority (maximum) 
+								// and in V state; record priority and index;
+								int priority{};
+								int index{};
+								for (int k{}; k < VC_NUMBER; ++k)
 								{
-									priority = m_eastPort.m_inputVirtualChannelPriority.at(k);
-									index = k;
+									if (m_westPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
+										&& m_westPort.m_inputVirtualChannelPriority.at(k) > priority)
+									{
+										priority = m_westPort.m_inputVirtualChannelPriority.at(k);
+										index = k;
+									}
+								}
+
+								// compare the lowest priority with the challenger and arbitrate 
+								// to the challenger if challenger's priority is higher (smaller)
+								if (m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
+								{
+									// find loser's record and delete it in m_virtualChannelArbitrationRecorder
+									loseVirtualChannelArbitration(m_westPort.m_inputPortRouted.at(index), m_westPort.m_inputVirtualChannelAllocated.at(index), m_westPort.m_inputVirtualChannelPriority.at(index));
+
+									// deallocate the loser's vc
+									// note that output port cannot be routed to input port with the same type
+									// there should be four cases
+									if (m_westPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
+										m_terminalPort.m_outputVirtualChannelAllocated = -1;
+									if (m_westPort.m_inputPortRouted.at(index) == PortType::NorthPort)
+										m_northPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+									if (m_westPort.m_inputPortRouted.at(index) == PortType::SouthPort)
+										m_southPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+									if (m_westPort.m_inputPortRouted.at(index) == PortType::EastPort)
+										m_eastPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+
+									// record winner in arbitration recorder
+									winVirtualChannelArbitration(PortType::SouthPort, i, m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority);
+							
+									// allocate vc to the challenger
+									// change input fields
+									m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
+
+									// change output fields
+									m_westPort.m_inputPortRouted.at(index) = PortType::SouthPort;
+									m_westPort.m_inputVirtualChannelAllocated.at(index) = i;
+									m_westPort.m_inputVirtualChannelPriority.at(index) = m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+									goto allocateSouthToWestDone;
 								}
 							}
+						}
+					allocateSouthToWestDone: ;
+					}
 
-							// compare the lowest priority with the challenger and arbitrate 
-							// to the challenger if challenger's priority is higher (smaller)
-							if (m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
+					// if south port is routed to east port
+					if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
+					{
+						for (int j{}; j < VC_NUMBER; ++j)
+						{
+							if (m_eastPort.m_downstreamVirtualChannelStates.at(j)
+								== VirtualChannelState::I)
 							{
-								// find loser's record and delete it in m_virtualChannelArbitrationRecorder
-								loseVirtualChannelArbitration(m_eastPort.m_inputPortRouted.at(index), m_eastPort.m_inputVirtualChannelAllocated.at(index), m_eastPort.m_inputVirtualChannelPriority.at(index));
-
-								// deallocate the loser's vc
-								// note that output port cannot be routed to input port with the same type
-								// there should be four cases
-								if (m_eastPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
-									m_terminalPort.m_outputVirtualChannelAllocated = -1;
-								if (m_eastPort.m_inputPortRouted.at(index) == PortType::NorthPort)
-									m_northPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-								if (m_eastPort.m_inputPortRouted.at(index) == PortType::SouthPort)
-									m_southPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-								if (m_eastPort.m_inputPortRouted.at(index) == PortType::WestPort)
-									m_westPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-
-								// record winner in arbitration recorder
+								// insert an entry in m_virtualChannelArbitrationRecorder
 								winVirtualChannelArbitration(PortType::SouthPort, i, m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-							
-								// allocate vc to the challenger
+						
 								// change input fields
-								m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
+								m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
 
 								// change output fields
-								m_eastPort.m_inputPortRouted.at(index) = PortType::SouthPort;
-								m_eastPort.m_inputVirtualChannelAllocated.at(index) = i;
-								m_eastPort.m_inputVirtualChannelPriority.at(index) = m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+								m_eastPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
+								m_eastPort.m_inputPortRouted.at(j) = PortType::SouthPort;
+								m_eastPort.m_inputVirtualChannelAllocated.at(j) = i;
+								m_eastPort.m_inputVirtualChannelPriority.at(j) = m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority;
 								goto allocateSouthToEastDone;
 							}
 						}
+
+						// If there is no I downstream virtual channel states;
+						// meaning states are either A or V;
+						// do the following round-robin arbitration based on virtual channel priority
+						// with DVCS set to V;
+						for (int j{}; j < VC_NUMBER; ++j)
+						{
+							if (m_eastPort.m_downstreamVirtualChannelStates.at(j)
+								== VirtualChannelState::V)
+							{
+								// find the item with the lowest virtual channel priority (maximum) 
+								// and in V state; record priority and index;
+								int priority{};
+								int index{};
+								for (int k{}; k < VC_NUMBER; ++k)
+								{
+									if (m_eastPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
+										&& m_eastPort.m_inputVirtualChannelPriority.at(k) > priority)
+									{
+										priority = m_eastPort.m_inputVirtualChannelPriority.at(k);
+										index = k;
+									}
+								}
+
+								// compare the lowest priority with the challenger and arbitrate 
+								// to the challenger if challenger's priority is higher (smaller)
+								if (m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
+								{
+									// find loser's record and delete it in m_virtualChannelArbitrationRecorder
+									loseVirtualChannelArbitration(m_eastPort.m_inputPortRouted.at(index), m_eastPort.m_inputVirtualChannelAllocated.at(index), m_eastPort.m_inputVirtualChannelPriority.at(index));
+
+									// deallocate the loser's vc
+									// note that output port cannot be routed to input port with the same type
+									// there should be four cases
+									if (m_eastPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
+										m_terminalPort.m_outputVirtualChannelAllocated = -1;
+									if (m_eastPort.m_inputPortRouted.at(index) == PortType::NorthPort)
+										m_northPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+									if (m_eastPort.m_inputPortRouted.at(index) == PortType::SouthPort)
+										m_southPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+									if (m_eastPort.m_inputPortRouted.at(index) == PortType::WestPort)
+										m_westPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+
+									// record winner in arbitration recorder
+									winVirtualChannelArbitration(PortType::SouthPort, i, m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority);
+							
+									// allocate vc to the challenger
+									// change input fields
+									m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
+
+									// change output fields
+									m_eastPort.m_inputPortRouted.at(index) = PortType::SouthPort;
+									m_eastPort.m_inputVirtualChannelAllocated.at(index) = i;
+									m_eastPort.m_inputVirtualChannelPriority.at(index) = m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+									goto allocateSouthToEastDone;
+								}
+							}
+						}
+					allocateSouthToEastDone: ;
 					}
-				allocateSouthToEastDone: ;
+
+					m_southPort.m_virtualChannels.at(i).m_localClock.tickTriggerClock(PERIOD_ROUTER_VA - EXECUTION_TIME_ROUTER_VA + 1);
+					m_southPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 			}
 		}
@@ -1618,315 +1669,327 @@ void Router::allocateWestPortVirtualChannel()
 		{
 			if (m_westPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::V)
 			{
-				// if west port is routed to terminal port
-				if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
+				if (!m_westPort.m_virtualChannels.at(i).m_localClock.isWaitingForExecution())
 				{
-					if (m_terminalPort.m_downstreamVirtualChannelState == VirtualChannelState::I)
-					{
-						// insert an entry in m_virtualChannelArbitrationRecorder
-						winVirtualChannelArbitration(PortType::WestPort, i, m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-					
-						// change input fields
-						m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = 0; // there is no virtual channel in terminal port
+					m_westPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(EXECUTION_TIME_ROUTER_VA - 1);
+					m_westPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
+				}
 
-						// change output fields
-						m_terminalPort.m_downstreamVirtualChannelState = VirtualChannelState::V;
-						m_terminalPort.m_inputPortRouted = PortType::WestPort;
-						m_terminalPort.m_inputVirtualChannelAllocated = i;
-						m_terminalPort.m_inputVirtualChannelPriority = m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority;
-						goto allocateWestToTerminalDone;
-					}
-
-					// If there is no I downstream virtual channel states;
-					// meaning states are either A or V;
-					// do the following round-robin arbitration based on virtual channel priority
-					// with DVCS set to V;
-					if (m_terminalPort.m_downstreamVirtualChannelState == VirtualChannelState::V)
+				if (m_westPort.m_virtualChannels.at(i).m_localClock.executeLocalEvent())
+				{
+					// if west port is routed to terminal port
+					if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
 					{
-						// compare the priority with the challenger and arbitrate 
-						// to the challenger if challenger's priority is higher (smaller)
-						int priority{ m_terminalPort.m_inputVirtualChannelPriority };
-						if (m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
+						if (m_terminalPort.m_downstreamVirtualChannelState == VirtualChannelState::I)
 						{
-							// find loser's record and delete it in m_virtualChannelArbitrationRecorder
-							loseVirtualChannelArbitration(m_terminalPort.m_inputPortRouted, m_terminalPort.m_inputVirtualChannelAllocated, m_terminalPort.m_inputVirtualChannelPriority);
-
-							// deallocate the loser's vc
-							// note that output port cannot be routed to input port with the same type
-							// there should be four cases
-							if (m_terminalPort.m_inputPortRouted == PortType::NorthPort)
-								m_northPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
-							if (m_terminalPort.m_inputPortRouted == PortType::SouthPort)
-								m_southPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
-							if (m_terminalPort.m_inputPortRouted == PortType::WestPort)
-								m_westPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
-							if (m_terminalPort.m_inputPortRouted == PortType::EastPort)
-								m_eastPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
-
-							// record winner in arbitration recorder
+							// insert an entry in m_virtualChannelArbitrationRecorder
 							winVirtualChannelArbitration(PortType::WestPort, i, m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-						
-							// allocate vc to the challenger
+					
 							// change input fields
 							m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = 0; // there is no virtual channel in terminal port
 
 							// change output fields
+							m_terminalPort.m_downstreamVirtualChannelState = VirtualChannelState::V;
 							m_terminalPort.m_inputPortRouted = PortType::WestPort;
 							m_terminalPort.m_inputVirtualChannelAllocated = i;
 							m_terminalPort.m_inputVirtualChannelPriority = m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority;
 							goto allocateWestToTerminalDone;
 						}
-					}
-				allocateWestToTerminalDone: ;
-				}
 
-				// if west port is routed to north port
-				if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
-				{
-					for (int j{}; j < VC_NUMBER; ++j)
-					{
-						if (m_northPort.m_downstreamVirtualChannelStates.at(j)
-							== VirtualChannelState::I)
+						// If there is no I downstream virtual channel states;
+						// meaning states are either A or V;
+						// do the following round-robin arbitration based on virtual channel priority
+						// with DVCS set to V;
+						if (m_terminalPort.m_downstreamVirtualChannelState == VirtualChannelState::V)
 						{
-							// insert an entry in m_virtualChannelArbitrationRecorder
-							winVirtualChannelArbitration(PortType::WestPort, i, m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-						
-							// change input fields
-							m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
-
-							// change output fields
-							m_northPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
-							m_northPort.m_inputPortRouted.at(j) = PortType::WestPort;
-							m_northPort.m_inputVirtualChannelAllocated.at(j) = i;
-							m_northPort.m_inputVirtualChannelPriority.at(j) = m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority;
-							goto allocateWestToNorthDone;
-						}
-					}
-
-					// If there is no I downstream virtual channel states;
-					// meaning states are either A or V;
-					// do the following round-robin arbitration based on virtual channel priority
-					// with DVCS set to V;
-					for (int j{}; j < VC_NUMBER; ++j)
-					{
-						if (m_northPort.m_downstreamVirtualChannelStates.at(j)
-							== VirtualChannelState::V)
-						{
-							// find the item with the lowest virtual channel priority (maximum) 
-							// and in V state; record priority and index;
-							int priority{};
-							int index{};
-							for (int k{}; k < VC_NUMBER; ++k)
-							{
-								if (m_northPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
-									&& m_northPort.m_inputVirtualChannelPriority.at(k) > priority)
-								{
-									priority = m_northPort.m_inputVirtualChannelPriority.at(k);
-									index = k;
-								}
-							}
-
-							// compare the lowest priority with the challenger and arbitrate 
+							// compare the priority with the challenger and arbitrate 
 							// to the challenger if challenger's priority is higher (smaller)
+							int priority{ m_terminalPort.m_inputVirtualChannelPriority };
 							if (m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
 							{
 								// find loser's record and delete it in m_virtualChannelArbitrationRecorder
-								loseVirtualChannelArbitration(m_northPort.m_inputPortRouted.at(index), m_northPort.m_inputVirtualChannelAllocated.at(index), m_northPort.m_inputVirtualChannelPriority.at(index));
+								loseVirtualChannelArbitration(m_terminalPort.m_inputPortRouted, m_terminalPort.m_inputVirtualChannelAllocated, m_terminalPort.m_inputVirtualChannelPriority);
 
 								// deallocate the loser's vc
 								// note that output port cannot be routed to input port with the same type
 								// there should be four cases
-								if (m_northPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
-									m_terminalPort.m_outputVirtualChannelAllocated = -1;
-								if (m_northPort.m_inputPortRouted.at(index) == PortType::SouthPort)
-									m_southPort.m_virtualChannels.at(m_northPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-								if (m_northPort.m_inputPortRouted.at(index) == PortType::WestPort)
-									m_westPort.m_virtualChannels.at(m_northPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-								if (m_northPort.m_inputPortRouted.at(index) == PortType::EastPort)
-									m_eastPort.m_virtualChannels.at(m_northPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+								if (m_terminalPort.m_inputPortRouted == PortType::NorthPort)
+									m_northPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
+								if (m_terminalPort.m_inputPortRouted == PortType::SouthPort)
+									m_southPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
+								if (m_terminalPort.m_inputPortRouted == PortType::WestPort)
+									m_westPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
+								if (m_terminalPort.m_inputPortRouted == PortType::EastPort)
+									m_eastPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
 
 								// record winner in arbitration recorder
 								winVirtualChannelArbitration(PortType::WestPort, i, m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-							
+						
 								// allocate vc to the challenger
 								// change input fields
-								m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
+								m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = 0; // there is no virtual channel in terminal port
 
 								// change output fields
-								m_northPort.m_inputPortRouted.at(index) = PortType::WestPort;
-								m_northPort.m_inputVirtualChannelAllocated.at(index) = i;
-								m_northPort.m_inputVirtualChannelPriority.at(index) = m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+								m_terminalPort.m_inputPortRouted = PortType::WestPort;
+								m_terminalPort.m_inputVirtualChannelAllocated = i;
+								m_terminalPort.m_inputVirtualChannelPriority = m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+								goto allocateWestToTerminalDone;
+							}
+						}
+					allocateWestToTerminalDone: ;
+					}
+
+					// if west port is routed to north port
+					if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
+					{
+						for (int j{}; j < VC_NUMBER; ++j)
+						{
+							if (m_northPort.m_downstreamVirtualChannelStates.at(j)
+								== VirtualChannelState::I)
+							{
+								// insert an entry in m_virtualChannelArbitrationRecorder
+								winVirtualChannelArbitration(PortType::WestPort, i, m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority);
+						
+								// change input fields
+								m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
+
+								// change output fields
+								m_northPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
+								m_northPort.m_inputPortRouted.at(j) = PortType::WestPort;
+								m_northPort.m_inputVirtualChannelAllocated.at(j) = i;
+								m_northPort.m_inputVirtualChannelPriority.at(j) = m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority;
 								goto allocateWestToNorthDone;
 							}
 						}
-					}
-				allocateWestToNorthDone: ;
-				}
 
-				// if west port is routed to south port
-				if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
-				{
-					for (int j{}; j < VC_NUMBER; ++j)
-					{
-						if (m_southPort.m_downstreamVirtualChannelStates.at(j)
-							== VirtualChannelState::I)
+						// If there is no I downstream virtual channel states;
+						// meaning states are either A or V;
+						// do the following round-robin arbitration based on virtual channel priority
+						// with DVCS set to V;
+						for (int j{}; j < VC_NUMBER; ++j)
 						{
-							// insert an entry in m_virtualChannelArbitrationRecorder
-							winVirtualChannelArbitration(PortType::WestPort, i, m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-						
-							// change input fields
-							m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
-
-							// change output fields
-							m_southPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
-							m_southPort.m_inputPortRouted.at(j) = PortType::WestPort;
-							m_southPort.m_inputVirtualChannelAllocated.at(j) = i;
-							m_southPort.m_inputVirtualChannelPriority.at(j) = m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority;
-							goto allocateWestToSouthDone;
-						}
-					}
-
-					// If there is no I downstream virtual channel states;
-					// meaning states are either A or V;
-					// do the following round-robin arbitration based on virtual channel priority
-					// with DVCS set to V;
-					for (int j{}; j < VC_NUMBER; ++j)
-					{
-						if (m_southPort.m_downstreamVirtualChannelStates.at(j)
-							== VirtualChannelState::V)
-						{
-							// find the item with the lowest virtual channel priority (maximum) 
-							// and in V state; record priority and index;
-							int priority{};
-							int index{};
-							for (int k{}; k < VC_NUMBER; ++k)
+							if (m_northPort.m_downstreamVirtualChannelStates.at(j)
+								== VirtualChannelState::V)
 							{
-								if (m_southPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
-									&& m_southPort.m_inputVirtualChannelPriority.at(k) > priority)
+								// find the item with the lowest virtual channel priority (maximum) 
+								// and in V state; record priority and index;
+								int priority{};
+								int index{};
+								for (int k{}; k < VC_NUMBER; ++k)
 								{
-									priority = m_southPort.m_inputVirtualChannelPriority.at(k);
-									index = k;
+									if (m_northPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
+										&& m_northPort.m_inputVirtualChannelPriority.at(k) > priority)
+									{
+										priority = m_northPort.m_inputVirtualChannelPriority.at(k);
+										index = k;
+									}
+								}
+
+								// compare the lowest priority with the challenger and arbitrate 
+								// to the challenger if challenger's priority is higher (smaller)
+								if (m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
+								{
+									// find loser's record and delete it in m_virtualChannelArbitrationRecorder
+									loseVirtualChannelArbitration(m_northPort.m_inputPortRouted.at(index), m_northPort.m_inputVirtualChannelAllocated.at(index), m_northPort.m_inputVirtualChannelPriority.at(index));
+
+									// deallocate the loser's vc
+									// note that output port cannot be routed to input port with the same type
+									// there should be four cases
+									if (m_northPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
+										m_terminalPort.m_outputVirtualChannelAllocated = -1;
+									if (m_northPort.m_inputPortRouted.at(index) == PortType::SouthPort)
+										m_southPort.m_virtualChannels.at(m_northPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+									if (m_northPort.m_inputPortRouted.at(index) == PortType::WestPort)
+										m_westPort.m_virtualChannels.at(m_northPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+									if (m_northPort.m_inputPortRouted.at(index) == PortType::EastPort)
+										m_eastPort.m_virtualChannels.at(m_northPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+
+									// record winner in arbitration recorder
+									winVirtualChannelArbitration(PortType::WestPort, i, m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority);
+							
+									// allocate vc to the challenger
+									// change input fields
+									m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
+
+									// change output fields
+									m_northPort.m_inputPortRouted.at(index) = PortType::WestPort;
+									m_northPort.m_inputVirtualChannelAllocated.at(index) = i;
+									m_northPort.m_inputVirtualChannelPriority.at(index) = m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+									goto allocateWestToNorthDone;
 								}
 							}
+						}
+					allocateWestToNorthDone: ;
+					}
 
-							// compare the lowest priority with the challenger and arbitrate 
-							// to the challenger if challenger's priority is higher (smaller)
-							if (m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
+					// if west port is routed to south port
+					if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
+					{
+						for (int j{}; j < VC_NUMBER; ++j)
+						{
+							if (m_southPort.m_downstreamVirtualChannelStates.at(j)
+								== VirtualChannelState::I)
 							{
-								// find loser's record and delete it in m_virtualChannelArbitrationRecorder
-								loseVirtualChannelArbitration(m_southPort.m_inputPortRouted.at(index), m_southPort.m_inputVirtualChannelAllocated.at(index), m_southPort.m_inputVirtualChannelPriority.at(index));
-
-								// deallocate the loser's vc
-								// note that output port cannot be routed to input port with the same type
-								// there should be four cases
-								if (m_southPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
-									m_terminalPort.m_outputVirtualChannelAllocated = -1;
-								if (m_southPort.m_inputPortRouted.at(index) == PortType::NorthPort)
-									m_northPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-								if (m_southPort.m_inputPortRouted.at(index) == PortType::WestPort)
-									m_westPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-								if (m_southPort.m_inputPortRouted.at(index) == PortType::EastPort)
-									m_eastPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-
-								// record winner in arbitration recorder
+								// insert an entry in m_virtualChannelArbitrationRecorder
 								winVirtualChannelArbitration(PortType::WestPort, i, m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-							
-								// allocate vc to the challenger
+						
 								// change input fields
-								m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
+								m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
 
 								// change output fields
-								m_southPort.m_inputPortRouted.at(index) = PortType::WestPort;
-								m_southPort.m_inputVirtualChannelAllocated.at(index) = i;
-								m_southPort.m_inputVirtualChannelPriority.at(index) = m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+								m_southPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
+								m_southPort.m_inputPortRouted.at(j) = PortType::WestPort;
+								m_southPort.m_inputVirtualChannelAllocated.at(j) = i;
+								m_southPort.m_inputVirtualChannelPriority.at(j) = m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority;
 								goto allocateWestToSouthDone;
 							}
 						}
-					}
-				allocateWestToSouthDone: ;
-				}
 
-				// if west port is routed to east port
-				if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
-				{
-					for (int j{}; j < VC_NUMBER; ++j)
-					{
-						if (m_eastPort.m_downstreamVirtualChannelStates.at(j)
-							== VirtualChannelState::I)
+						// If there is no I downstream virtual channel states;
+						// meaning states are either A or V;
+						// do the following round-robin arbitration based on virtual channel priority
+						// with DVCS set to V;
+						for (int j{}; j < VC_NUMBER; ++j)
 						{
-							// insert an entry in m_virtualChannelArbitrationRecorder
-							winVirtualChannelArbitration(PortType::WestPort, i, m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-						
-							// change input fields
-							m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
-
-							// change output fields
-							m_eastPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
-							m_eastPort.m_inputPortRouted.at(j) = PortType::WestPort;
-							m_eastPort.m_inputVirtualChannelAllocated.at(j) = i;
-							m_eastPort.m_inputVirtualChannelPriority.at(j) = m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority;
-							goto allocateWestToEastDone;
-						}
-					}
-
-					// If there is no I downstream virtual channel states;
-					// meaning states are either A or V;
-					// do the following round-robin arbitration based on virtual channel priority
-					// with DVCS set to V;
-					for (int j{}; j < VC_NUMBER; ++j)
-					{
-						if (m_eastPort.m_downstreamVirtualChannelStates.at(j)
-							== VirtualChannelState::V)
-						{
-							// find the item with the lowest virtual channel priority (maximum) 
-							// and in V state; record priority and index;
-							int priority{};
-							int index{};
-							for (int k{}; k < VC_NUMBER; ++k)
+							if (m_southPort.m_downstreamVirtualChannelStates.at(j)
+								== VirtualChannelState::V)
 							{
-								if (m_eastPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
-									&& m_eastPort.m_inputVirtualChannelPriority.at(k) > priority)
+								// find the item with the lowest virtual channel priority (maximum) 
+								// and in V state; record priority and index;
+								int priority{};
+								int index{};
+								for (int k{}; k < VC_NUMBER; ++k)
 								{
-									priority = m_eastPort.m_inputVirtualChannelPriority.at(k);
-									index = k;
+									if (m_southPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
+										&& m_southPort.m_inputVirtualChannelPriority.at(k) > priority)
+									{
+										priority = m_southPort.m_inputVirtualChannelPriority.at(k);
+										index = k;
+									}
+								}
+
+								// compare the lowest priority with the challenger and arbitrate 
+								// to the challenger if challenger's priority is higher (smaller)
+								if (m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
+								{
+									// find loser's record and delete it in m_virtualChannelArbitrationRecorder
+									loseVirtualChannelArbitration(m_southPort.m_inputPortRouted.at(index), m_southPort.m_inputVirtualChannelAllocated.at(index), m_southPort.m_inputVirtualChannelPriority.at(index));
+
+									// deallocate the loser's vc
+									// note that output port cannot be routed to input port with the same type
+									// there should be four cases
+									if (m_southPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
+										m_terminalPort.m_outputVirtualChannelAllocated = -1;
+									if (m_southPort.m_inputPortRouted.at(index) == PortType::NorthPort)
+										m_northPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+									if (m_southPort.m_inputPortRouted.at(index) == PortType::WestPort)
+										m_westPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+									if (m_southPort.m_inputPortRouted.at(index) == PortType::EastPort)
+										m_eastPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+
+									// record winner in arbitration recorder
+									winVirtualChannelArbitration(PortType::WestPort, i, m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority);
+							
+									// allocate vc to the challenger
+									// change input fields
+									m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
+
+									// change output fields
+									m_southPort.m_inputPortRouted.at(index) = PortType::WestPort;
+									m_southPort.m_inputVirtualChannelAllocated.at(index) = i;
+									m_southPort.m_inputVirtualChannelPriority.at(index) = m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+									goto allocateWestToSouthDone;
 								}
 							}
+						}
+					allocateWestToSouthDone: ;
+					}
 
-							// compare the lowest priority with the challenger and arbitrate 
-							// to the challenger if challenger's priority is higher (smaller)
-							if (m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
+					// if west port is routed to east port
+					if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
+					{
+						for (int j{}; j < VC_NUMBER; ++j)
+						{
+							if (m_eastPort.m_downstreamVirtualChannelStates.at(j)
+								== VirtualChannelState::I)
 							{
-								// find loser's record and delete it in m_virtualChannelArbitrationRecorder
-								loseVirtualChannelArbitration(m_eastPort.m_inputPortRouted.at(index), m_eastPort.m_inputVirtualChannelAllocated.at(index), m_eastPort.m_inputVirtualChannelPriority.at(index));
-
-								// deallocate the loser's vc
-								// note that output port cannot be routed to input port with the same type
-								// there should be four cases
-								if (m_eastPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
-									m_terminalPort.m_outputVirtualChannelAllocated = -1;
-								if (m_eastPort.m_inputPortRouted.at(index) == PortType::NorthPort)
-									m_northPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-								if (m_eastPort.m_inputPortRouted.at(index) == PortType::SouthPort)
-									m_southPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-								if (m_eastPort.m_inputPortRouted.at(index) == PortType::WestPort)
-									m_westPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-
-								// record winner in arbitration recorder
+								// insert an entry in m_virtualChannelArbitrationRecorder
 								winVirtualChannelArbitration(PortType::WestPort, i, m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-							
-								// allocate vc to the challenger
+						
 								// change input fields
-								m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
+								m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
 
 								// change output fields
-								m_eastPort.m_inputPortRouted.at(index) = PortType::WestPort;
-								m_eastPort.m_inputVirtualChannelAllocated.at(index) = i;
-								m_eastPort.m_inputVirtualChannelPriority.at(index) = m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+								m_eastPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
+								m_eastPort.m_inputPortRouted.at(j) = PortType::WestPort;
+								m_eastPort.m_inputVirtualChannelAllocated.at(j) = i;
+								m_eastPort.m_inputVirtualChannelPriority.at(j) = m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority;
 								goto allocateWestToEastDone;
 							}
 						}
+
+						// If there is no I downstream virtual channel states;
+						// meaning states are either A or V;
+						// do the following round-robin arbitration based on virtual channel priority
+						// with DVCS set to V;
+						for (int j{}; j < VC_NUMBER; ++j)
+						{
+							if (m_eastPort.m_downstreamVirtualChannelStates.at(j)
+								== VirtualChannelState::V)
+							{
+								// find the item with the lowest virtual channel priority (maximum) 
+								// and in V state; record priority and index;
+								int priority{};
+								int index{};
+								for (int k{}; k < VC_NUMBER; ++k)
+								{
+									if (m_eastPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
+										&& m_eastPort.m_inputVirtualChannelPriority.at(k) > priority)
+									{
+										priority = m_eastPort.m_inputVirtualChannelPriority.at(k);
+										index = k;
+									}
+								}
+
+								// compare the lowest priority with the challenger and arbitrate 
+								// to the challenger if challenger's priority is higher (smaller)
+								if (m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
+								{
+									// find loser's record and delete it in m_virtualChannelArbitrationRecorder
+									loseVirtualChannelArbitration(m_eastPort.m_inputPortRouted.at(index), m_eastPort.m_inputVirtualChannelAllocated.at(index), m_eastPort.m_inputVirtualChannelPriority.at(index));
+
+									// deallocate the loser's vc
+									// note that output port cannot be routed to input port with the same type
+									// there should be four cases
+									if (m_eastPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
+										m_terminalPort.m_outputVirtualChannelAllocated = -1;
+									if (m_eastPort.m_inputPortRouted.at(index) == PortType::NorthPort)
+										m_northPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+									if (m_eastPort.m_inputPortRouted.at(index) == PortType::SouthPort)
+										m_southPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+									if (m_eastPort.m_inputPortRouted.at(index) == PortType::WestPort)
+										m_westPort.m_virtualChannels.at(m_eastPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+
+									// record winner in arbitration recorder
+									winVirtualChannelArbitration(PortType::WestPort, i, m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority);
+							
+									// allocate vc to the challenger
+									// change input fields
+									m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
+
+									// change output fields
+									m_eastPort.m_inputPortRouted.at(index) = PortType::WestPort;
+									m_eastPort.m_inputVirtualChannelAllocated.at(index) = i;
+									m_eastPort.m_inputVirtualChannelPriority.at(index) = m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+									goto allocateWestToEastDone;
+								}
+							}
+						}
+					allocateWestToEastDone: ;
 					}
-				allocateWestToEastDone: ;
+
+					m_westPort.m_virtualChannels.at(i).m_localClock.tickTriggerClock(PERIOD_ROUTER_VA - EXECUTION_TIME_ROUTER_VA + 1);
+					m_westPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 			}
 		}
@@ -1941,315 +2004,327 @@ void Router::allocateEastPortVirtualChannel()
 		{
 			if (m_eastPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::V)
 			{
-				// if east port is routed to terminal port
-				if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
+				if (!m_eastPort.m_virtualChannels.at(i).m_localClock.isWaitingForExecution())
 				{
-					if (m_terminalPort.m_downstreamVirtualChannelState == VirtualChannelState::I)
-					{
-						// insert an entry in m_virtualChannelArbitrationRecorder
-						winVirtualChannelArbitration(PortType::EastPort, i, m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-					
-						// change input fields
-						m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = 0; // there is no virtual channel in terminal port
+					m_eastPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(EXECUTION_TIME_ROUTER_VA - 1);
+					m_eastPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
+				}
 
-						// change output fields
-						m_terminalPort.m_downstreamVirtualChannelState = VirtualChannelState::V;
-						m_terminalPort.m_inputPortRouted = PortType::EastPort;
-						m_terminalPort.m_inputVirtualChannelAllocated = i;
-						m_terminalPort.m_inputVirtualChannelPriority = m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority;
-						goto allocateEastToTerminalDone;
-					}
-
-					// If there is no I downstream virtual channel states;
-					// meaning states are either A or V;
-					// do the following round-robin arbitration based on virtual channel priority
-					// with DVCS set to V;
-					if (m_terminalPort.m_downstreamVirtualChannelState == VirtualChannelState::V)
+				if (m_eastPort.m_virtualChannels.at(i).m_localClock.executeLocalEvent())
+				{
+					// if east port is routed to terminal port
+					if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
 					{
-						// compare the priority with the challenger and arbitrate 
-						// to the challenger if challenger's priority is higher (smaller)
-						int priority{ m_terminalPort.m_inputVirtualChannelPriority };
-						if (m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
+						if (m_terminalPort.m_downstreamVirtualChannelState == VirtualChannelState::I)
 						{
-							// find loser's record and delete it in m_virtualChannelArbitrationRecorder
-							loseVirtualChannelArbitration(m_terminalPort.m_inputPortRouted, m_terminalPort.m_inputVirtualChannelAllocated, m_terminalPort.m_inputVirtualChannelPriority);
-
-							// deallocate the loser's vc
-							// note that output port cannot be routed to input port with the same type
-							// there should be four cases
-							if (m_terminalPort.m_inputPortRouted == PortType::NorthPort)
-								m_northPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
-							if (m_terminalPort.m_inputPortRouted == PortType::SouthPort)
-								m_southPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
-							if (m_terminalPort.m_inputPortRouted == PortType::WestPort)
-								m_westPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
-							if (m_terminalPort.m_inputPortRouted == PortType::EastPort)
-								m_eastPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
-
-							// record winner in arbitration recorder
+							// insert an entry in m_virtualChannelArbitrationRecorder
 							winVirtualChannelArbitration(PortType::EastPort, i, m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-						
-							// allocate vc to the challenger
+					
 							// change input fields
 							m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = 0; // there is no virtual channel in terminal port
 
 							// change output fields
+							m_terminalPort.m_downstreamVirtualChannelState = VirtualChannelState::V;
 							m_terminalPort.m_inputPortRouted = PortType::EastPort;
 							m_terminalPort.m_inputVirtualChannelAllocated = i;
 							m_terminalPort.m_inputVirtualChannelPriority = m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority;
 							goto allocateEastToTerminalDone;
 						}
-					}
-				allocateEastToTerminalDone: ;
-				}
 
-				// if east port is routed to north port
-				if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
-				{
-					for (int j{}; j < VC_NUMBER; ++j)
-					{
-						if (m_northPort.m_downstreamVirtualChannelStates.at(j)
-							== VirtualChannelState::I)
+						// If there is no I downstream virtual channel states;
+						// meaning states are either A or V;
+						// do the following round-robin arbitration based on virtual channel priority
+						// with DVCS set to V;
+						if (m_terminalPort.m_downstreamVirtualChannelState == VirtualChannelState::V)
 						{
-							// insert an entry in m_virtualChannelArbitrationRecorder
-							winVirtualChannelArbitration(PortType::EastPort, i, m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-						
-							// change input fields
-							m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
-
-							// change output fields
-							m_northPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
-							m_northPort.m_inputPortRouted.at(j) = PortType::EastPort;
-							m_northPort.m_inputVirtualChannelAllocated.at(j) = i;
-							m_northPort.m_inputVirtualChannelPriority.at(j) = m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority;
-							goto allocateEastToNorthDone;
-						}
-					}
-
-					// If there is no I downstream virtual channel states;
-					// meaning states are either A or V;
-					// do the following round-robin arbitration based on virtual channel priority
-					// with DVCS set to V;
-					for (int j{}; j < VC_NUMBER; ++j)
-					{
-						if (m_northPort.m_downstreamVirtualChannelStates.at(j)
-							== VirtualChannelState::V)
-						{
-							// find the item with the lowest virtual channel priority (maximum) 
-							// and in V state; record priority and index;
-							int priority{};
-							int index{};
-							for (int k{}; k < VC_NUMBER; ++k)
-							{
-								if (m_northPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
-									&& m_northPort.m_inputVirtualChannelPriority.at(k) > priority)
-								{
-									priority = m_northPort.m_inputVirtualChannelPriority.at(k);
-									index = k;
-								}
-							}
-
-							// compare the lowest priority with the challenger and arbitrate 
+							// compare the priority with the challenger and arbitrate 
 							// to the challenger if challenger's priority is higher (smaller)
+							int priority{ m_terminalPort.m_inputVirtualChannelPriority };
 							if (m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
 							{
 								// find loser's record and delete it in m_virtualChannelArbitrationRecorder
-								loseVirtualChannelArbitration(m_northPort.m_inputPortRouted.at(index), m_northPort.m_inputVirtualChannelAllocated.at(index), m_northPort.m_inputVirtualChannelPriority.at(index));
+								loseVirtualChannelArbitration(m_terminalPort.m_inputPortRouted, m_terminalPort.m_inputVirtualChannelAllocated, m_terminalPort.m_inputVirtualChannelPriority);
 
 								// deallocate the loser's vc
 								// note that output port cannot be routed to input port with the same type
 								// there should be four cases
-								if (m_northPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
-									m_terminalPort.m_outputVirtualChannelAllocated = -1;
-								if (m_northPort.m_inputPortRouted.at(index) == PortType::SouthPort)
-									m_southPort.m_virtualChannels.at(m_northPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-								if (m_northPort.m_inputPortRouted.at(index) == PortType::WestPort)
-									m_westPort.m_virtualChannels.at(m_northPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-								if (m_northPort.m_inputPortRouted.at(index) == PortType::EastPort)
-									m_eastPort.m_virtualChannels.at(m_northPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+								if (m_terminalPort.m_inputPortRouted == PortType::NorthPort)
+									m_northPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
+								if (m_terminalPort.m_inputPortRouted == PortType::SouthPort)
+									m_southPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
+								if (m_terminalPort.m_inputPortRouted == PortType::WestPort)
+									m_westPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
+								if (m_terminalPort.m_inputPortRouted == PortType::EastPort)
+									m_eastPort.m_virtualChannels.at(m_terminalPort.m_inputVirtualChannelAllocated).m_outputVirtualChannelAllocated = -1;
 
 								// record winner in arbitration recorder
 								winVirtualChannelArbitration(PortType::EastPort, i, m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-							
+						
 								// allocate vc to the challenger
 								// change input fields
-								m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
+								m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = 0; // there is no virtual channel in terminal port
 
 								// change output fields
-								m_northPort.m_inputPortRouted.at(index) = PortType::EastPort;
-								m_northPort.m_inputVirtualChannelAllocated.at(index) = i;
-								m_northPort.m_inputVirtualChannelPriority.at(index) = m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+								m_terminalPort.m_inputPortRouted = PortType::EastPort;
+								m_terminalPort.m_inputVirtualChannelAllocated = i;
+								m_terminalPort.m_inputVirtualChannelPriority = m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+								goto allocateEastToTerminalDone;
+							}
+						}
+					allocateEastToTerminalDone: ;
+					}
+
+					// if east port is routed to north port
+					if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
+					{
+						for (int j{}; j < VC_NUMBER; ++j)
+						{
+							if (m_northPort.m_downstreamVirtualChannelStates.at(j)
+								== VirtualChannelState::I)
+							{
+								// insert an entry in m_virtualChannelArbitrationRecorder
+								winVirtualChannelArbitration(PortType::EastPort, i, m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority);
+						
+								// change input fields
+								m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
+
+								// change output fields
+								m_northPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
+								m_northPort.m_inputPortRouted.at(j) = PortType::EastPort;
+								m_northPort.m_inputVirtualChannelAllocated.at(j) = i;
+								m_northPort.m_inputVirtualChannelPriority.at(j) = m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority;
 								goto allocateEastToNorthDone;
 							}
 						}
-					}
-				allocateEastToNorthDone: ;
-				}
 
-				// if east port is routed to south port
-				if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
-				{
-					for (int j{}; j < VC_NUMBER; ++j)
-					{
-						if (m_southPort.m_downstreamVirtualChannelStates.at(j)
-							== VirtualChannelState::I)
+						// If there is no I downstream virtual channel states;
+						// meaning states are either A or V;
+						// do the following round-robin arbitration based on virtual channel priority
+						// with DVCS set to V;
+						for (int j{}; j < VC_NUMBER; ++j)
 						{
-							// insert an entry in m_virtualChannelArbitrationRecorder
-							winVirtualChannelArbitration(PortType::EastPort, i, m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-						
-							// change input fields
-							m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
-
-							// change output fields
-							m_southPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
-							m_southPort.m_inputPortRouted.at(j) = PortType::EastPort;
-							m_southPort.m_inputVirtualChannelAllocated.at(j) = i;
-							m_southPort.m_inputVirtualChannelPriority.at(j) = m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority;
-							goto allocateEastToSouthDone;
-						}
-					}
-
-					// If there is no I downstream virtual channel states;
-					// meaning states are either A or V;
-					// do the following round-robin arbitration based on virtual channel priority
-					// with DVCS set to V;
-					for (int j{}; j < VC_NUMBER; ++j)
-					{
-						if (m_southPort.m_downstreamVirtualChannelStates.at(j)
-							== VirtualChannelState::V)
-						{
-							// find the item with the lowest virtual channel priority (maximum) 
-							// and in V state; record priority and index;
-							int priority{};
-							int index{};
-							for (int k{}; k < VC_NUMBER; ++k)
+							if (m_northPort.m_downstreamVirtualChannelStates.at(j)
+								== VirtualChannelState::V)
 							{
-								if (m_southPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
-									&& m_southPort.m_inputVirtualChannelPriority.at(k) > priority)
+								// find the item with the lowest virtual channel priority (maximum) 
+								// and in V state; record priority and index;
+								int priority{};
+								int index{};
+								for (int k{}; k < VC_NUMBER; ++k)
 								{
-									priority = m_southPort.m_inputVirtualChannelPriority.at(k);
-									index = k;
+									if (m_northPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
+										&& m_northPort.m_inputVirtualChannelPriority.at(k) > priority)
+									{
+										priority = m_northPort.m_inputVirtualChannelPriority.at(k);
+										index = k;
+									}
+								}
+
+								// compare the lowest priority with the challenger and arbitrate 
+								// to the challenger if challenger's priority is higher (smaller)
+								if (m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
+								{
+									// find loser's record and delete it in m_virtualChannelArbitrationRecorder
+									loseVirtualChannelArbitration(m_northPort.m_inputPortRouted.at(index), m_northPort.m_inputVirtualChannelAllocated.at(index), m_northPort.m_inputVirtualChannelPriority.at(index));
+
+									// deallocate the loser's vc
+									// note that output port cannot be routed to input port with the same type
+									// there should be four cases
+									if (m_northPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
+										m_terminalPort.m_outputVirtualChannelAllocated = -1;
+									if (m_northPort.m_inputPortRouted.at(index) == PortType::SouthPort)
+										m_southPort.m_virtualChannels.at(m_northPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+									if (m_northPort.m_inputPortRouted.at(index) == PortType::WestPort)
+										m_westPort.m_virtualChannels.at(m_northPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+									if (m_northPort.m_inputPortRouted.at(index) == PortType::EastPort)
+										m_eastPort.m_virtualChannels.at(m_northPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+
+									// record winner in arbitration recorder
+									winVirtualChannelArbitration(PortType::EastPort, i, m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority);
+							
+									// allocate vc to the challenger
+									// change input fields
+									m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
+
+									// change output fields
+									m_northPort.m_inputPortRouted.at(index) = PortType::EastPort;
+									m_northPort.m_inputVirtualChannelAllocated.at(index) = i;
+									m_northPort.m_inputVirtualChannelPriority.at(index) = m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+									goto allocateEastToNorthDone;
 								}
 							}
+						}
+					allocateEastToNorthDone: ;
+					}
 
-							// compare the lowest priority with the challenger and arbitrate 
-							// to the challenger if challenger's priority is higher (smaller)
-							if (m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
+					// if east port is routed to south port
+					if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
+					{
+						for (int j{}; j < VC_NUMBER; ++j)
+						{
+							if (m_southPort.m_downstreamVirtualChannelStates.at(j)
+								== VirtualChannelState::I)
 							{
-								// find loser's record and delete it in m_virtualChannelArbitrationRecorder
-								loseVirtualChannelArbitration(m_southPort.m_inputPortRouted.at(index), m_southPort.m_inputVirtualChannelAllocated.at(index), m_southPort.m_inputVirtualChannelPriority.at(index));
-
-								// deallocate the loser's vc
-								// note that output port cannot be routed to input port with the same type
-								// there should be four cases
-								if (m_southPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
-									m_terminalPort.m_outputVirtualChannelAllocated = -1;
-								if (m_southPort.m_inputPortRouted.at(index) == PortType::NorthPort)
-									m_northPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-								if (m_southPort.m_inputPortRouted.at(index) == PortType::WestPort)
-									m_westPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-								if (m_southPort.m_inputPortRouted.at(index) == PortType::EastPort)
-									m_eastPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-
-								// record winner in arbitration recorder
+								// insert an entry in m_virtualChannelArbitrationRecorder
 								winVirtualChannelArbitration(PortType::EastPort, i, m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-							
-								// allocate vc to the challenger
+						
 								// change input fields
-								m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
+								m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
 
 								// change output fields
-								m_southPort.m_inputPortRouted.at(index) = PortType::EastPort;
-								m_southPort.m_inputVirtualChannelAllocated.at(index) = i;
-								m_southPort.m_inputVirtualChannelPriority.at(index) = m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+								m_southPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
+								m_southPort.m_inputPortRouted.at(j) = PortType::EastPort;
+								m_southPort.m_inputVirtualChannelAllocated.at(j) = i;
+								m_southPort.m_inputVirtualChannelPriority.at(j) = m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority;
 								goto allocateEastToSouthDone;
 							}
 						}
-					}
-				allocateEastToSouthDone: ;
-				}
 
-				// if east port is routed to west port
-				if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
-				{
-					for (int j{}; j < VC_NUMBER; ++j)
-					{
-						if (m_westPort.m_downstreamVirtualChannelStates.at(j)
-							== VirtualChannelState::I)
+						// If there is no I downstream virtual channel states;
+						// meaning states are either A or V;
+						// do the following round-robin arbitration based on virtual channel priority
+						// with DVCS set to V;
+						for (int j{}; j < VC_NUMBER; ++j)
 						{
-							// insert an entry in m_virtualChannelArbitrationRecorder
-							winVirtualChannelArbitration(PortType::EastPort, i, m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-						
-							// change input fields
-							m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
-
-							// change output fields
-							m_westPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
-							m_westPort.m_inputPortRouted.at(j) = PortType::EastPort;
-							m_westPort.m_inputVirtualChannelAllocated.at(j) = i;
-							m_westPort.m_inputVirtualChannelPriority.at(j) = m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority;
-							goto allocateEastToWestDone;
-						}
-					}
-
-					// If there is no I downstream virtual channel states;
-					// meaning states are either A or V;
-					// do the following round-robin arbitration based on virtual channel priority
-					// with DVCS set to V;
-					for (int j{}; j < VC_NUMBER; ++j)
-					{
-						if (m_westPort.m_downstreamVirtualChannelStates.at(j)
-							== VirtualChannelState::V)
-						{
-							// find the item with the lowest virtual channel priority (maximum) 
-							// and in V state; record priority and index;
-							int priority{};
-							int index{};
-							for (int k{}; k < VC_NUMBER; ++k)
+							if (m_southPort.m_downstreamVirtualChannelStates.at(j)
+								== VirtualChannelState::V)
 							{
-								if (m_westPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
-									&& m_westPort.m_inputVirtualChannelPriority.at(k) > priority)
+								// find the item with the lowest virtual channel priority (maximum) 
+								// and in V state; record priority and index;
+								int priority{};
+								int index{};
+								for (int k{}; k < VC_NUMBER; ++k)
 								{
-									priority = m_westPort.m_inputVirtualChannelPriority.at(k);
-									index = k;
+									if (m_southPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
+										&& m_southPort.m_inputVirtualChannelPriority.at(k) > priority)
+									{
+										priority = m_southPort.m_inputVirtualChannelPriority.at(k);
+										index = k;
+									}
+								}
+
+								// compare the lowest priority with the challenger and arbitrate 
+								// to the challenger if challenger's priority is higher (smaller)
+								if (m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
+								{
+									// find loser's record and delete it in m_virtualChannelArbitrationRecorder
+									loseVirtualChannelArbitration(m_southPort.m_inputPortRouted.at(index), m_southPort.m_inputVirtualChannelAllocated.at(index), m_southPort.m_inputVirtualChannelPriority.at(index));
+
+									// deallocate the loser's vc
+									// note that output port cannot be routed to input port with the same type
+									// there should be four cases
+									if (m_southPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
+										m_terminalPort.m_outputVirtualChannelAllocated = -1;
+									if (m_southPort.m_inputPortRouted.at(index) == PortType::NorthPort)
+										m_northPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+									if (m_southPort.m_inputPortRouted.at(index) == PortType::WestPort)
+										m_westPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+									if (m_southPort.m_inputPortRouted.at(index) == PortType::EastPort)
+										m_eastPort.m_virtualChannels.at(m_southPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+
+									// record winner in arbitration recorder
+									winVirtualChannelArbitration(PortType::EastPort, i, m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority);
+							
+									// allocate vc to the challenger
+									// change input fields
+									m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
+
+									// change output fields
+									m_southPort.m_inputPortRouted.at(index) = PortType::EastPort;
+									m_southPort.m_inputVirtualChannelAllocated.at(index) = i;
+									m_southPort.m_inputVirtualChannelPriority.at(index) = m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+									goto allocateEastToSouthDone;
 								}
 							}
+						}
+					allocateEastToSouthDone: ;
+					}
 
-							// compare the lowest priority with the challenger and arbitrate 
-							// to the challenger if challenger's priority is higher (smaller)
-							if (m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
+					// if east port is routed to west port
+					if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
+					{
+						for (int j{}; j < VC_NUMBER; ++j)
+						{
+							if (m_westPort.m_downstreamVirtualChannelStates.at(j)
+								== VirtualChannelState::I)
 							{
-								// find loser's record and delete it in m_virtualChannelArbitrationRecorder
-								loseVirtualChannelArbitration(m_westPort.m_inputPortRouted.at(index), m_westPort.m_inputVirtualChannelAllocated.at(index), m_westPort.m_inputVirtualChannelPriority.at(index));
-
-								// deallocate the loser's vc
-								// note that output port cannot be routed to input port with the same type
-								// there should be four cases
-								if (m_westPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
-									m_terminalPort.m_outputVirtualChannelAllocated = -1;
-								if (m_westPort.m_inputPortRouted.at(index) == PortType::NorthPort)
-									m_northPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-								if (m_westPort.m_inputPortRouted.at(index) == PortType::SouthPort)
-									m_southPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-								if (m_westPort.m_inputPortRouted.at(index) == PortType::EastPort)
-									m_eastPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
-
-								// record winner in arbitration recorder
+								// insert an entry in m_virtualChannelArbitrationRecorder
 								winVirtualChannelArbitration(PortType::EastPort, i, m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority);
-							
-								// allocate vc to the challenger
+						
 								// change input fields
-								m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
+								m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = j;
 
 								// change output fields
-								m_westPort.m_inputPortRouted.at(index) = PortType::EastPort;
-								m_westPort.m_inputVirtualChannelAllocated.at(index) = i;
-								m_westPort.m_inputVirtualChannelPriority.at(index) = m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+								m_westPort.m_downstreamVirtualChannelStates.at(j) = VirtualChannelState::V;
+								m_westPort.m_inputPortRouted.at(j) = PortType::EastPort;
+								m_westPort.m_inputVirtualChannelAllocated.at(j) = i;
+								m_westPort.m_inputVirtualChannelPriority.at(j) = m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority;
 								goto allocateEastToWestDone;
 							}
 						}
+
+						// If there is no I downstream virtual channel states;
+						// meaning states are either A or V;
+						// do the following round-robin arbitration based on virtual channel priority
+						// with DVCS set to V;
+						for (int j{}; j < VC_NUMBER; ++j)
+						{
+							if (m_westPort.m_downstreamVirtualChannelStates.at(j)
+								== VirtualChannelState::V)
+							{
+								// find the item with the lowest virtual channel priority (maximum) 
+								// and in V state; record priority and index;
+								int priority{};
+								int index{};
+								for (int k{}; k < VC_NUMBER; ++k)
+								{
+									if (m_westPort.m_downstreamVirtualChannelStates.at(k) == VirtualChannelState::V
+										&& m_westPort.m_inputVirtualChannelPriority.at(k) > priority)
+									{
+										priority = m_westPort.m_inputVirtualChannelPriority.at(k);
+										index = k;
+									}
+								}
+
+								// compare the lowest priority with the challenger and arbitrate 
+								// to the challenger if challenger's priority is higher (smaller)
+								if (m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority < priority)
+								{
+									// find loser's record and delete it in m_virtualChannelArbitrationRecorder
+									loseVirtualChannelArbitration(m_westPort.m_inputPortRouted.at(index), m_westPort.m_inputVirtualChannelAllocated.at(index), m_westPort.m_inputVirtualChannelPriority.at(index));
+
+									// deallocate the loser's vc
+									// note that output port cannot be routed to input port with the same type
+									// there should be four cases
+									if (m_westPort.m_inputPortRouted.at(index) == PortType::TerminalPort)
+										m_terminalPort.m_outputVirtualChannelAllocated = -1;
+									if (m_westPort.m_inputPortRouted.at(index) == PortType::NorthPort)
+										m_northPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+									if (m_westPort.m_inputPortRouted.at(index) == PortType::SouthPort)
+										m_southPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+									if (m_westPort.m_inputPortRouted.at(index) == PortType::EastPort)
+										m_eastPort.m_virtualChannels.at(m_westPort.m_inputVirtualChannelAllocated.at(index)).m_outputVirtualChannelAllocated = -1;
+
+									// record winner in arbitration recorder
+									winVirtualChannelArbitration(PortType::EastPort, i, m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority);
+							
+									// allocate vc to the challenger
+									// change input fields
+									m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated = index;
+
+									// change output fields
+									m_westPort.m_inputPortRouted.at(index) = PortType::EastPort;
+									m_westPort.m_inputVirtualChannelAllocated.at(index) = i;
+									m_westPort.m_inputVirtualChannelPriority.at(index) = m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority;
+									goto allocateEastToWestDone;
+								}
+							}
+						}
+					allocateEastToWestDone: ;
 					}
-				allocateEastToWestDone: ;
+
+					m_eastPort.m_virtualChannels.at(i).m_localClock.tickTriggerClock(PERIOD_ROUTER_VA - EXECUTION_TIME_ROUTER_VA + 1);
+					m_eastPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 			}
 		}
@@ -2273,11 +2348,7 @@ void Router::activateVirtualChannel()
 	// activate terminal port
 	if (m_terminalPort.m_virtualChannelState == VirtualChannelState::V
 		&& m_terminalPort.m_outputVirtualChannelAllocated != -1)
-	{
 		m_terminalPort.m_virtualChannelState = VirtualChannelState::A;
-
-		m_terminalPort.m_localClock.tickLocalClock(CYCLES_ROUTER_VA);
-	}
 	if (m_terminalPort.m_downstreamVirtualChannelState == VirtualChannelState::V)
 		m_terminalPort.m_downstreamVirtualChannelState = VirtualChannelState::A;
 
@@ -2286,11 +2357,7 @@ void Router::activateVirtualChannel()
 	{
 		if (m_northPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::V
 			&& m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated != -1)
-		{
 			m_northPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::A;
-
-			m_northPort.m_virtualChannels.at(i).m_localClock.tickLocalClock(CYCLES_ROUTER_VA);
-		}
 		if (m_northPort.m_downstreamVirtualChannelStates.at(i) == VirtualChannelState::V)
 			m_northPort.m_downstreamVirtualChannelStates.at(i) = VirtualChannelState::A;
 	}
@@ -2300,11 +2367,7 @@ void Router::activateVirtualChannel()
 	{
 		if (m_southPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::V
 			&& m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated != -1)
-		{
 			m_southPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::A;
-
-			m_southPort.m_virtualChannels.at(i).m_localClock.tickLocalClock(CYCLES_ROUTER_VA);
-		}
 		if (m_southPort.m_downstreamVirtualChannelStates.at(i) == VirtualChannelState::V)
 			m_southPort.m_downstreamVirtualChannelStates.at(i) = VirtualChannelState::A;
 	}
@@ -2314,11 +2377,7 @@ void Router::activateVirtualChannel()
 	{
 		if (m_westPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::V
 			&& m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated != -1)
-		{
 			m_westPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::A;
-
-			m_westPort.m_virtualChannels.at(i).m_localClock.tickLocalClock(CYCLES_ROUTER_VA);
-		}
 		if (m_westPort.m_downstreamVirtualChannelStates.at(i) == VirtualChannelState::V)
 			m_westPort.m_downstreamVirtualChannelStates.at(i) = VirtualChannelState::A;
 	}
@@ -2328,11 +2387,7 @@ void Router::activateVirtualChannel()
 	{
 		if (m_eastPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::V
 			&& m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated != -1)
-		{
 			m_eastPort.m_virtualChannels.at(i).m_virtualChannelState = VirtualChannelState::A;
-
-			m_eastPort.m_virtualChannels.at(i).m_localClock.tickLocalClock(CYCLES_ROUTER_VA);
-		}
 		if (m_eastPort.m_downstreamVirtualChannelStates.at(i) == VirtualChannelState::V)
 			m_eastPort.m_downstreamVirtualChannelStates.at(i) = VirtualChannelState::A;
 	}
@@ -2524,48 +2579,44 @@ void Router::allocateTerminalPortSwitch()
 		// allocate switch
 		if (m_terminalPort.m_virtualChannelState == VirtualChannelState::A)
 		{
-			// if terminal port is routed to north port 
-			if (m_terminalPort.m_outputPortRouted == PortType::NorthPort)
+			if (!m_terminalPort.m_localClock.isWaitingForExecution())
 			{
-				if (m_northPort.m_credit.at(m_terminalPort.m_outputVirtualChannelAllocated) > 0)
-				{
-					m_terminalPort.m_outputPortSwitched = PortType::NorthPort;
-				}
-				else
-					log(" Terminal port: credit stall (north port credit is zero) ");
+				m_terminalPort.m_localClock.tickExecutionClock(EXECUTION_TIME_ROUTER_SA - 1);
+				m_terminalPort.m_localClock.toggleWaitingForExecution();
 			}
 
-			// if terminal port is routed to south port 
-			if (m_terminalPort.m_outputPortRouted == PortType::SouthPort)
+			if (m_terminalPort.m_localClock.executeLocalEvent())
 			{
-				if (m_southPort.m_credit.at(m_terminalPort.m_outputVirtualChannelAllocated) > 0)
+				// if terminal port is routed to north port 
+				if (m_terminalPort.m_outputPortRouted == PortType::NorthPort)
 				{
-					m_terminalPort.m_outputPortSwitched = PortType::SouthPort;
+					if (m_northPort.m_credit.at(m_terminalPort.m_outputVirtualChannelAllocated) > 0)
+						m_terminalPort.m_outputPortSwitched = PortType::NorthPort;
 				}
-				else
-					log(" Terminal port: credit stall (south port credit is zero) ");
-			}
 
-			// if terminal port is routed to west port 
-			if (m_terminalPort.m_outputPortRouted == PortType::WestPort)
-			{
-				if (m_westPort.m_credit.at(m_terminalPort.m_outputVirtualChannelAllocated) > 0)
+				// if terminal port is routed to south port 
+				if (m_terminalPort.m_outputPortRouted == PortType::SouthPort)
 				{
-					m_terminalPort.m_outputPortSwitched = PortType::WestPort;
+					if (m_southPort.m_credit.at(m_terminalPort.m_outputVirtualChannelAllocated) > 0)
+						m_terminalPort.m_outputPortSwitched = PortType::SouthPort;
 				}
-				else
-					log(" Terminal port: credit stall (west port credit is zero) ");
-			}
 
-			// if terminal port is routed to east port 
-			if (m_terminalPort.m_outputPortRouted == PortType::EastPort)
-			{
-				if (m_eastPort.m_credit.at(m_terminalPort.m_outputVirtualChannelAllocated) > 0)
+				// if terminal port is routed to west port 
+				if (m_terminalPort.m_outputPortRouted == PortType::WestPort)
 				{
-					m_terminalPort.m_outputPortSwitched = PortType::EastPort;
+					if (m_westPort.m_credit.at(m_terminalPort.m_outputVirtualChannelAllocated) > 0)
+						m_terminalPort.m_outputPortSwitched = PortType::WestPort;
 				}
-				else
-					log(" Terminal port: credit stall (east port credit is zero) ");
+
+				// if terminal port is routed to east port 
+				if (m_terminalPort.m_outputPortRouted == PortType::EastPort)
+				{
+					if (m_eastPort.m_credit.at(m_terminalPort.m_outputVirtualChannelAllocated) > 0)
+						m_terminalPort.m_outputPortSwitched = PortType::EastPort;
+				}
+
+				m_terminalPort.m_localClock.tickTriggerClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
+				m_terminalPort.m_localClock.toggleWaitingForExecution();
 			}
 		}
 	}
@@ -2582,25 +2633,16 @@ void Router::allocateNorthPortSwitch()
 		{
 			if (m_northPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A)
 			{
-				// if north port is routed to terminal port 
-				if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
+				if (!m_northPort.m_virtualChannels.at(i).m_localClock.isWaitingForExecution())
 				{
-					if (isFirstActiveVirtualChannel)
-					{
-						m_northPort.m_virtualChannelSwitched = i;
-						isFirstActiveVirtualChannel = false;
-					}
-					else if (!isFirstActiveVirtualChannel
-						&& m_northPort.m_virtualChannels.at(i).m_switchPriorityLocal < m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_switchPriorityLocal)
-					{
-						m_northPort.m_virtualChannelSwitched = i;
-					}
+					m_northPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(EXECUTION_TIME_ROUTER_SA - 1);
+					m_northPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 
-				// if north port is routed to south port 
-				if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
+				if (m_northPort.m_virtualChannels.at(i).m_localClock.executeLocalEvent())
 				{
-					if (m_southPort.m_credit.at(m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+					// if north port is routed to terminal port 
+					if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
 					{
 						if (isFirstActiveVirtualChannel)
 						{
@@ -2613,42 +2655,62 @@ void Router::allocateNorthPortSwitch()
 							m_northPort.m_virtualChannelSwitched = i;
 						}
 					}
-				}
 
-				// if north port is routed to west port 
-				if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
-				{
-					if (m_westPort.m_credit.at(m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+					// if north port is routed to south port 
+					if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
 					{
-						if (isFirstActiveVirtualChannel)
+						if (m_southPort.m_credit.at(m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
 						{
-							m_northPort.m_virtualChannelSwitched = i;
-							isFirstActiveVirtualChannel = false;
-						}
-						else if (!isFirstActiveVirtualChannel
-							&& m_northPort.m_virtualChannels.at(i).m_switchPriorityLocal < m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_switchPriorityLocal)
-						{
-							m_northPort.m_virtualChannelSwitched = i;
+							if (isFirstActiveVirtualChannel)
+							{
+								m_northPort.m_virtualChannelSwitched = i;
+								isFirstActiveVirtualChannel = false;
+							}
+							else if (!isFirstActiveVirtualChannel
+								&& m_northPort.m_virtualChannels.at(i).m_switchPriorityLocal < m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+							{
+								m_northPort.m_virtualChannelSwitched = i;
+							}
 						}
 					}
-				}
 
-				// if north port is routed to east port 
-				if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
-				{
-					if (m_eastPort.m_credit.at(m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+					// if north port is routed to west port 
+					if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
 					{
-						if (isFirstActiveVirtualChannel)
+						if (m_westPort.m_credit.at(m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
 						{
-							m_northPort.m_virtualChannelSwitched = i;
-							isFirstActiveVirtualChannel = false;
-						}
-						else if (!isFirstActiveVirtualChannel
-							&& m_northPort.m_virtualChannels.at(i).m_switchPriorityLocal < m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_switchPriorityLocal)
-						{
-							m_northPort.m_virtualChannelSwitched = i;
+							if (isFirstActiveVirtualChannel)
+							{
+								m_northPort.m_virtualChannelSwitched = i;
+								isFirstActiveVirtualChannel = false;
+							}
+							else if (!isFirstActiveVirtualChannel
+								&& m_northPort.m_virtualChannels.at(i).m_switchPriorityLocal < m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+							{
+								m_northPort.m_virtualChannelSwitched = i;
+							}
 						}
 					}
+
+					// if north port is routed to east port 
+					if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
+					{
+						if (m_eastPort.m_credit.at(m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+						{
+							if (isFirstActiveVirtualChannel)
+							{
+								m_northPort.m_virtualChannelSwitched = i;
+								isFirstActiveVirtualChannel = false;
+							}
+							else if (!isFirstActiveVirtualChannel
+								&& m_northPort.m_virtualChannels.at(i).m_switchPriorityLocal < m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+							{
+								m_northPort.m_virtualChannelSwitched = i;
+							}
+						}
+					}
+
+					m_northPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 			}
 		}
@@ -2661,49 +2723,17 @@ void Router::allocateNorthPortSwitch()
 		{
 			if (m_northPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A)
 			{
-				//m_northPort.m_outputPortSwitched = m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_outputPortRouted;
-
-				// if north port is routed to terminal port 
-				if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
+				if (!m_northPort.m_virtualChannels.at(i).m_localClock.isWaitingForExecution())
 				{
-					m_northPort.m_outputPortSwitched = PortType::TerminalPort;
-					break;
+					m_northPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(EXECUTION_TIME_ROUTER_SA - 1);
+					m_northPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 
-				// if north port is routed to south port 
-				if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
+				if (m_northPort.m_virtualChannels.at(i).m_localClock.executeLocalEvent())
 				{
-					if (m_southPort.m_credit.at(m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
-					{
-						m_northPort.m_outputPortSwitched = PortType::SouthPort;
-						break;
-					}
-					else
-						log(" North port: credit stall (south port credit is zero) ");
-				}
-
-				// if north port is routed to west port 
-				if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
-				{
-					if (m_westPort.m_credit.at(m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
-					{
-						m_northPort.m_outputPortSwitched = PortType::WestPort;
-						break;
-					}
-					else
-						log(" North port: credit stall (west port credit is zero) ");
-				}
-
-				// if north port is routed to east port 
-				if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
-				{
-					if (m_eastPort.m_credit.at(m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
-					{
-						m_northPort.m_outputPortSwitched = PortType::EastPort;
-						break;
-					}
-					else
-						log(" North port: credit stall (east port credit is zero) ");
+					m_northPort.m_outputPortSwitched = m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_outputPortRouted;
+					m_northPort.m_virtualChannels.at(i).m_localClock.tickTriggerClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
+					m_northPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 			}
 		}
@@ -2720,25 +2750,16 @@ void Router::allocateSouthPortSwitch()
 		{
 			if (m_southPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A)
 			{
-				// if south port is routed to terminal port 
-				if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
+				if (!m_southPort.m_virtualChannels.at(i).m_localClock.isWaitingForExecution())
 				{
-					if (isFirstActiveVirtualChannel)
-					{
-						m_southPort.m_virtualChannelSwitched = i;
-						isFirstActiveVirtualChannel = false;
-					}
-					else if (!isFirstActiveVirtualChannel
-						&& m_southPort.m_virtualChannels.at(i).m_switchPriorityLocal < m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_switchPriorityLocal)
-					{
-						m_southPort.m_virtualChannelSwitched = i;
-					}
+					m_southPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(EXECUTION_TIME_ROUTER_SA - 1);
+					m_southPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 
-				// if south port is routed to north port 
-				if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
+				if (m_southPort.m_virtualChannels.at(i).m_localClock.executeLocalEvent())
 				{
-					if (m_northPort.m_credit.at(m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+					// if south port is routed to terminal port 
+					if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
 					{
 						if (isFirstActiveVirtualChannel)
 						{
@@ -2751,42 +2772,62 @@ void Router::allocateSouthPortSwitch()
 							m_southPort.m_virtualChannelSwitched = i;
 						}
 					}
-				}
 
-				// if south port is routed to west port 
-				if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
-				{
-					if (m_westPort.m_credit.at(m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+					// if south port is routed to north port 
+					if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
 					{
-						if (isFirstActiveVirtualChannel)
+						if (m_northPort.m_credit.at(m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
 						{
-							m_southPort.m_virtualChannelSwitched = i;
-							isFirstActiveVirtualChannel = false;
-						}
-						else if (!isFirstActiveVirtualChannel
-							&& m_southPort.m_virtualChannels.at(i).m_switchPriorityLocal < m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_switchPriorityLocal)
-						{
-							m_southPort.m_virtualChannelSwitched = i;
+							if (isFirstActiveVirtualChannel)
+							{
+								m_southPort.m_virtualChannelSwitched = i;
+								isFirstActiveVirtualChannel = false;
+							}
+							else if (!isFirstActiveVirtualChannel
+								&& m_southPort.m_virtualChannels.at(i).m_switchPriorityLocal < m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+							{
+								m_southPort.m_virtualChannelSwitched = i;
+							}
 						}
 					}
-				}
 
-				// if south port is routed to east port 
-				if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
-				{
-					if (m_eastPort.m_credit.at(m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+					// if south port is routed to west port 
+					if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
 					{
-						if (isFirstActiveVirtualChannel)
+						if (m_westPort.m_credit.at(m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
 						{
-							m_southPort.m_virtualChannelSwitched = i;
-							isFirstActiveVirtualChannel = false;
-						}
-						else if (!isFirstActiveVirtualChannel
-							&& m_southPort.m_virtualChannels.at(i).m_switchPriorityLocal < m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_switchPriorityLocal)
-						{
-							m_southPort.m_virtualChannelSwitched = i;
+							if (isFirstActiveVirtualChannel)
+							{
+								m_southPort.m_virtualChannelSwitched = i;
+								isFirstActiveVirtualChannel = false;
+							}
+							else if (!isFirstActiveVirtualChannel
+								&& m_southPort.m_virtualChannels.at(i).m_switchPriorityLocal < m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+							{
+								m_southPort.m_virtualChannelSwitched = i;
+							}
 						}
 					}
+
+					// if south port is routed to east port 
+					if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
+					{
+						if (m_eastPort.m_credit.at(m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+						{
+							if (isFirstActiveVirtualChannel)
+							{
+								m_southPort.m_virtualChannelSwitched = i;
+								isFirstActiveVirtualChannel = false;
+							}
+							else if (!isFirstActiveVirtualChannel
+								&& m_southPort.m_virtualChannels.at(i).m_switchPriorityLocal < m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+							{
+								m_southPort.m_virtualChannelSwitched = i;
+							}
+						}
+					}
+
+					m_southPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 			}
 		}
@@ -2799,49 +2840,17 @@ void Router::allocateSouthPortSwitch()
 		{
 			if (m_southPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A)
 			{
-				//m_southPort.m_outputPortSwitched = m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_outputPortRouted;
-				
-				// if south port is routed to terminal port 
-				if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
+				if (!m_northPort.m_virtualChannels.at(i).m_localClock.isWaitingForExecution())
 				{
-					m_southPort.m_outputPortSwitched = PortType::TerminalPort;
-					break;
+					m_northPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(EXECUTION_TIME_ROUTER_SA - 1);
+					m_northPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 
-				// if south port is routed to north port 
-				if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
+				if (m_northPort.m_virtualChannels.at(i).m_localClock.executeLocalEvent())
 				{
-					if (m_northPort.m_credit.at(m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
-					{
-						m_southPort.m_outputPortSwitched = PortType::NorthPort;
-						break;
-					}
-					else
-						log(" South port: credit stall (north port credit is zero) ");
-				}
-
-				// if south port is routed to west port 
-				if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
-				{
-					if (m_westPort.m_credit.at(m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
-					{
-						m_southPort.m_outputPortSwitched = PortType::WestPort;
-						break;
-					}
-					else
-						log(" South port: credit stall (west port credit is zero) ");
-				}
-
-				// if south port is routed to east port 
-				if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
-				{
-					if (m_eastPort.m_credit.at(m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
-					{
-						m_southPort.m_outputPortSwitched = PortType::EastPort;
-						break;
-					}
-					else
-						log(" South port: credit stall (east port credit is zero) ");
+					m_southPort.m_outputPortSwitched = m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_outputPortRouted;
+					m_northPort.m_virtualChannels.at(i).m_localClock.tickTriggerClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
+					m_southPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 			}
 		}
@@ -2858,25 +2867,16 @@ void Router::allocateWestPortSwitch()
 		{
 			if (m_westPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A)
 			{
-				// if west port is routed to terminal port 
-				if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
+				if (!m_westPort.m_virtualChannels.at(i).m_localClock.isWaitingForExecution())
 				{
-					if (isFirstActiveVirtualChannel)
-					{
-						m_westPort.m_virtualChannelSwitched = i;
-						isFirstActiveVirtualChannel = false;
-					}
-					else if (!isFirstActiveVirtualChannel
-						&& m_westPort.m_virtualChannels.at(i).m_switchPriorityLocal < m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_switchPriorityLocal)
-					{
-						m_westPort.m_virtualChannelSwitched = i;
-					}
+					m_westPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(EXECUTION_TIME_ROUTER_SA - 1);
+					m_westPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 
-				// if west port is routed to north port 
-				if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
+				if (m_westPort.m_virtualChannels.at(i).m_localClock.executeLocalEvent())
 				{
-					if (m_northPort.m_credit.at(m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+					// if west port is routed to terminal port 
+					if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
 					{
 						if (isFirstActiveVirtualChannel)
 						{
@@ -2889,42 +2889,62 @@ void Router::allocateWestPortSwitch()
 							m_westPort.m_virtualChannelSwitched = i;
 						}
 					}
-				}
 
-				// if west port is routed to south port 
-				if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
-				{
-					if (m_southPort.m_credit.at(m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+					// if west port is routed to north port 
+					if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
 					{
-						if (isFirstActiveVirtualChannel)
+						if (m_northPort.m_credit.at(m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
 						{
-							m_westPort.m_virtualChannelSwitched = i;
-							isFirstActiveVirtualChannel = false;
-						}
-						else if (!isFirstActiveVirtualChannel
-							&& m_westPort.m_virtualChannels.at(i).m_switchPriorityLocal < m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_switchPriorityLocal)
-						{
-							m_westPort.m_virtualChannelSwitched = i;
+							if (isFirstActiveVirtualChannel)
+							{
+								m_westPort.m_virtualChannelSwitched = i;
+								isFirstActiveVirtualChannel = false;
+							}
+							else if (!isFirstActiveVirtualChannel
+								&& m_westPort.m_virtualChannels.at(i).m_switchPriorityLocal < m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+							{
+								m_westPort.m_virtualChannelSwitched = i;
+							}
 						}
 					}
-				}
 
-				// if west port is routed to east port 
-				if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
-				{
-					if (m_eastPort.m_credit.at(m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+					// if west port is routed to south port 
+					if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
 					{
-						if (isFirstActiveVirtualChannel)
+						if (m_southPort.m_credit.at(m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
 						{
-							m_westPort.m_virtualChannelSwitched = i;
-							isFirstActiveVirtualChannel = false;
-						}
-						else if (!isFirstActiveVirtualChannel
-							&& m_westPort.m_virtualChannels.at(i).m_switchPriorityLocal < m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_switchPriorityLocal)
-						{
-							m_westPort.m_virtualChannelSwitched = i;
+							if (isFirstActiveVirtualChannel)
+							{
+								m_westPort.m_virtualChannelSwitched = i;
+								isFirstActiveVirtualChannel = false;
+							}
+							else if (!isFirstActiveVirtualChannel
+								&& m_westPort.m_virtualChannels.at(i).m_switchPriorityLocal < m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+							{
+								m_westPort.m_virtualChannelSwitched = i;
+							}
 						}
 					}
+
+					// if west port is routed to east port 
+					if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
+					{
+						if (m_eastPort.m_credit.at(m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+						{
+							if (isFirstActiveVirtualChannel)
+							{
+								m_westPort.m_virtualChannelSwitched = i;
+								isFirstActiveVirtualChannel = false;
+							}
+							else if (!isFirstActiveVirtualChannel
+								&& m_westPort.m_virtualChannels.at(i).m_switchPriorityLocal < m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+							{
+								m_westPort.m_virtualChannelSwitched = i;
+							}
+						}
+					}
+
+					m_westPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 			}
 		}
@@ -2937,49 +2957,17 @@ void Router::allocateWestPortSwitch()
 		{
 			if (m_westPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A)
 			{
-				//m_westPort.m_outputPortSwitched = m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_outputPortRouted;
-				
-				// if west port is routed to terminal port 
-				if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
+				if (!m_westPort.m_virtualChannels.at(i).m_localClock.isWaitingForExecution())
 				{
-					m_westPort.m_outputPortSwitched = PortType::TerminalPort;
-					break;
+					m_westPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(EXECUTION_TIME_ROUTER_SA - 1);
+					m_westPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 
-				// if west port is routed to north port 
-				if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
+				if (m_westPort.m_virtualChannels.at(i).m_localClock.executeLocalEvent())
 				{
-					if (m_northPort.m_credit.at(m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
-					{
-						m_westPort.m_outputPortSwitched = PortType::NorthPort;
-						break;
-					}
-					else
-						log(" West port: credit stall (north port credit is zero) ");
-				}
-
-				// if west port is routed to south port 
-				if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
-				{
-					if (m_southPort.m_credit.at(m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
-					{
-						m_westPort.m_outputPortSwitched = PortType::SouthPort;
-						break;
-					}
-					else
-						log(" West port: credit stall (south port credit is zero) ");
-				}
-
-				// if west port is routed to east port 
-				if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
-				{
-					if (m_eastPort.m_credit.at(m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
-					{
-						m_westPort.m_outputPortSwitched = PortType::EastPort;
-						break;
-					}
-					else
-						log(" West port: credit stall (east port credit is zero) ");
+					m_westPort.m_outputPortSwitched = m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_outputPortRouted;
+					m_westPort.m_virtualChannels.at(i).m_localClock.tickTriggerClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
+					m_westPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 			}
 		}
@@ -2996,25 +2984,16 @@ void Router::allocateEastPortSwitch()
 		{
 			if (m_eastPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A)
 			{
-				// if east port is routed to terminal port 
-				if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
+				if (!m_eastPort.m_virtualChannels.at(i).m_localClock.isWaitingForExecution())
 				{
-					if (isFirstActiveVirtualChannel)
-					{
-						m_eastPort.m_virtualChannelSwitched = i;
-						isFirstActiveVirtualChannel = false;
-					}
-					else if (!isFirstActiveVirtualChannel
-						&& m_eastPort.m_virtualChannels.at(i).m_switchPriorityLocal < m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_switchPriorityLocal)
-					{
-						m_eastPort.m_virtualChannelSwitched = i;
-					}
+					m_eastPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(EXECUTION_TIME_ROUTER_SA - 1);
+					m_eastPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 
-				// if east port is routed to north port 
-				if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
+				if (m_eastPort.m_virtualChannels.at(i).m_localClock.executeLocalEvent())
 				{
-					if (m_northPort.m_credit.at(m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+					// if east port is routed to terminal port 
+					if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
 					{
 						if (isFirstActiveVirtualChannel)
 						{
@@ -3027,42 +3006,62 @@ void Router::allocateEastPortSwitch()
 							m_eastPort.m_virtualChannelSwitched = i;
 						}
 					}
-				}
 
-				// if east port is routed to south port 
-				if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
-				{
-					if (m_southPort.m_credit.at(m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+					// if east port is routed to north port 
+					if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
 					{
-						if (isFirstActiveVirtualChannel)
+						if (m_northPort.m_credit.at(m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
 						{
-							m_eastPort.m_virtualChannelSwitched = i;
-							isFirstActiveVirtualChannel = false;
-						}
-						else if (!isFirstActiveVirtualChannel
-							&& m_eastPort.m_virtualChannels.at(i).m_switchPriorityLocal < m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_switchPriorityLocal)
-						{
-							m_eastPort.m_virtualChannelSwitched = i;
+							if (isFirstActiveVirtualChannel)
+							{
+								m_eastPort.m_virtualChannelSwitched = i;
+								isFirstActiveVirtualChannel = false;
+							}
+							else if (!isFirstActiveVirtualChannel
+								&& m_eastPort.m_virtualChannels.at(i).m_switchPriorityLocal < m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+							{
+								m_eastPort.m_virtualChannelSwitched = i;
+							}
 						}
 					}
-				}
 
-				// if east port is routed to west port 
-				if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
-				{
-					if (m_westPort.m_credit.at(m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+					// if east port is routed to south port 
+					if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
 					{
-						if (isFirstActiveVirtualChannel)
+						if (m_southPort.m_credit.at(m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
 						{
-							m_eastPort.m_virtualChannelSwitched = i;
-							isFirstActiveVirtualChannel = false;
-						}
-						else if (!isFirstActiveVirtualChannel
-							&& m_eastPort.m_virtualChannels.at(i).m_switchPriorityLocal < m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_switchPriorityLocal)
-						{
-							m_eastPort.m_virtualChannelSwitched = i;
+							if (isFirstActiveVirtualChannel)
+							{
+								m_eastPort.m_virtualChannelSwitched = i;
+								isFirstActiveVirtualChannel = false;
+							}
+							else if (!isFirstActiveVirtualChannel
+								&& m_eastPort.m_virtualChannels.at(i).m_switchPriorityLocal < m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+							{
+								m_eastPort.m_virtualChannelSwitched = i;
+							}
 						}
 					}
+
+					// if east port is routed to west port 
+					if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
+					{
+						if (m_westPort.m_credit.at(m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+						{
+							if (isFirstActiveVirtualChannel)
+							{
+								m_eastPort.m_virtualChannelSwitched = i;
+								isFirstActiveVirtualChannel = false;
+							}
+							else if (!isFirstActiveVirtualChannel
+								&& m_eastPort.m_virtualChannels.at(i).m_switchPriorityLocal < m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_switchPriorityLocal)
+							{
+								m_eastPort.m_virtualChannelSwitched = i;
+							}
+						}
+					}
+
+					m_eastPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 			}
 		}
@@ -3075,49 +3074,17 @@ void Router::allocateEastPortSwitch()
 		{
 			if (m_eastPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A)
 			{
-				//m_eastPort.m_outputPortSwitched = m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_outputPortRouted;
-				
-				// if east port is routed to terminal port 
-				if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
+				if (!m_eastPort.m_virtualChannels.at(i).m_localClock.isWaitingForExecution())
 				{
-					m_eastPort.m_outputPortSwitched = PortType::TerminalPort;
-					break;
+					m_eastPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(EXECUTION_TIME_ROUTER_SA - 1);
+					m_eastPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 
-				// if east port is routed to north port 
-				if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
+				if (m_eastPort.m_virtualChannels.at(i).m_localClock.executeLocalEvent())
 				{
-					if (m_northPort.m_credit.at(m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
-					{
-						m_eastPort.m_outputPortSwitched = PortType::NorthPort;
-						break;
-					}
-					else
-						log(" East port: credit stall (north port credit is zero) ");
-				}
-
-				// if east port is routed to south port 
-				if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
-				{
-					if (m_southPort.m_credit.at(m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
-					{
-						m_eastPort.m_outputPortSwitched = PortType::SouthPort;
-						break;
-					}
-					else
-						log(" East port: credit stall (south port credit is zero) ");
-				}
-
-				// if east port is routed to west port 
-				if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
-				{
-					if (m_westPort.m_credit.at(m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
-					{
-						m_eastPort.m_outputPortSwitched = PortType::WestPort;
-						break;
-					}
-					else
-						log(" East port: credit stall (west port credit is zero) ");
+					m_eastPort.m_outputPortSwitched = m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_outputPortRouted;
+					m_eastPort.m_virtualChannels.at(i).m_localClock.tickTriggerClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
+					m_eastPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 			}
 		}
@@ -3227,7 +3194,7 @@ void Router::switchArbitration()
 		{
 			if (record.outputPortSwitched == m_eastPort.m_outputPortSwitched)
 			{
-				if (record.switchPriorityGlobal > m_westPort.m_switchPriorityGlobal)
+				if (record.switchPriorityGlobal > m_eastPort.m_switchPriorityGlobal)
 				{
 					loseSwitchArbitration(record.port, record.outputPortSwitched, record.switchPriorityGlobal);
 					if (record.port == PortType::TerminalPort)
@@ -3239,7 +3206,7 @@ void Router::switchArbitration()
 					if (record.port == PortType::WestPort)
 						m_westPort.m_outputPortSwitched = PortType::Unselected;
 				}
-				else if (record.switchPriorityGlobal < m_westPort.m_switchPriorityGlobal)
+				else if (record.switchPriorityGlobal < m_eastPort.m_switchPriorityGlobal)
 				{
 					loseSwitchArbitration(PortType::EastPort, m_eastPort.m_outputPortSwitched, m_eastPort.m_switchPriorityGlobal);
 					m_eastPort.m_outputPortSwitched = PortType::Unselected;
@@ -3450,8 +3417,6 @@ void Router::getOneFlitOut()
 			flit.port = m_terminalPort.m_outputPortSwitched;
 			flit.virtualChannel = m_terminalPort.m_outputVirtualChannelAllocated;
 			m_terminalPort.m_crossbarInputRegister.push_back(flit);
-
-			m_terminalPort.m_localClock.tickLocalClock(CYCLES_ROUTER_SA);
 		}
 	}
 
@@ -3473,8 +3438,6 @@ void Router::getOneFlitOut()
 			flit.port = m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_outputPortRouted;
 			flit.virtualChannel = m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_outputVirtualChannelAllocated;
 			m_northPort.m_crossbarInputRegister.push_back(flit);
-
-			m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_localClock.tickLocalClock(CYCLES_ROUTER_SA);
 		}
 	}
 
@@ -3496,8 +3459,6 @@ void Router::getOneFlitOut()
 			flit.port = m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_outputPortRouted;
 			flit.virtualChannel = m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_outputVirtualChannelAllocated;
 			m_southPort.m_crossbarInputRegister.push_back(flit);
-
-			m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_localClock.tickLocalClock(CYCLES_ROUTER_SA);
 		}
 	}
 
@@ -3519,8 +3480,6 @@ void Router::getOneFlitOut()
 			flit.port = m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_outputPortRouted;
 			flit.virtualChannel = m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_outputVirtualChannelAllocated;
 			m_westPort.m_crossbarInputRegister.push_back(flit);
-			
-			m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_localClock.tickLocalClock(CYCLES_ROUTER_SA);
 		}
 	}
 
@@ -3542,8 +3501,6 @@ void Router::getOneFlitOut()
 			flit.port = m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_outputPortRouted;
 			flit.virtualChannel = m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_outputVirtualChannelAllocated;
 			m_eastPort.m_crossbarInputRegister.push_back(flit);
-			
-			m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_localClock.tickLocalClock(CYCLES_ROUTER_SA);
 		}
 	}
 }
@@ -3672,7 +3629,7 @@ void Router::resetFields()
 			if (connection.second->m_outFlitRegister.front().flitType == FlitType::HeadTailFlit
 				|| connection.second->m_outFlitRegister.front().flitType == FlitType::TailFlit)
 			{
-				m_terminalPort.m_localClock.tickLocalClock(CYCLES_ROUTER_ST);
+				//m_terminalPort.m_localClock.tickTriggerClock(PERIOD_ROUTER_ST);
 
 				resetRCVAOutputFields(m_terminalPort.m_outputPortRouted, m_terminalPort.m_outputVirtualChannelAllocated);
 				resetRCVAInputFields(PortType::TerminalPort, m_terminalPort.m_virtualChannelSwitched);
@@ -3685,7 +3642,7 @@ void Router::resetFields()
 			if (connection.second->m_outFlitRegister.front().flitType == FlitType::HeadTailFlit
 				|| connection.second->m_outFlitRegister.front().flitType == FlitType::TailFlit)
 			{
-				m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_localClock.tickLocalClock(CYCLES_ROUTER_ST);
+				//m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_localClock.tickTriggerClock(PERIOD_ROUTER_ST);
 
 				resetRCVAOutputFields(m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_outputPortRouted, m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_outputVirtualChannelAllocated);
 				resetRCVAInputFields(PortType::NorthPort, m_northPort.m_virtualChannelSwitched);
@@ -3698,7 +3655,7 @@ void Router::resetFields()
 			if (connection.second->m_outFlitRegister.front().flitType == FlitType::HeadTailFlit
 				|| connection.second->m_outFlitRegister.front().flitType == FlitType::TailFlit)
 			{
-				m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_localClock.tickLocalClock(CYCLES_ROUTER_ST);
+				//m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_localClock.tickTriggerClock(PERIOD_ROUTER_ST);
 
 				resetRCVAOutputFields(m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_outputPortRouted, m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_outputVirtualChannelAllocated);
 				resetRCVAInputFields(PortType::SouthPort, m_southPort.m_virtualChannelSwitched);
@@ -3711,7 +3668,7 @@ void Router::resetFields()
 			if (connection.second->m_outFlitRegister.front().flitType == FlitType::HeadTailFlit
 				|| connection.second->m_outFlitRegister.front().flitType == FlitType::TailFlit)
 			{
-				m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_localClock.tickLocalClock(CYCLES_ROUTER_ST);
+				//m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_localClock.tickTriggerClock(PERIOD_ROUTER_ST);
 
 				resetRCVAOutputFields(m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_outputPortRouted, m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_outputVirtualChannelAllocated);
 				resetRCVAInputFields(PortType::WestPort, m_westPort.m_virtualChannelSwitched);
@@ -3724,7 +3681,7 @@ void Router::resetFields()
 			if (connection.second->m_outFlitRegister.front().flitType == FlitType::HeadTailFlit
 				|| connection.second->m_outFlitRegister.front().flitType == FlitType::TailFlit)
 			{
-				m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_localClock.tickLocalClock(CYCLES_ROUTER_ST);
+				//m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_localClock.tickTriggerClock(PERIOD_ROUTER_ST);
 
 				resetRCVAOutputFields(m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_outputPortRouted, m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_outputVirtualChannelAllocated);
 				resetRCVAInputFields(PortType::EastPort, m_eastPort.m_virtualChannelSwitched);
@@ -3846,15 +3803,27 @@ void Router::traverseThisSwitchThenAllocateNextSwitch()
 	allocateSwitch();
 }
 
-void Router::synchronizeClocks()
+void Router::synchronizeTriggerClocks()
 {
-	m_terminalPort.m_localClock.synchronizeClock();
+	m_terminalPort.m_localClock.synchronizeTriggerClock();
 	for (int i{}; i < VC_NUMBER; ++i)
 	{
-		m_northPort.m_virtualChannels.at(i).m_localClock.synchronizeClock();
-		m_southPort.m_virtualChannels.at(i).m_localClock.synchronizeClock();
-		m_westPort.m_virtualChannels.at(i).m_localClock.synchronizeClock();
-		m_eastPort.m_virtualChannels.at(i).m_localClock.synchronizeClock();
+		m_northPort.m_virtualChannels.at(i).m_localClock.synchronizeTriggerClock();
+		m_southPort.m_virtualChannels.at(i).m_localClock.synchronizeTriggerClock();
+		m_westPort.m_virtualChannels.at(i).m_localClock.synchronizeTriggerClock();
+		m_eastPort.m_virtualChannels.at(i).m_localClock.synchronizeTriggerClock();
+	}
+}
+
+void Router::synchronizeExecutionClocks()
+{
+	m_terminalPort.m_localClock.synchronizeExecutionClock();
+	for (int i{}; i < VC_NUMBER; ++i)
+	{
+		m_northPort.m_virtualChannels.at(i).m_localClock.synchronizeExecutionClock();
+		m_southPort.m_virtualChannels.at(i).m_localClock.synchronizeExecutionClock();
+		m_westPort.m_virtualChannels.at(i).m_localClock.synchronizeExecutionClock();
+		m_eastPort.m_virtualChannels.at(i).m_localClock.synchronizeExecutionClock();
 	}
 }
 

@@ -17,11 +17,12 @@ public:
 	void updateEnable();
 
 	//bool areEmpty();
+	
+	// Timing
+	void synchronizeTriggerClocks();
+	void synchronizeExecutionClocks();
 
 	void runOneStep();
-
-	// Timing
-	//Clock m_localClock{};
 private:
 	std::set<Link> m_connections{};
 };

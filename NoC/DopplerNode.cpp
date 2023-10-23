@@ -7,6 +7,8 @@ void DopplerNode::runOneStep()
 		injectTraffic();
 	}
 	collectTraffic();
+	m_localClock.synchronizeTriggerClock();
+	m_localClock.synchronizeExecutionClock();
 }
 
 void DopplerNode::viewPacket(const Packet& packet)
@@ -21,17 +23,26 @@ void DopplerNode::viewFlit(const Flit& flit)
 
 void DopplerNode::injectTraffic()
 {
-	while (m_localClock.triggerLocalEvent())
+	if (m_localClock.triggerLocalEvent())
 	{
-		if (readPacket())
+		if (!m_localClock.isWaitingForExecution())
 		{
-			viewPacket(m_packetGenerated);
-			dismantlePacket();
-			recordInputTime(m_localClock.s_globalClock);
-
-			m_localClock.tickLocalClock(static_cast<float>(1 / INJECTION_RATE));
+			m_localClock.tickExecutionClock(EXECUTION_TIME_DOPPLERNODE_INJECTTRAFFIC - 1);
+			m_localClock.toggleWaitingForExecution();
 		}
-		m_localClock.synchronizeClock();
+
+		if (m_localClock.executeLocalEvent())
+		{
+			if (readPacket())
+			{
+				viewPacket(m_packetGenerated);
+				dismantlePacket();
+				recordInputTime(m_localClock.s_globalClock + 1);
+
+				m_localClock.tickTriggerClock(PERIOD_DOPPLERNODE_INJECTTRAFFIC - EXECUTION_TIME_DOPPLERNODE_INJECTTRAFFIC + 1);
+				m_localClock.toggleWaitingForExecution();
+			}
+		}
 	}
 
 	sendFlit(); // every cycle; it may stall when network is busy
@@ -191,13 +202,10 @@ void DopplerNode::recordInputTime(const float packetInputTime)
 
 void DopplerNode::sendFlit()
 {
-	if (m_port.m_outFlitRegister.size() < REGISTER_DEPTH)
+	if (!m_sourceQueue.empty())
 	{
-		if (!m_sourceQueue.empty())
-		{
-			m_port.m_outFlitRegister.push_back(m_sourceQueue.front());
-			m_sourceQueue.pop_front();
-		}
+		m_port.m_outFlitRegister.push_back(m_sourceQueue.front());
+		m_sourceQueue.pop_front();
 	}
 }
 

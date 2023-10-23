@@ -65,7 +65,8 @@ public:
 	void traverseThisSwitchThenAllocateNextSwitch();
 
 	// Timing
-	void synchronizeClocks();
+	void synchronizeTriggerClocks();
+	void synchronizeExecutionClocks();
 
 	// Enable
 	void updateEnable();
