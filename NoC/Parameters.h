@@ -8,15 +8,23 @@
 #define MESH
 //#define TORUS
 
-//#define REGISTER_DEPTH 2
+#define REGISTER_DEPTH 2
 
-// Flit size
+// Packet and Flit size
 #define PACKET_SIZE 16 // bytes
 #define FLIT_SIZE 4 // bytes, link width
 
 // Virtual channel
 #define VC_NUMBER 2
 #define BUFFER_SIZE 8 // credit stalls if less than MIN_BUFFER_SIZE
+
+// Traffic pattern
+//#define CUSTOMIZE
+//#define ALL_TO_ONE
+#define DRAIN_NODE 0
+#define RANDOM_UNIFORM
+
+#define PACKET_NUMBER 5
 
 // Injection rate (packet per cycle)
 #define INJECTION_RATE 0.1f
@@ -51,5 +59,5 @@
 // Simulation cycles
 #define SIMULATION_CYCLES 500
 #define WARMUP_CYCLES 7
-#define MEASUREMENT_CYCLES 120
+#define MEASUREMENT_CYCLES 80
 #define DRAIN_CYCLES 0

@@ -61,28 +61,32 @@ void Links::runOneStep()
 
 				if (connection.m_localClock.executeLocalEvent())
 				{
-					if (!connection.m_connection.first->m_outFlitRegister.empty())
+					if (!connection.m_connection.first->m_outFlitRegister.empty()
+						&& connection.m_connection.second->m_inFlitRegister.size() < REGISTER_DEPTH)
 					{
 						connection.m_connection.second->m_inFlitRegister.push_back(connection.m_connection.first->m_outFlitRegister.front());
 						connection.m_connection.first->m_outFlitRegister.pop_front();
 						log(" Links: flit transferred (LHS -> RHS) ");
 					}
 
-					if (!connection.m_connection.second->m_outCreditRegister.empty())
+					if (!connection.m_connection.second->m_outCreditRegister.empty()
+						&& connection.m_connection.first->m_inCreditRegister.size() < REGISTER_DEPTH)
 					{
 						connection.m_connection.first->m_inCreditRegister.push_back(connection.m_connection.second->m_outCreditRegister.front());
 						connection.m_connection.second->m_outCreditRegister.pop_front();
 						log(" Links: credit transferred (LHS <- RHS) ");
 					}
 
-					if (!connection.m_connection.second->m_outFlitRegister.empty())
+					if (!connection.m_connection.second->m_outFlitRegister.empty()
+						&& connection.m_connection.first->m_inFlitRegister.size() < REGISTER_DEPTH)
 					{
 						connection.m_connection.first->m_inFlitRegister.push_back(connection.m_connection.second->m_outFlitRegister.front());
 						connection.m_connection.second->m_outFlitRegister.pop_front();
 						log(" Links: flit transferred (LHS <- RHS) ");
 					}
 
-					if (!connection.m_connection.first->m_outCreditRegister.empty())
+					if (!connection.m_connection.first->m_outCreditRegister.empty()
+						&& connection.m_connection.second->m_inCreditRegister.size() < REGISTER_DEPTH)
 					{
 						connection.m_connection.second->m_inCreditRegister.push_back(connection.m_connection.first->m_outCreditRegister.front());
 						connection.m_connection.first->m_outCreditRegister.pop_front();

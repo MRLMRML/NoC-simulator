@@ -202,7 +202,8 @@ void DopplerNode::recordInputTime(const float packetInputTime)
 
 void DopplerNode::sendFlit()
 {
-	if (!m_sourceQueue.empty())
+	if (!m_sourceQueue.empty()
+		&& m_port.m_outFlitRegister.size() < REGISTER_DEPTH)
 	{
 		m_port.m_outFlitRegister.push_back(m_sourceQueue.front());
 		m_sourceQueue.pop_front();
