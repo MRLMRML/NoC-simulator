@@ -103,5 +103,8 @@
     <None Include="Data\PacketRecord.csv">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="Data\TrafficData.csv">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

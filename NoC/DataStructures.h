@@ -246,3 +246,9 @@ struct MappingTableLine
 	RouterID routerID{};
 	int NID{};
 };
+
+struct NetworkPerformance
+{
+	float averageLatency{};
+	float throughput{};
+};

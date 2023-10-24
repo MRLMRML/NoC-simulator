@@ -161,6 +161,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Data\PacketRecord.csv" />
+    <None Include="Data\TrafficData.csv" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
