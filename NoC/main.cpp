@@ -17,66 +17,36 @@ void generateTraffic()
 		<< std::endl;
 
 	writePacketRecord
-		<< "7" << ","
 		<< "0" << ","
-		<< "1" << ","
+		<< "0" << ","
+		<< "4" << ","
 		<< "intact" << ","
 		<< "-" << ","
 		<< "-" << ","
 		<< std::endl;
+	
 	writePacketRecord
-		<< "7" << ","
 		<< "1" << ","
-		<< "1" << ","
-		<< "intact" << ","
-		<< "-" << ","
-		<< "-" << ","
-		<< std::endl;
-	writePacketRecord
-		<< "7" << ","
-		<< "2" << ","
-		<< "1" << ","
-		<< "intact" << ","
-		<< "-" << ","
-		<< "-" << ","
-		<< std::endl;
-	writePacketRecord
-		<< "7" << ","
-		<< "3" << ","
-		<< "1" << ","
+		<< "0" << ","
+		<< "4" << ","
 		<< "intact" << ","
 		<< "-" << ","
 		<< "-" << ","
 		<< std::endl;
 
 	writePacketRecord 
+		<< "2" << ","
+		<< "0" << ","
+		<< "4" << ","
+		<< "intact" << ","
+		<< "-" << ","
+		<< "-" << ","
+		<< std::endl;
+	
+	writePacketRecord
 		<< "3" << ","
 		<< "0" << ","
-		<< "1" << ","
-		<< "intact" << ","
-		<< "-" << ","
-		<< "-" << ","
-		<< std::endl;
-	writePacketRecord
-		<< "3" << ","
-		<< "1" << ","
-		<< "1" << ","
-		<< "intact" << ","
-		<< "-" << ","
-		<< "-" << ","
-		<< std::endl;
-	writePacketRecord
-		<< "3" << ","
-		<< "2" << ","
-		<< "1" << ","
-		<< "intact" << ","
-		<< "-" << ","
-		<< "-" << ","
-		<< std::endl;
-	writePacketRecord
-		<< "3" << ","
-		<< "3" << ","
-		<< "1" << ","
+		<< "4" << ","
 		<< "intact" << ","
 		<< "-" << ","
 		<< "-" << ","
@@ -85,31 +55,34 @@ void generateTraffic()
 	writePacketRecord
 		<< "5" << ","
 		<< "0" << ","
-		<< "1" << ","
+		<< "4" << ","
 		<< "intact" << ","
 		<< "-" << ","
 		<< "-" << ","
 		<< std::endl;
+	
 	writePacketRecord
-		<< "5" << ","
-		<< "1" << ","
-		<< "1" << ","
+		<< "6" << ","
+		<< "0" << ","
+		<< "4" << ","
 		<< "intact" << ","
 		<< "-" << ","
 		<< "-" << ","
 		<< std::endl;
+
 	writePacketRecord
-		<< "5" << ","
-		<< "2" << ","
-		<< "1" << ","
+		<< "7" << ","
+		<< "0" << ","
+		<< "4" << ","
 		<< "intact" << ","
 		<< "-" << ","
 		<< "-" << ","
 		<< std::endl;
+
 	writePacketRecord
-		<< "5" << ","
-		<< "3" << ","
-		<< "1" << ","
+		<< "8" << ","
+		<< "0" << ","
+		<< "4" << ","
 		<< "intact" << ","
 		<< "-" << ","
 		<< "-" << ","
@@ -130,15 +103,15 @@ int main()
 	//Packet packet0{ 1, 0 };
 
 	// create doppler nodes
-	DopplerNode* node0{ new DopplerNode{0} };
+	DopplerNode* node0{ new DopplerNode{0, false} };
 	DopplerNode* node1{ new DopplerNode{1, false} };
-	DopplerNode* node2{ new DopplerNode{2} };
+	DopplerNode* node2{ new DopplerNode{2, false} };
 	DopplerNode* node3{ new DopplerNode{3, false} };
-	DopplerNode* node4{ new DopplerNode{4} };
+	DopplerNode* node4{ new DopplerNode{4, false} };
 	DopplerNode* node5{ new DopplerNode{5, false} };
-	DopplerNode* node6{ new DopplerNode{6} };
+	DopplerNode* node6{ new DopplerNode{6, false} };
 	DopplerNode* node7{ new DopplerNode{7, false} };
-	DopplerNode* node8{ new DopplerNode{8} };
+	DopplerNode* node8{ new DopplerNode{8, false} };
 
 
 	// create network
