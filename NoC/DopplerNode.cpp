@@ -229,7 +229,7 @@ bool DopplerNode::receiveFlit()
 
 void DopplerNode::assemblePacket()
 {
-	if (receiveFlit() == true)
+	if (receiveFlit())
 	{
 		if (m_flitReorderBuffer.back().flitType == FlitType::HeadTailFlit)
 		{

@@ -3103,7 +3103,8 @@ void Router::switchArbitration()
 	if (m_northPort.m_outputPortSwitched != PortType::Unselected)
 	{
 		winSwitchArbitration(PortType::NorthPort, m_northPort.m_outputPortSwitched, m_northPort.m_switchPriorityGlobal);
-		for (auto& record : m_switchArbitrationRecorder)
+		std::vector<SwitchArbitrationRecorderLine> t_switchArbitrationRecorder{ m_switchArbitrationRecorder };
+		for (auto& record : t_switchArbitrationRecorder)
 		{
 			if (record.outputPortSwitched == m_northPort.m_outputPortSwitched)
 			{
@@ -3111,17 +3112,29 @@ void Router::switchArbitration()
 				{
 					loseSwitchArbitration(record.port, record.outputPortSwitched, record.switchPriorityGlobal);
 					if (record.port == PortType::TerminalPort)
+					{
 						m_terminalPort.m_outputPortSwitched = PortType::Unselected;
+					}
 					if (record.port == PortType::SouthPort)
+					{
+						m_southPort.m_virtualChannelSwitched = 0;
 						m_southPort.m_outputPortSwitched = PortType::Unselected;
+					}
 					if (record.port == PortType::WestPort)
+					{
+						m_westPort.m_virtualChannelSwitched = 0;
 						m_westPort.m_outputPortSwitched = PortType::Unselected;
+					}
 					if (record.port == PortType::EastPort)
+					{
+						m_eastPort.m_virtualChannelSwitched = 0;
 						m_eastPort.m_outputPortSwitched = PortType::Unselected;
+					}
 				}
 				else if (record.switchPriorityGlobal < m_northPort.m_switchPriorityGlobal)
 				{
 					loseSwitchArbitration(PortType::NorthPort, m_northPort.m_outputPortSwitched, m_northPort.m_switchPriorityGlobal);
+					m_northPort.m_virtualChannelSwitched = 0;
 					m_northPort.m_outputPortSwitched = PortType::Unselected;
 				}
 			}
@@ -3132,7 +3145,8 @@ void Router::switchArbitration()
 	if (m_southPort.m_outputPortSwitched != PortType::Unselected)
 	{
 		winSwitchArbitration(PortType::SouthPort, m_southPort.m_outputPortSwitched, m_southPort.m_switchPriorityGlobal);
-		for (auto& record : m_switchArbitrationRecorder)
+		std::vector<SwitchArbitrationRecorderLine> t_switchArbitrationRecorder{ m_switchArbitrationRecorder };
+		for (auto& record : t_switchArbitrationRecorder)
 		{
 			if (record.outputPortSwitched == m_southPort.m_outputPortSwitched)
 			{
@@ -3140,17 +3154,29 @@ void Router::switchArbitration()
 				{
 					loseSwitchArbitration(record.port, record.outputPortSwitched, record.switchPriorityGlobal);
 					if (record.port == PortType::TerminalPort)
+					{
 						m_terminalPort.m_outputPortSwitched = PortType::Unselected;
+					}
 					if (record.port == PortType::NorthPort)
+					{
+						m_northPort.m_virtualChannelSwitched = 0;
 						m_northPort.m_outputPortSwitched = PortType::Unselected;
+					}
 					if (record.port == PortType::WestPort)
+					{
+						m_westPort.m_virtualChannelSwitched = 0;
 						m_westPort.m_outputPortSwitched = PortType::Unselected;
+					}
 					if (record.port == PortType::EastPort)
+					{
+						m_eastPort.m_virtualChannelSwitched = 0;
 						m_eastPort.m_outputPortSwitched = PortType::Unselected;
+					}
 				}
 				else if (record.switchPriorityGlobal < m_southPort.m_switchPriorityGlobal)
 				{
 					loseSwitchArbitration(PortType::SouthPort, m_southPort.m_outputPortSwitched, m_southPort.m_switchPriorityGlobal);
+					m_southPort.m_virtualChannelSwitched = 0;
 					m_southPort.m_outputPortSwitched = PortType::Unselected;
 				}
 			}
@@ -3161,7 +3187,8 @@ void Router::switchArbitration()
 	if (m_westPort.m_outputPortSwitched != PortType::Unselected)
 	{
 		winSwitchArbitration(PortType::WestPort, m_westPort.m_outputPortSwitched, m_westPort.m_switchPriorityGlobal);
-		for (auto& record : m_switchArbitrationRecorder)
+		std::vector<SwitchArbitrationRecorderLine> t_switchArbitrationRecorder{ m_switchArbitrationRecorder };
+		for (auto& record : t_switchArbitrationRecorder)
 		{
 			if (record.outputPortSwitched == m_westPort.m_outputPortSwitched)
 			{
@@ -3169,17 +3196,29 @@ void Router::switchArbitration()
 				{
 					loseSwitchArbitration(record.port, record.outputPortSwitched, record.switchPriorityGlobal);
 					if (record.port == PortType::TerminalPort)
+					{
 						m_terminalPort.m_outputPortSwitched = PortType::Unselected;
+					}
 					if (record.port == PortType::NorthPort)
+					{
+						m_northPort.m_virtualChannelSwitched = 0;
 						m_northPort.m_outputPortSwitched = PortType::Unselected;
+					}
 					if (record.port == PortType::SouthPort)
+					{
+						m_southPort.m_virtualChannelSwitched = 0;
 						m_southPort.m_outputPortSwitched = PortType::Unselected;
+					}
 					if (record.port == PortType::EastPort)
+					{
+						m_eastPort.m_virtualChannelSwitched = 0;
 						m_eastPort.m_outputPortSwitched = PortType::Unselected;
+					}
 				}
 				else if (record.switchPriorityGlobal < m_westPort.m_switchPriorityGlobal)
 				{
 					loseSwitchArbitration(PortType::WestPort, m_westPort.m_outputPortSwitched, m_westPort.m_switchPriorityGlobal);
+					m_westPort.m_virtualChannelSwitched = 0;
 					m_westPort.m_outputPortSwitched = PortType::Unselected;
 				}
 			}
@@ -3190,7 +3229,8 @@ void Router::switchArbitration()
 	if (m_eastPort.m_outputPortSwitched != PortType::Unselected)
 	{
 		winSwitchArbitration(PortType::EastPort, m_eastPort.m_outputPortSwitched, m_eastPort.m_switchPriorityGlobal);
-		for (auto& record : m_switchArbitrationRecorder)
+		std::vector<SwitchArbitrationRecorderLine> t_switchArbitrationRecorder{ m_switchArbitrationRecorder };
+		for (auto& record : t_switchArbitrationRecorder)
 		{
 			if (record.outputPortSwitched == m_eastPort.m_outputPortSwitched)
 			{
@@ -3198,17 +3238,29 @@ void Router::switchArbitration()
 				{
 					loseSwitchArbitration(record.port, record.outputPortSwitched, record.switchPriorityGlobal);
 					if (record.port == PortType::TerminalPort)
+					{
 						m_terminalPort.m_outputPortSwitched = PortType::Unselected;
+					}
 					if (record.port == PortType::NorthPort)
+					{
+						m_northPort.m_virtualChannelSwitched = 0;
 						m_northPort.m_outputPortSwitched = PortType::Unselected;
+					}
 					if (record.port == PortType::SouthPort)
+					{
+						m_southPort.m_virtualChannelSwitched = 0;
 						m_southPort.m_outputPortSwitched = PortType::Unselected;
+					}
 					if (record.port == PortType::WestPort)
+					{
+						m_westPort.m_virtualChannelSwitched = 0;
 						m_westPort.m_outputPortSwitched = PortType::Unselected;
+					}
 				}
 				else if (record.switchPriorityGlobal < m_eastPort.m_switchPriorityGlobal)
 				{
 					loseSwitchArbitration(PortType::EastPort, m_eastPort.m_outputPortSwitched, m_eastPort.m_switchPriorityGlobal);
+					m_eastPort.m_virtualChannelSwitched = 0;
 					m_eastPort.m_outputPortSwitched = PortType::Unselected;
 				}
 			}

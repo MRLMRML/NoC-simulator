@@ -19,7 +19,8 @@ void TerminalPort::receiveFlit()
 			}
 			else
 			{
-				if (m_virtualChannelState == VirtualChannelState::A)
+				if (m_virtualChannelState == VirtualChannelState::A
+					|| m_virtualChannelState == VirtualChannelState::V)
 				{
 					m_flitRegister.push_back(m_inFlitRegister.front());
 					m_inFlitRegister.pop_front();

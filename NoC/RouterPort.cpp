@@ -21,9 +21,10 @@ void RouterPort::receiveFlit()
 			}
 			else
 			{
-				if (m_virtualChannels.at(m_inFlitRegister.front().virtualChannel).m_virtualChannelState == VirtualChannelState::A)
+				if (m_virtualChannels.at(m_inFlitRegister.front().virtualChannel).m_virtualChannelState == VirtualChannelState::A
+					|| m_virtualChannels.at(m_inFlitRegister.front().virtualChannel).m_virtualChannelState == VirtualChannelState::V)
 				{
-					if (m_virtualChannels.at(m_inFlitRegister.front().virtualChannel).pushbackFlit(m_inFlitRegister.front()) == true)
+					if (m_virtualChannels.at(m_inFlitRegister.front().virtualChannel).pushbackFlit(m_inFlitRegister.front()))
 					{
 						m_inFlitRegister.pop_front();
 						log(" Router port: body or tail flit received ");

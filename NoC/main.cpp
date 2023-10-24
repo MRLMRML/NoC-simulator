@@ -16,18 +16,34 @@ void generateTraffic()
 		<< "Output_time" << ","
 		<< std::endl;
 
-	writePacketRecord 
-		<< "1" << ","
-		<< "0" << ","
+	writePacketRecord
 		<< "7" << ","
+		<< "0" << ","
+		<< "1" << ","
 		<< "intact" << ","
 		<< "-" << ","
 		<< "-" << ","
 		<< std::endl;
 	writePacketRecord
-		<< "1" << ","
-		<< "1" << ","
 		<< "7" << ","
+		<< "1" << ","
+		<< "1" << ","
+		<< "intact" << ","
+		<< "-" << ","
+		<< "-" << ","
+		<< std::endl;
+	writePacketRecord
+		<< "7" << ","
+		<< "2" << ","
+		<< "1" << ","
+		<< "intact" << ","
+		<< "-" << ","
+		<< "-" << ","
+		<< std::endl;
+	writePacketRecord
+		<< "7" << ","
+		<< "3" << ","
+		<< "1" << ","
 		<< "intact" << ","
 		<< "-" << ","
 		<< "-" << ","
@@ -36,7 +52,7 @@ void generateTraffic()
 	writePacketRecord 
 		<< "3" << ","
 		<< "0" << ","
-		<< "7" << ","
+		<< "1" << ","
 		<< "intact" << ","
 		<< "-" << ","
 		<< "-" << ","
@@ -44,7 +60,23 @@ void generateTraffic()
 	writePacketRecord
 		<< "3" << ","
 		<< "1" << ","
-		<< "7" << ","
+		<< "1" << ","
+		<< "intact" << ","
+		<< "-" << ","
+		<< "-" << ","
+		<< std::endl;
+	writePacketRecord
+		<< "3" << ","
+		<< "2" << ","
+		<< "1" << ","
+		<< "intact" << ","
+		<< "-" << ","
+		<< "-" << ","
+		<< std::endl;
+	writePacketRecord
+		<< "3" << ","
+		<< "3" << ","
+		<< "1" << ","
 		<< "intact" << ","
 		<< "-" << ","
 		<< "-" << ","
@@ -53,7 +85,7 @@ void generateTraffic()
 	writePacketRecord
 		<< "5" << ","
 		<< "0" << ","
-		<< "7" << ","
+		<< "1" << ","
 		<< "intact" << ","
 		<< "-" << ","
 		<< "-" << ","
@@ -61,7 +93,23 @@ void generateTraffic()
 	writePacketRecord
 		<< "5" << ","
 		<< "1" << ","
-		<< "7" << ","
+		<< "1" << ","
+		<< "intact" << ","
+		<< "-" << ","
+		<< "-" << ","
+		<< std::endl;
+	writePacketRecord
+		<< "5" << ","
+		<< "2" << ","
+		<< "1" << ","
+		<< "intact" << ","
+		<< "-" << ","
+		<< "-" << ","
+		<< std::endl;
+	writePacketRecord
+		<< "5" << ","
+		<< "3" << ","
+		<< "1" << ","
 		<< "intact" << ","
 		<< "-" << ","
 		<< "-" << ","
@@ -161,6 +209,234 @@ int main()
 	//	globalClock.tickGlobalClock();
 	//}
 	
+	//network->updateEnable();
+	//node1->updateEnable();
+	//node3->updateEnable();
+	//node4->updateEnable();
+	//node5->updateEnable();
+	//node7->updateEnable();
+	//node1->runOneStep();
+	//node3->runOneStep();
+	//node4->runOneStep();
+	//node5->runOneStep();
+	//node7->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(3).runOneStep();
+	//network->m_routers.at(4).runOneStep();
+	//network->m_routers.at(5).runOneStep();
+	//network->m_routers.at(7).runOneStep();
+	//globalClock.tickGlobalClock();
+
+	//network->updateEnable();
+	//node1->updateEnable();
+	//node3->updateEnable();
+	//node4->updateEnable();
+	//node5->updateEnable();
+	//node7->updateEnable();
+	//node1->runOneStep();
+	//node3->runOneStep();
+	//node4->runOneStep();
+	//node5->runOneStep();
+	//node7->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(3).runOneStep();
+	//network->m_routers.at(4).runOneStep();
+	//network->m_routers.at(5).runOneStep();
+	//network->m_routers.at(7).runOneStep();
+	//globalClock.tickGlobalClock();
+
+	//network->updateEnable();
+	//node1->updateEnable();
+	//node3->updateEnable();
+	//node4->updateEnable();
+	//node5->updateEnable();
+	//node7->updateEnable();
+	//node1->runOneStep();
+	//node3->runOneStep();
+	//node4->runOneStep();
+	//node5->runOneStep();
+	//node7->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(3).runOneStep();
+	//network->m_routers.at(4).runOneStep();
+	//network->m_routers.at(5).runOneStep();
+	//network->m_routers.at(7).runOneStep();
+	//globalClock.tickGlobalClock();
+
+	//network->updateEnable();
+	//node1->updateEnable();
+	//node3->updateEnable();
+	//node4->updateEnable();
+	//node5->updateEnable();
+	//node7->updateEnable();
+	//node1->runOneStep();
+	//node3->runOneStep();
+	//node4->runOneStep();
+	//node5->runOneStep();
+	//node7->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(3).runOneStep();
+	//network->m_routers.at(4).runOneStep();
+	//network->m_routers.at(5).runOneStep();
+	//network->m_routers.at(7).runOneStep();
+	//globalClock.tickGlobalClock();
+
+	//network->updateEnable();
+	//node1->updateEnable();
+	//node3->updateEnable();
+	//node4->updateEnable();
+	//node5->updateEnable();
+	//node7->updateEnable();
+	//node1->runOneStep();
+	//node3->runOneStep();
+	//node4->runOneStep();
+	//node5->runOneStep();
+	//node7->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(3).runOneStep();
+	//network->m_routers.at(4).runOneStep();
+	//network->m_routers.at(5).runOneStep();
+	//network->m_routers.at(7).runOneStep();
+	//globalClock.tickGlobalClock();
+
+	//network->updateEnable();
+	//node1->updateEnable();
+	//node3->updateEnable();
+	//node4->updateEnable();
+	//node5->updateEnable();
+	//node7->updateEnable();
+	//node1->runOneStep();
+	//node3->runOneStep();
+	//node4->runOneStep();
+	//node5->runOneStep();
+	//node7->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(3).runOneStep();
+	//network->m_routers.at(4).runOneStep();
+	//network->m_routers.at(5).runOneStep();
+	//network->m_routers.at(7).runOneStep();
+	//globalClock.tickGlobalClock();
+
+	//network->updateEnable();
+	//node1->updateEnable();
+	//node3->updateEnable();
+	//node4->updateEnable();
+	//node5->updateEnable();
+	//node7->updateEnable();
+	//node1->runOneStep();
+	//node3->runOneStep();
+	//node4->runOneStep();
+	//node5->runOneStep();
+	//node7->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(3).runOneStep();
+	//network->m_routers.at(4).runOneStep();
+	//network->m_routers.at(5).runOneStep();
+	//network->m_routers.at(7).runOneStep();
+	//globalClock.tickGlobalClock();
+
+	//network->updateEnable();
+	//node1->updateEnable();
+	//node3->updateEnable();
+	//node4->updateEnable();
+	//node5->updateEnable();
+	//node7->updateEnable();
+	//node1->runOneStep();
+	//node3->runOneStep();
+	//node4->runOneStep();
+	//node5->runOneStep();
+	//node7->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(3).runOneStep();
+	//network->m_routers.at(4).runOneStep();
+	//network->m_routers.at(5).runOneStep();
+	//network->m_routers.at(7).runOneStep();
+	//globalClock.tickGlobalClock();
+
+	//network->updateEnable();
+	//node1->updateEnable();
+	//node3->updateEnable();
+	//node4->updateEnable();
+	//node5->updateEnable();
+	//node7->updateEnable();
+	//node1->runOneStep();
+	//node3->runOneStep();
+	//node4->runOneStep();
+	//node5->runOneStep();
+	//node7->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(3).runOneStep();
+	//network->m_routers.at(4).runOneStep();
+	//network->m_routers.at(5).runOneStep();
+	//network->m_routers.at(7).runOneStep();
+	//globalClock.tickGlobalClock();
+
+	//network->updateEnable();
+	//node1->updateEnable();
+	//node3->updateEnable();
+	//node4->updateEnable();
+	//node5->updateEnable();
+	//node7->updateEnable();
+	//node1->runOneStep();
+	//node3->runOneStep();
+	//node4->runOneStep();
+	//node5->runOneStep();
+	//node7->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(3).runOneStep();
+	//network->m_routers.at(4).runOneStep();
+	//network->m_routers.at(5).runOneStep();
+	//network->m_routers.at(7).runOneStep();
+	//globalClock.tickGlobalClock();
+
+	//network->updateEnable();
+	//node1->updateEnable();
+	//node3->updateEnable();
+	//node4->updateEnable();
+	//node5->updateEnable();
+	//node7->updateEnable();
+	//node1->runOneStep();
+	//node3->runOneStep();
+	//node4->runOneStep();
+	//node5->runOneStep();
+	//node7->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(3).runOneStep();
+	//network->m_routers.at(4).runOneStep();
+	//network->m_routers.at(5).runOneStep();
+	//network->m_routers.at(7).runOneStep();
+	//globalClock.tickGlobalClock();
+
+	//network->updateEnable();
+	//node1->updateEnable();
+	//node3->updateEnable();
+	//node4->updateEnable();
+	//node5->updateEnable();
+	//node7->updateEnable();
+	//node1->runOneStep();
+	//node3->runOneStep();
+	//node4->runOneStep();
+	//node5->runOneStep();
+	//node7->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(3).runOneStep();
+	//network->m_routers.at(4).runOneStep();
+	//network->m_routers.at(5).runOneStep();
+	//network->m_routers.at(7).runOneStep();
+	//globalClock.tickGlobalClock();
+
 	//network->updateEnable();
 	//node1->updateEnable();
 	//node3->updateEnable();
