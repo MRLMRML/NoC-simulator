@@ -15,10 +15,12 @@ public:
 	DopplerNode() = default;
 	DopplerNode(const int NID) : m_NID{ NID } {}
 	DopplerNode(const int NID, const bool isSilent) : m_NID{ NID }, m_isSilent{ isSilent } {}
-	DopplerNode(const int NID, const Packet& packetGenerated) : m_NID{ NID }, m_packetGenerated{ packetGenerated } 
-	{
-		m_isSilent = false;
-	}
+	DopplerNode(const int NID, const bool isSilent, const float initialPhase) : m_NID{ NID }, m_isSilent{ isSilent }, m_localClock{ initialPhase } {}
+	//DopplerNode(const int NID, const Packet& packetGenerated) : m_NID{ NID }, m_packetGenerated{ packetGenerated } 
+	//{
+	//	m_isSilent = false;
+	//}
+
 	
 	void runOneStep();
 

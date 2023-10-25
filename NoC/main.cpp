@@ -6,7 +6,7 @@ std::string g_dataFolderPath{ "C:\\Users\\Hubiao\\source\\repos\\NoC\\NoC\\Data\
 std::string g_packetRecordPath{ "PacketRecord.csv" };
 std::string g_trafficDataPath{ "TrafficData.csv" };
 
-void randomUniformTraffic()
+void uniformTraffic()
 {
 	std::ofstream writePacketRecord(g_dataFolderPath + g_packetRecordPath, std::ios::out);
 	writePacketRecord
@@ -21,12 +21,12 @@ void randomUniformTraffic()
 	std::random_device rd;
 	//std::mt19937 gen(rd());  // to seed mersenne twister
 	std::mt19937 gen(42);  // to reproduce random numbers
-	std::uniform_int_distribution<> dist(0, NETWORK_DIMENSION_X * NETWORK_DIMENSION_Y - 1);
+	std::uniform_int_distribution<> dist(0, ROUTER_NUMBER - 1);
 
 	int destination{};
 	for (int i{}; i < PACKET_NUMBER; ++i)
 	{
-		for (int j{}; j < NETWORK_DIMENSION_X * NETWORK_DIMENSION_Y; ++j)
+		for (int j{}; j < ROUTER_NUMBER; ++j)
 		{
 			do
 			{
@@ -62,7 +62,7 @@ void permutationTraffic()
 	int destination{ DRAIN_NODE };
 	for (int i{}; i < PACKET_NUMBER; ++i)
 	{
-		for (int j{}; j < NETWORK_DIMENSION_X * NETWORK_DIMENSION_Y; ++j)
+		for (int j{}; j < ROUTER_NUMBER; ++j)
 		{
 			if (j != destination)
 			{
@@ -105,8 +105,8 @@ void customizeTraffic()
 
 void generateTraffic()
 {
-#if defined(RANDOM_UNIFORM)
-	randomUniformTraffic();
+#if defined(UNIFORM)
+	uniformTraffic();
 #endif
 	
 #if defined(PERMUTATION)
@@ -154,27 +154,30 @@ void collectData()
 		std::getline(lineInString, inputTime, ',');
 		std::getline(lineInString, outputTime, ',');
 		// write it into TrafficData.csv if it is sent out in measurement phase
-		if (std::stoi(inputTime) >= WARMUP_CYCLES && std::stoi(inputTime) < (WARMUP_CYCLES + MEASUREMENT_CYCLES))
+		if (status != "intact")
 		{
-			if (status == "received")
+			if (std::stoi(inputTime) >= WARMUP_CYCLES && std::stoi(inputTime) < (WARMUP_CYCLES + MEASUREMENT_CYCLES))
 			{
-				writeTrafficData
-					<< source << ","
-					<< packetID << ","
-					<< destination << ","
-					<< status << ","
-					<< std::stoi(outputTime) - std::stoi(inputTime) - 1 << ","
-					<< std::endl;
-			}
-			else
-			{
-				writeTrafficData
-					<< source << ","
-					<< packetID << ","
-					<< destination << ","
-					<< status << ","
-					<< "-" << ","
-					<< std::endl;
+				if (status == "received")
+				{
+					writeTrafficData
+						<< source << ","
+						<< packetID << ","
+						<< destination << ","
+						<< status << ","
+						<< std::stoi(outputTime) - std::stoi(inputTime) - 1 << ","
+						<< std::endl;
+				}
+				else
+				{
+					writeTrafficData
+						<< source << ","
+						<< packetID << ","
+						<< destination << ","
+						<< status << ","
+						<< "-" << ","
+						<< std::endl;
+				}
 			}
 		}
 	}
@@ -195,7 +198,6 @@ NetworkPerformance calculatePerformance()
 	std::string status{};
 	std::string latency{};
 	std::istringstream lineInString{};
-	float sentPacketNumber{};
 	float receivedPacketNumber{};
 	float accumulatedLatency{};
 	// read TrafficData.csv head line
@@ -211,11 +213,12 @@ NetworkPerformance calculatePerformance()
 		std::getline(lineInString, latency, ',');
 		// calculate average latency, throughput
 		if (status == "received") accumulatedLatency += std::stof(latency);
-		sentPacketNumber++;
 		if (status == "received") receivedPacketNumber++;
 	}
 	readTrafficData.close();
-	return { accumulatedLatency / receivedPacketNumber, receivedPacketNumber / sentPacketNumber };
+	float averageLatency{ accumulatedLatency / receivedPacketNumber };
+	float throughput{ receivedPacketNumber * FLIT_NUMBER_PER_PACKET / (static_cast<float>(MEASUREMENT_CYCLES) * ROUTER_NUMBER) };
+	return { averageLatency, throughput };
 }
 
 int main()
@@ -233,14 +236,19 @@ int main()
 
 	// create doppler nodes
 	std::vector<DopplerNode*> dopplerNodes;
-	for (int i{}; i < NETWORK_DIMENSION_X * NETWORK_DIMENSION_Y; ++i)
+	// random initial phase
+	std::random_device rd;
+	//std::mt19937 gen(rd());  // to seed mersenne twister
+	std::mt19937 gen(42);  // to reproduce random numbers
+	std::uniform_int_distribution<> dist(0, PERIOD_DOPPLERNODE_INJECTTRAFFIC - 1);
+	for (int i{}; i < ROUTER_NUMBER; ++i)
 	{
-		DopplerNode* node{ new DopplerNode{i, false} };
+		DopplerNode* node{ new DopplerNode{i, false, static_cast<float>(dist(gen))}};
 		dopplerNodes.push_back(node);
 	}
 
 	// mount nodes on the network
-	for (int i{}; i < NETWORK_DIMENSION_X * NETWORK_DIMENSION_Y; ++i)
+	for (int i{}; i < ROUTER_NUMBER; ++i)
 	{
 		network->mountNode({ i/NETWORK_DIMENSION_X, i% NETWORK_DIMENSION_Y }, dopplerNodes.at(i));
 	}
@@ -322,12 +330,35 @@ int main()
 	collectData();
 
 	// calculate performance
+	// network capacity in flit per cycle
+#if defined (MESH)
+	float networkCapacity{ 4.0f * NETWORK_BANDWIDTH / NETWORK_DIMENSION_X };
+#endif
+#if defined (TORUS)
+	float networkCapacity{ 8.0f * NETWORK_BANDWIDTH / NETWORK_DIMENSION_X };
+#endif
+
+	// injection rate in flit per cycle
+#if defined (PACKET_PER_CYCLE)
+	float injectionRate{ INJECTION_RATE * FLIT_NUMBER_PER_PACKET };
+#endif
+#if defined (FLIT_PER_CYCLE)
+	float injectionRate{ INJECTION_RATE };
+#endif
+
+	// offered traffic in fraction of capacity
+	float offeredTraffic{ injectionRate / networkCapacity };
+
+	// network performance
 	NetworkPerformance perf{ calculatePerformance() };
-	std::cout << " Average latency: " << perf.averageLatency << std::endl;
-	std::cout << " Throughput: " << perf.throughput << std::endl;
+	std::cout << " Average latency (cycle): " << perf.averageLatency << std::endl;
+	std::cout << " Injection rate (flit per cycle): " << injectionRate << std::endl;
+	std::cout << " Throughput (flit per cycle): " << perf.throughput << std::endl;
+	std::cout << " Offered traffic (fraction of capacity): " << offeredTraffic << std::endl;
+	std::cout << " Throughput (fraction of capacity): " << perf.throughput / networkCapacity << std::endl;
 
 	// sanitation
-	for (int i{}; i < NETWORK_DIMENSION_X * NETWORK_DIMENSION_Y; ++i)
+	for (int i{}; i < ROUTER_NUMBER; ++i)
 		delete dopplerNodes.at(i);
 	delete network;
 }

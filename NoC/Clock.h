@@ -6,6 +6,7 @@ public:
 	static inline float s_globalClock{ 0.0f };
 
 	Clock() = default;
+	Clock(const float initialPhase) : m_triggerClock{ initialPhase }, m_executionClock{ initialPhase } {}
 
 	inline void tickGlobalClock() { s_globalClock++; }
 
