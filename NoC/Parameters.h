@@ -1,6 +1,6 @@
 #pragma once
-//#define DEBUG
-
+#define DEBUG
+//#define MEASURE
 // Network.h
 #define NETWORK_DIMENSION_X 4
 #define NETWORK_DIMENSION_Y 4
@@ -23,17 +23,17 @@
 #define BUFFER_SIZE 8 // credit stalls if less than MIN_BUFFER_SIZE
 
 // Traffic pattern
-//#define CUSTOMIZE
+#define CUSTOMIZE
 //#define PERMUTATION
 #define DRAIN_NODE 0
-#define UNIFORM
+//#define UNIFORM
 
 // Packet number to send in total
 #define PACKET_NUMBER 5
 
 // Injection rate
-//#define PACKET_PER_CYCLE
-#define FLIT_PER_CYCLE
+#define PACKET_PER_CYCLE
+//#define FLIT_PER_CYCLE
 #define INJECTION_RATE 0.1f
 
 // PE.h
@@ -69,7 +69,7 @@
 #define MIN_BUFFER_SIZE EXECUTION_TIME_ROUTER_RC+EXECUTION_TIME_ROUTER_VA+EXECUTION_TIME_ROUTER_SA+EXECUTION_TIME_ROUTER_ST+EXECUTION_TIME_LINK
 
 // Simulation cycles
-#define SIMULATION_CYCLES 300
-#define WARMUP_CYCLES 100
-#define MEASUREMENT_CYCLES 100
+#define SIMULATION_CYCLES 50
+#define WARMUP_CYCLES 30
+#define MEASUREMENT_CYCLES 30
 #define DRAIN_CYCLES SIMULATION_CYCLES - WARMUP_CYCLES - MEASUREMENT_CYCLES

@@ -95,7 +95,7 @@ void customizeTraffic()
 	writePacketRecord
 		<< "0" << ","
 		<< "0" << ","
-		<< "0" << ","
+		<< "15" << ","
 		<< "intact" << ","
 		<< "-" << ","
 		<< "-" << ","
@@ -256,7 +256,26 @@ int main()
 	network->viewMappingTable();
 	network->updateMappingTables();
 
-	//for (int i{}; i < SIMULATION_CYCLES; ++i)
+	for (int i{}; i < SIMULATION_CYCLES; ++i)
+	{
+		// update enable signals
+		network->updateEnable();
+		for (auto& node : dopplerNodes)
+		{
+			node->updateEnable();
+		}
+
+		for (auto& node : dopplerNodes)
+		{
+			node->runOneStep();
+		}
+		network->runOneStep();
+		globalClock.tickGlobalClock();
+	}
+
+	//log(" ------------------------------- ");
+	//log(" Network starts warming up...... ");
+	//for (int i{}; i < WARMUP_CYCLES; ++i)
 	//{
 	//	// update enable signals
 	//	network->updateEnable();
@@ -272,70 +291,52 @@ int main()
 	//	network->runOneStep();
 	//	globalClock.tickGlobalClock();
 	//}
+	//std::cout << " Network warmed up for " << WARMUP_CYCLES << " cycles " << std::endl;
 
-	log(" ------------------------------- ");
-	log(" Network starts warming up...... ");
-	for (int i{}; i < WARMUP_CYCLES; ++i)
-	{
-		// update enable signals
-		network->updateEnable();
-		for (auto& node : dopplerNodes)
-		{
-			node->updateEnable();
-		}
+	//log(" ------------------------------- ");
+	//log(" Network starts measuring...... ");
+	//for (int i{}; i < MEASUREMENT_CYCLES; ++i)
+	//{
+	//	// update enable signals
+	//	network->updateEnable();
+	//	for (auto& node : dopplerNodes)
+	//	{
+	//		node->updateEnable();
+	//	}
 
-		for (auto& node : dopplerNodes)
-		{
-			node->runOneStep();
-		}
-		network->runOneStep();
-		globalClock.tickGlobalClock();
-	}
-	std::cout << " Network warmed up for " << WARMUP_CYCLES << " cycles " << std::endl;
+	//	for (auto& node : dopplerNodes)
+	//	{
+	//		node->runOneStep();
+	//	}
+	//	network->runOneStep();
+	//	globalClock.tickGlobalClock();
+	//}
+	//std::cout << " Network measured for " << MEASUREMENT_CYCLES << " cycles " << std::endl;
 
-	log(" ------------------------------- ");
-	log(" Network starts measuring...... ");
-	for (int i{}; i < MEASUREMENT_CYCLES; ++i)
-	{
-		// update enable signals
-		network->updateEnable();
-		for (auto& node : dopplerNodes)
-		{
-			node->updateEnable();
-		}
+	//log(" ------------------------------- ");
+	//log(" Network starts draining...... ");
+	//for (int i{}; i < DRAIN_CYCLES; ++i)
+	//{
+	//	// update enable signals
+	//	network->updateEnable();
+	//	for (auto& node : dopplerNodes)
+	//	{
+	//		node->updateEnable();
+	//	}
 
-		for (auto& node : dopplerNodes)
-		{
-			node->runOneStep();
-		}
-		network->runOneStep();
-		globalClock.tickGlobalClock();
-	}
-	std::cout << " Network measured for " << MEASUREMENT_CYCLES << " cycles " << std::endl;
+	//	for (auto& node : dopplerNodes)
+	//	{
+	//		node->runOneStep();
+	//	}
+	//	network->runOneStep();
+	//	globalClock.tickGlobalClock();
+	//}
+	//std::cout << " Network drained for " << DRAIN_CYCLES << " cycles " << std::endl;
 
-	log(" ------------------------------- ");
-	log(" Network starts draining...... ");
-	for (int i{}; i < DRAIN_CYCLES; ++i)
-	{
-		// update enable signals
-		network->updateEnable();
-		for (auto& node : dopplerNodes)
-		{
-			node->updateEnable();
-		}
+	//log(" ------------------------------- ");
+	//std::cout << " Simulation stopped at cycle: " << Clock::s_globalClock << std::endl;
 
-		for (auto& node : dopplerNodes)
-		{
-			node->runOneStep();
-		}
-		network->runOneStep();
-		globalClock.tickGlobalClock();
-	}
-	std::cout << " Network drained for " << DRAIN_CYCLES << " cycles " << std::endl;
-
-	log(" ------------------------------- ");
-	std::cout << " Simulation stopped at cycle: " << Clock::s_globalClock << std::endl;
-
+#if defined (MEASURE)
 	// collect data
 	collectData();
 
@@ -366,7 +367,8 @@ int main()
 	std::cout << " Throughput (flit per cycle): " << perf.throughput << std::endl;
 	std::cout << " Offered traffic (fraction of capacity): " << offeredTraffic << std::endl;
 	std::cout << " Throughput (fraction of capacity): " << perf.throughput / networkCapacity << std::endl;
-
+#endif
+	
 	// sanitation
 	for (int i{}; i < ROUTER_NUMBER; ++i)
 		delete dopplerNodes.at(i);

@@ -1,5 +1,6 @@
 #pragma once
 #include "Port.h"
+#include "VirtualChannel.h"
 #include "Clock.h"
 
 class TerminalPort : public Port
@@ -11,12 +12,14 @@ public:
 	void receiveFlit() override;
 
 	// Input units
-	std::deque<Flit> m_flitRegister{};
-	VirtualChannelState m_virtualChannelState{}; // I(default) -> R -> V -> A
-	PortType m_outputPortRouted{}; // Unselected (default)
-	int m_outputVirtualChannelAllocated{ -1 }; // -1 is default
-	// VA
-	int m_virtualChannelPriority{};
+	VirtualChannel m_virtualChannel{};
+
+	//std::deque<Flit> m_flitRegister{};
+	//VirtualChannelState m_virtualChannelState{}; // I(default) -> R -> V -> A
+	//PortType m_outputPortRouted{}; // Unselected (default)
+	//int m_outputVirtualChannelAllocated{ -1 }; // -1 is default
+	//// VA
+	//int m_virtualChannelPriority{};
 
 	// Output units
 	// VA
