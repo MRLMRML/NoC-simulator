@@ -15,7 +15,7 @@ void RouterPort::receiveFlit()
 					{
 						m_virtualChannels.at(m_inFlitRegister.front().virtualChannel).m_virtualChannelState = VirtualChannelState::R; // I -> R
 						m_inFlitRegister.pop_front();
-						log(" Router port: head or headtail flit received ");
+						logDebug(" Router port: head or headtail flit received ");
 					}
 				}
 			}
@@ -27,7 +27,7 @@ void RouterPort::receiveFlit()
 					if (m_virtualChannels.at(m_inFlitRegister.front().virtualChannel).pushbackFlit(m_inFlitRegister.front()))
 					{
 						m_inFlitRegister.pop_front();
-						log(" Router port: body or tail flit received ");
+						logDebug(" Router port: body or tail flit received ");
 					}
 				}
 			}
@@ -40,7 +40,7 @@ bool RouterPort::receiveCredit()
 	if (!m_inCreditRegister.empty())
 	{
 		int credit{ ++m_credit.at(m_inCreditRegister.front().virtualChannel)};
-		log(" Router port: credit received ");
+		logDebug(" Router port: credit received ");
 		if (credit == BUFFER_SIZE)
 			return true; // return true only when credit is refilled completely
 	}

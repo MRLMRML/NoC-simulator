@@ -152,7 +152,6 @@
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Network.cpp" />
-    <ClCompile Include="Port.cpp" />
     <ClCompile Include="Router.cpp" />
     <ClCompile Include="RouterPort.cpp" />
     <ClCompile Include="TerminalPort.cpp" />

@@ -273,6 +273,8 @@ int main()
 	//	globalClock.tickGlobalClock();
 	//}
 
+	log(" ------------------------------- ");
+	log(" Network starts warming up...... ");
 	for (int i{}; i < WARMUP_CYCLES; ++i)
 	{
 		// update enable signals
@@ -289,7 +291,10 @@ int main()
 		network->runOneStep();
 		globalClock.tickGlobalClock();
 	}
+	std::cout << " Network warmed up for " << WARMUP_CYCLES << " cycles " << std::endl;
 
+	log(" ------------------------------- ");
+	log(" Network starts measuring...... ");
 	for (int i{}; i < MEASUREMENT_CYCLES; ++i)
 	{
 		// update enable signals
@@ -306,7 +311,10 @@ int main()
 		network->runOneStep();
 		globalClock.tickGlobalClock();
 	}
+	std::cout << " Network measured for " << MEASUREMENT_CYCLES << " cycles " << std::endl;
 
+	log(" ------------------------------- ");
+	log(" Network starts draining...... ");
 	for (int i{}; i < DRAIN_CYCLES; ++i)
 	{
 		// update enable signals
@@ -323,7 +331,9 @@ int main()
 		network->runOneStep();
 		globalClock.tickGlobalClock();
 	}
+	std::cout << " Network drained for " << DRAIN_CYCLES << " cycles " << std::endl;
 
+	log(" ------------------------------- ");
 	std::cout << " Simulation stopped at cycle: " << Clock::s_globalClock << std::endl;
 
 	// collect data

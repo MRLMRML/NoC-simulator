@@ -14,7 +14,7 @@ void TerminalPort::receiveFlit()
 					m_flitRegister.push_back(m_inFlitRegister.front());
 					m_inFlitRegister.pop_front();
 					m_virtualChannelState = VirtualChannelState::R; // I -> R
-					log(" Terminal port: head or headtail flit received ");
+					logDebug(" Terminal port: head or headtail flit received ");
 				}
 			}
 			else
@@ -24,7 +24,7 @@ void TerminalPort::receiveFlit()
 				{
 					m_flitRegister.push_back(m_inFlitRegister.front());
 					m_inFlitRegister.pop_front();
-					log(" Terminal port: body or tail flit received ");
+					logDebug(" Terminal port: body or tail flit received ");
 				}
 			}
 		}

@@ -1,4 +1,5 @@
 #pragma once
+//#define DEBUG
 
 // Network.h
 #define NETWORK_DIMENSION_X 4

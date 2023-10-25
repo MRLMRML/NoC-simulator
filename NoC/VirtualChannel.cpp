@@ -4,11 +4,11 @@ bool VirtualChannel::pushbackFlit(Flit flit)
 {
 	if (m_buffer.size() == BUFFER_SIZE)
 	{
-		log(" Virtual channel: buffer full ");
+		logDebug(" Virtual channel: buffer full ");
 		return false;
 	}
 	m_buffer.push_back(flit);
-	log(" Virtual channel: flit push back into buffer ");
+	logDebug(" Virtual channel: flit push back into buffer ");
 	return true;
 }
 
@@ -16,7 +16,7 @@ Flit VirtualChannel::popfrontFlit()
 {
 	Flit flit{ m_buffer.front() };
 	m_buffer.pop_front();
-	log(" Virtual channel: flit pop front from buffer ");
+	logDebug(" Virtual channel: flit pop front from buffer ");
 	return flit;
 }
 

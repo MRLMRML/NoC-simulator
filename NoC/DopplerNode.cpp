@@ -13,12 +13,16 @@ void DopplerNode::runOneStep()
 
 void DopplerNode::viewPacket(const Packet& packet)
 {
+#if defined (DEBUG)
 	std::cout << packet << std::endl;
+#endif
 }
 
 void DopplerNode::viewFlit(const Flit& flit)
 {
+#if defined (DEBUG)
 	std::cout << flit << std::endl;
+#endif
 }
 
 void DopplerNode::injectTraffic()

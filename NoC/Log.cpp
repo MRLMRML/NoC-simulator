@@ -5,6 +5,13 @@ void log(std::string_view string)
 	std::cout << string << std::endl;
 }
 
+void logDebug(std::string_view string)
+{
+#if defined (DEBUG)
+	std::cout << string << std::endl;
+#endif
+}
+
 void log(const DATA_PRECISION& value)
 {
 	std::cout << value << std::endl;

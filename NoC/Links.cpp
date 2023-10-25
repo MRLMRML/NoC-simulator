@@ -4,20 +4,20 @@ void Links::setUpConnection(Port& inputPort, Port& outputPort)
 {
 	Link link{ inputPort, outputPort };
 	m_connections.insert(link);
-	log(" Links: connection set up ");
+	logDebug(" Links: connection set up ");
 }
 
 void Links::terminateConnection(Port& inputPort, Port& outputPort)
 {
 	Link link{ inputPort, outputPort };
 	m_connections.erase(link);
-	log(" Links: connection terminated ");
+	logDebug(" Links: connection terminated ");
 }
 
 void Links::terminateAllConnections()
 {
 	m_connections.clear();
-	log(" Links: all connections terminated ");
+	logDebug(" Links: all connections terminated ");
 }
 
 void Links::updateEnable()
@@ -66,7 +66,7 @@ void Links::runOneStep()
 					{
 						connection.m_connection.second->m_inFlitRegister.push_back(connection.m_connection.first->m_outFlitRegister.front());
 						connection.m_connection.first->m_outFlitRegister.pop_front();
-						log(" Links: flit transferred (LHS -> RHS) ");
+						logDebug(" Links: flit transferred (LHS -> RHS) ");
 					}
 
 					if (!connection.m_connection.second->m_outCreditRegister.empty()
@@ -74,7 +74,7 @@ void Links::runOneStep()
 					{
 						connection.m_connection.first->m_inCreditRegister.push_back(connection.m_connection.second->m_outCreditRegister.front());
 						connection.m_connection.second->m_outCreditRegister.pop_front();
-						log(" Links: credit transferred (LHS <- RHS) ");
+						logDebug(" Links: credit transferred (LHS <- RHS) ");
 					}
 
 					if (!connection.m_connection.second->m_outFlitRegister.empty()
@@ -82,7 +82,7 @@ void Links::runOneStep()
 					{
 						connection.m_connection.first->m_inFlitRegister.push_back(connection.m_connection.second->m_outFlitRegister.front());
 						connection.m_connection.second->m_outFlitRegister.pop_front();
-						log(" Links: flit transferred (LHS <- RHS) ");
+						logDebug(" Links: flit transferred (LHS <- RHS) ");
 					}
 
 					if (!connection.m_connection.first->m_outCreditRegister.empty()
@@ -90,7 +90,7 @@ void Links::runOneStep()
 					{
 						connection.m_connection.second->m_inCreditRegister.push_back(connection.m_connection.first->m_outCreditRegister.front());
 						connection.m_connection.first->m_outCreditRegister.pop_front();
-						log(" Links: credit transferred (LHS -> RHS) ");
+						logDebug(" Links: credit transferred (LHS -> RHS) ");
 					}
 
 					connection.m_localClock.tickTriggerClock(PERIOD_LINK - EXECUTION_TIME_LINK + 1);
