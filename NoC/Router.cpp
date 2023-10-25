@@ -3451,7 +3451,8 @@ void Router::getOneFlitOut()
 	// terminal port
 	if (m_terminalPort.m_outputPortSwitched != PortType::Unselected)
 	{
-		if (!m_terminalPort.m_virtualChannel.isEmpty())
+		if (!m_terminalPort.m_virtualChannel.isEmpty()
+			&& m_terminalPort.m_crossbarInputRegister.size() < REGISTER_DEPTH)
 		{
 			// update credit
 			if (m_terminalPort.m_outputPortSwitched == PortType::NorthPort)
@@ -3474,7 +3475,8 @@ void Router::getOneFlitOut()
 	// north port
 	if (m_northPort.m_outputPortSwitched != PortType::Unselected)
 	{
-		if (!m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).isEmpty())
+		if (!m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).isEmpty()
+			&& m_northPort.m_crossbarInputRegister.size() < REGISTER_DEPTH)
 		{
 			// update credit
 			if (m_northPort.m_outputPortSwitched == PortType::SouthPort)
@@ -3495,7 +3497,8 @@ void Router::getOneFlitOut()
 	// south port
 	if (m_southPort.m_outputPortSwitched != PortType::Unselected)
 	{
-		if (!m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).isEmpty())
+		if (!m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).isEmpty()
+			&& m_southPort.m_crossbarInputRegister.size() < REGISTER_DEPTH)
 		{
 			// update credit
 			if (m_southPort.m_outputPortSwitched == PortType::NorthPort)
@@ -3516,7 +3519,8 @@ void Router::getOneFlitOut()
 	// west port
 	if (m_westPort.m_outputPortSwitched != PortType::Unselected)
 	{
-		if (!m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).isEmpty())
+		if (!m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).isEmpty()
+			&& m_westPort.m_crossbarInputRegister.size() < REGISTER_DEPTH)
 		{
 			// update credit
 			if (m_westPort.m_outputPortSwitched == PortType::NorthPort)
@@ -3537,7 +3541,8 @@ void Router::getOneFlitOut()
 	// east port
 	if (m_eastPort.m_outputPortSwitched != PortType::Unselected)
 	{
-		if (!m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).isEmpty())
+		if (!m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).isEmpty()
+			&& m_eastPort.m_crossbarInputRegister.size() < REGISTER_DEPTH)
 		{
 			// update credit
 			if (m_eastPort.m_outputPortSwitched == PortType::NorthPort)

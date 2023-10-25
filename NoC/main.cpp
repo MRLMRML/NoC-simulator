@@ -6,6 +6,84 @@ std::string g_dataFolderPath{ "C:\\Users\\Hubiao\\source\\repos\\NoC\\NoC\\Data\
 std::string g_packetRecordPath{ "PacketRecord.csv" };
 std::string g_trafficDataPath{ "TrafficData.csv" };
 
+void customizeTraffic()
+{
+	std::ofstream writePacketRecord(g_dataFolderPath + g_packetRecordPath, std::ios::out);
+	writePacketRecord
+		<< "Source" << ","
+		<< "Packet_ID" << ","
+		<< "Destination" << ","
+		<< "Status" << ","
+		<< "Input_time" << ","
+		<< "Output_time" << ","
+		<< std::endl;
+	writePacketRecord
+		<< "1" << ","
+		<< "0" << ","
+		<< "0" << ","
+		<< "intact" << ","
+		<< "-" << ","
+		<< "-" << ","
+		<< std::endl;
+	writePacketRecord
+		<< "2" << ","
+		<< "0" << ","
+		<< "0" << ","
+		<< "intact" << ","
+		<< "-" << ","
+		<< "-" << ","
+		<< std::endl;
+	//writePacketRecord
+	//	<< "3" << ","
+	//	<< "0" << ","
+	//	<< "0" << ","
+	//	<< "intact" << ","
+	//	<< "-" << ","
+	//	<< "-" << ","
+	//	<< std::endl;
+	//writePacketRecord
+	//	<< "4" << ","
+	//	<< "0" << ","
+	//	<< "0" << ","
+	//	<< "intact" << ","
+	//	<< "-" << ","
+	//	<< "-" << ","
+	//	<< std::endl;
+	//writePacketRecord
+	//	<< "5" << ","
+	//	<< "0" << ","
+	//	<< "0" << ","
+	//	<< "intact" << ","
+	//	<< "-" << ","
+	//	<< "-" << ","
+	//	<< std::endl;
+	//writePacketRecord
+	//	<< "6" << ","
+	//	<< "0" << ","
+	//	<< "0" << ","
+	//	<< "intact" << ","
+	//	<< "-" << ","
+	//	<< "-" << ","
+	//	<< std::endl;
+	//writePacketRecord
+	//	<< "7" << ","
+	//	<< "0" << ","
+	//	<< "0" << ","
+	//	<< "intact" << ","
+	//	<< "-" << ","
+	//	<< "-" << ","
+	//	<< std::endl;
+	//writePacketRecord
+	//	<< "8" << ","
+	//	<< "0" << ","
+	//	<< "0" << ","
+	//	<< "intact" << ","
+	//	<< "-" << ","
+	//	<< "-" << ","
+	//	<< std::endl;
+	writePacketRecord.close();
+}
+
 void uniformTraffic()
 {
 	std::ofstream writePacketRecord(g_dataFolderPath + g_packetRecordPath, std::ios::out);
@@ -81,40 +159,18 @@ void permutationTraffic()
 	writePacketRecord.close();
 }
 
-void customizeTraffic()
-{
-	std::ofstream writePacketRecord(g_dataFolderPath + g_packetRecordPath, std::ios::out);
-	writePacketRecord
-		<< "Source" << ","
-		<< "Packet_ID" << ","
-		<< "Destination" << ","
-		<< "Status" << ","
-		<< "Input_time" << ","
-		<< "Output_time" << ","
-		<< std::endl;
-	writePacketRecord
-		<< "0" << ","
-		<< "0" << ","
-		<< "15" << ","
-		<< "intact" << ","
-		<< "-" << ","
-		<< "-" << ","
-		<< std::endl;
-	writePacketRecord.close();
-}
-
 void generateTraffic()
 {
-#if defined(UNIFORM)
-	uniformTraffic();
+#if defined(CUSTOMIZE)
+	customizeTraffic();
 #endif
 	
 #if defined(PERMUTATION)
 	permutationTraffic();
 #endif
 
-#if defined(CUSTOMIZE)
-	customizeTraffic();
+#if defined(UNIFORM)
+	uniformTraffic();
 #endif
 }
 
@@ -243,7 +299,7 @@ int main()
 	std::uniform_int_distribution<> dist(0, PERIOD_DOPPLERNODE_INJECTTRAFFIC - 1);
 	for (int i{}; i < ROUTER_NUMBER; ++i)
 	{
-		DopplerNode* node{ new DopplerNode{i, false, static_cast<float>(dist(gen))}};
+		DopplerNode* node{ new DopplerNode{i, false/*, static_cast<float>(dist(gen))*/}};
 		dopplerNodes.push_back(node);
 	}
 
@@ -272,6 +328,267 @@ int main()
 		network->runOneStep();
 		globalClock.tickGlobalClock();
 	}
+
+	network->updateEnable();
+	dopplerNodes.at(0)->updateEnable();
+	dopplerNodes.at(1)->updateEnable();
+	dopplerNodes.at(2)->updateEnable();
+	dopplerNodes.at(0)->runOneStep();
+	dopplerNodes.at(1)->runOneStep();
+	dopplerNodes.at(2)->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	network->m_routers.at(2).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	dopplerNodes.at(0)->updateEnable();
+	dopplerNodes.at(1)->updateEnable();
+	dopplerNodes.at(2)->updateEnable();
+	dopplerNodes.at(0)->runOneStep();
+	dopplerNodes.at(1)->runOneStep();
+	dopplerNodes.at(2)->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	network->m_routers.at(2).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	dopplerNodes.at(0)->updateEnable();
+	dopplerNodes.at(1)->updateEnable();
+	dopplerNodes.at(2)->updateEnable();
+	dopplerNodes.at(0)->runOneStep();
+	dopplerNodes.at(1)->runOneStep();
+	dopplerNodes.at(2)->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	network->m_routers.at(2).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	dopplerNodes.at(0)->updateEnable();
+	dopplerNodes.at(1)->updateEnable();
+	dopplerNodes.at(2)->updateEnable();
+	dopplerNodes.at(0)->runOneStep();
+	dopplerNodes.at(1)->runOneStep();
+	dopplerNodes.at(2)->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	network->m_routers.at(2).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	dopplerNodes.at(0)->updateEnable();
+	dopplerNodes.at(1)->updateEnable();
+	dopplerNodes.at(2)->updateEnable();
+	dopplerNodes.at(0)->runOneStep();
+	dopplerNodes.at(1)->runOneStep();
+	dopplerNodes.at(2)->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	network->m_routers.at(2).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	dopplerNodes.at(0)->updateEnable();
+	dopplerNodes.at(1)->updateEnable();
+	dopplerNodes.at(2)->updateEnable();
+	dopplerNodes.at(0)->runOneStep();
+	dopplerNodes.at(1)->runOneStep();
+	dopplerNodes.at(2)->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	network->m_routers.at(2).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	dopplerNodes.at(0)->updateEnable();
+	dopplerNodes.at(1)->updateEnable();
+	dopplerNodes.at(2)->updateEnable();
+	dopplerNodes.at(0)->runOneStep();
+	dopplerNodes.at(1)->runOneStep();
+	dopplerNodes.at(2)->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	network->m_routers.at(2).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	dopplerNodes.at(0)->updateEnable();
+	dopplerNodes.at(1)->updateEnable();
+	dopplerNodes.at(2)->updateEnable();
+	dopplerNodes.at(0)->runOneStep();
+	dopplerNodes.at(1)->runOneStep();
+	dopplerNodes.at(2)->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	network->m_routers.at(2).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	dopplerNodes.at(0)->updateEnable();
+	dopplerNodes.at(1)->updateEnable();
+	dopplerNodes.at(2)->updateEnable();
+	dopplerNodes.at(0)->runOneStep();
+	dopplerNodes.at(1)->runOneStep();
+	dopplerNodes.at(2)->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	network->m_routers.at(2).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	dopplerNodes.at(0)->updateEnable();
+	dopplerNodes.at(1)->updateEnable();
+	dopplerNodes.at(2)->updateEnable();
+	dopplerNodes.at(0)->runOneStep();
+	dopplerNodes.at(1)->runOneStep();
+	dopplerNodes.at(2)->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	network->m_routers.at(2).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	dopplerNodes.at(0)->updateEnable();
+	dopplerNodes.at(1)->updateEnable();
+	dopplerNodes.at(2)->updateEnable();
+	dopplerNodes.at(0)->runOneStep();
+	dopplerNodes.at(1)->runOneStep();
+	dopplerNodes.at(2)->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	network->m_routers.at(2).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	dopplerNodes.at(0)->updateEnable();
+	dopplerNodes.at(1)->updateEnable();
+	dopplerNodes.at(2)->updateEnable();
+	dopplerNodes.at(0)->runOneStep();
+	dopplerNodes.at(1)->runOneStep();
+	dopplerNodes.at(2)->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	network->m_routers.at(2).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	dopplerNodes.at(0)->updateEnable();
+	dopplerNodes.at(1)->updateEnable();
+	dopplerNodes.at(2)->updateEnable();
+	dopplerNodes.at(0)->runOneStep();
+	dopplerNodes.at(1)->runOneStep();
+	dopplerNodes.at(2)->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	network->m_routers.at(2).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	dopplerNodes.at(0)->updateEnable();
+	dopplerNodes.at(1)->updateEnable();
+	dopplerNodes.at(2)->updateEnable();
+	dopplerNodes.at(0)->runOneStep();
+	dopplerNodes.at(1)->runOneStep();
+	dopplerNodes.at(2)->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	network->m_routers.at(2).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	dopplerNodes.at(0)->updateEnable();
+	dopplerNodes.at(1)->updateEnable();
+	dopplerNodes.at(2)->updateEnable();
+	dopplerNodes.at(0)->runOneStep();
+	dopplerNodes.at(1)->runOneStep();
+	dopplerNodes.at(2)->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	network->m_routers.at(2).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	dopplerNodes.at(0)->updateEnable();
+	dopplerNodes.at(1)->updateEnable();
+	dopplerNodes.at(2)->updateEnable();
+	dopplerNodes.at(0)->runOneStep();
+	dopplerNodes.at(1)->runOneStep();
+	dopplerNodes.at(2)->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	network->m_routers.at(2).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	dopplerNodes.at(0)->updateEnable();
+	dopplerNodes.at(1)->updateEnable();
+	dopplerNodes.at(2)->updateEnable();
+	dopplerNodes.at(0)->runOneStep();
+	dopplerNodes.at(1)->runOneStep();
+	dopplerNodes.at(2)->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	network->m_routers.at(2).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	dopplerNodes.at(0)->updateEnable();
+	dopplerNodes.at(1)->updateEnable();
+	dopplerNodes.at(2)->updateEnable();
+	dopplerNodes.at(0)->runOneStep();
+	dopplerNodes.at(1)->runOneStep();
+	dopplerNodes.at(2)->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	network->m_routers.at(2).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	dopplerNodes.at(0)->updateEnable();
+	dopplerNodes.at(1)->updateEnable();
+	dopplerNodes.at(2)->updateEnable();
+	dopplerNodes.at(0)->runOneStep();
+	dopplerNodes.at(1)->runOneStep();
+	dopplerNodes.at(2)->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	network->m_routers.at(2).runOneStep();
+	globalClock.tickGlobalClock();
+
+	network->updateEnable();
+	dopplerNodes.at(0)->updateEnable();
+	dopplerNodes.at(1)->updateEnable();
+	dopplerNodes.at(2)->updateEnable();
+	dopplerNodes.at(0)->runOneStep();
+	dopplerNodes.at(1)->runOneStep();
+	dopplerNodes.at(2)->runOneStep();
+	network->m_links.runOneStep();
+	network->m_routers.at(0).runOneStep();
+	network->m_routers.at(1).runOneStep();
+	network->m_routers.at(2).runOneStep();
+	globalClock.tickGlobalClock();
+
 
 	//log(" ------------------------------- ");
 	//log(" Network starts warming up...... ");
@@ -333,8 +650,8 @@ int main()
 	//}
 	//std::cout << " Network drained for " << DRAIN_CYCLES << " cycles " << std::endl;
 
-	//log(" ------------------------------- ");
-	//std::cout << " Simulation stopped at cycle: " << Clock::s_globalClock << std::endl;
+	log(" ------------------------------- ");
+	std::cout << " Simulation stopped at cycle: " << Clock::s_globalClock << std::endl;
 
 #if defined (MEASURE)
 	// collect data

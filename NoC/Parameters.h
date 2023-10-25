@@ -2,8 +2,8 @@
 #define DEBUG
 //#define MEASURE
 // Network.h
-#define NETWORK_DIMENSION_X 4
-#define NETWORK_DIMENSION_Y 4
+#define NETWORK_DIMENSION_X 3
+#define NETWORK_DIMENSION_Y 3
 #define ROUTER_NUMBER NETWORK_DIMENSION_X * NETWORK_DIMENSION_Y
 // choose network type:
 #define MESH
@@ -11,11 +11,11 @@
 
 #define NETWORK_BANDWIDTH 1 // flit per cycle
 
-#define REGISTER_DEPTH 2
+#define REGISTER_DEPTH 2 // to assist parallelism with "enable"
 
 // Packet and Flit size
-#define PACKET_SIZE 16 // bytes
-#define FLIT_SIZE 4 // bytes, link width
+#define PACKET_SIZE 20 // bytes
+#define FLIT_SIZE 1 // bytes, link width
 #define FLIT_NUMBER_PER_PACKET PACKET_SIZE / FLIT_SIZE
 
 // Virtual channel
@@ -29,7 +29,7 @@
 //#define UNIFORM
 
 // Packet number to send in total
-#define PACKET_NUMBER 5
+#define PACKET_NUMBER 1
 
 // Injection rate
 #define PACKET_PER_CYCLE
@@ -69,7 +69,7 @@
 #define MIN_BUFFER_SIZE EXECUTION_TIME_ROUTER_RC+EXECUTION_TIME_ROUTER_VA+EXECUTION_TIME_ROUTER_SA+EXECUTION_TIME_ROUTER_ST+EXECUTION_TIME_LINK
 
 // Simulation cycles
-#define SIMULATION_CYCLES 50
+#define SIMULATION_CYCLES 100
 #define WARMUP_CYCLES 30
 #define MEASUREMENT_CYCLES 30
 #define DRAIN_CYCLES SIMULATION_CYCLES - WARMUP_CYCLES - MEASUREMENT_CYCLES
