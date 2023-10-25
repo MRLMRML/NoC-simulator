@@ -3917,7 +3917,7 @@ void Router::viewTerminalPortData()
 		std::cout << " | " << m_terminalPort.m_inFlitRegister.at(i).xID << m_terminalPort.m_inFlitRegister.at(i).flitType << m_terminalPort.m_inFlitRegister.at(i).bodyFlitNo;
 	std::cout << " | " << std::endl;
 
-	log(" Flit register: ");
+	log(" Virtual channel: ");
 	std::cout << " | "  << m_terminalPort.m_virtualChannel.m_virtualChannelState;
 	for (int i{}; i < m_terminalPort.m_virtualChannel.m_buffer.size(); ++i)
 		std::cout << " | " << m_terminalPort.m_virtualChannel.m_buffer.at(i).xID << m_terminalPort.m_virtualChannel.m_buffer.at(i).flitType << m_terminalPort.m_virtualChannel.m_buffer.at(i).bodyFlitNo;
