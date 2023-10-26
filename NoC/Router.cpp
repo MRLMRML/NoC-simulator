@@ -162,6 +162,7 @@ void Router::routeTerminalPort()
 #endif
 				m_terminalPort.m_virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
 				m_terminalPort.m_localClock.tickTriggerClock(PERIOD_ROUTER_RC - EXECUTION_TIME_ROUTER_RC + 1);
+				m_terminalPort.m_localClock.tickExecutionClock(PERIOD_ROUTER_RC - EXECUTION_TIME_ROUTER_RC + 1);
 				m_terminalPort.m_localClock.toggleWaitingForExecution();
 			}
 		}
@@ -265,6 +266,7 @@ void Router::routeNorthPort()
 		#endif
 					virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
 					virtualChannel.m_localClock.tickTriggerClock(PERIOD_ROUTER_RC - EXECUTION_TIME_ROUTER_RC + 1);
+					virtualChannel.m_localClock.tickExecutionClock(PERIOD_ROUTER_RC - EXECUTION_TIME_ROUTER_RC + 1);
 					virtualChannel.m_localClock.toggleWaitingForExecution();
 				}
 			}
@@ -369,6 +371,7 @@ void Router::routeSouthPort()
 		#endif
 					virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
 					virtualChannel.m_localClock.tickTriggerClock(PERIOD_ROUTER_RC - EXECUTION_TIME_ROUTER_RC + 1);
+					virtualChannel.m_localClock.tickExecutionClock(PERIOD_ROUTER_RC - EXECUTION_TIME_ROUTER_RC + 1);
 					virtualChannel.m_localClock.toggleWaitingForExecution();
 				}
 			}
@@ -473,6 +476,7 @@ void Router::routeWestPort()
 		#endif
 					virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
 					virtualChannel.m_localClock.tickTriggerClock(PERIOD_ROUTER_RC - EXECUTION_TIME_ROUTER_RC + 1);
+					virtualChannel.m_localClock.tickExecutionClock(PERIOD_ROUTER_RC - EXECUTION_TIME_ROUTER_RC + 1);
 					virtualChannel.m_localClock.toggleWaitingForExecution();
 				}
 			}
@@ -577,6 +581,7 @@ void Router::routeEastPort()
 		#endif
 					virtualChannel.m_virtualChannelState = VirtualChannelState::V; // R -> V
 					virtualChannel.m_localClock.tickTriggerClock(PERIOD_ROUTER_RC - EXECUTION_TIME_ROUTER_RC + 1);
+					virtualChannel.m_localClock.tickExecutionClock(PERIOD_ROUTER_RC - EXECUTION_TIME_ROUTER_RC + 1);
 					virtualChannel.m_localClock.toggleWaitingForExecution();
 				}
 			}
@@ -985,6 +990,7 @@ void Router::allocateTerminalPortVirtualChannel()
 				}
 				
 				m_terminalPort.m_localClock.tickTriggerClock(PERIOD_ROUTER_VA - EXECUTION_TIME_ROUTER_VA + 1);
+				m_terminalPort.m_localClock.tickExecutionClock(PERIOD_ROUTER_VA - EXECUTION_TIME_ROUTER_VA + 1);
 				m_terminalPort.m_localClock.toggleWaitingForExecution();
 			}
 		}
@@ -1319,6 +1325,7 @@ void Router::allocateNorthPortVirtualChannel()
 					}
 
 					m_northPort.m_virtualChannels.at(i).m_localClock.tickTriggerClock(PERIOD_ROUTER_VA - EXECUTION_TIME_ROUTER_VA + 1);
+					m_northPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(PERIOD_ROUTER_VA - EXECUTION_TIME_ROUTER_VA + 1);
 					m_northPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 			}
@@ -1654,6 +1661,7 @@ void Router::allocateSouthPortVirtualChannel()
 					}
 
 					m_southPort.m_virtualChannels.at(i).m_localClock.tickTriggerClock(PERIOD_ROUTER_VA - EXECUTION_TIME_ROUTER_VA + 1);
+					m_southPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(PERIOD_ROUTER_VA - EXECUTION_TIME_ROUTER_VA + 1);
 					m_southPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 			}
@@ -1989,6 +1997,7 @@ void Router::allocateWestPortVirtualChannel()
 					}
 
 					m_westPort.m_virtualChannels.at(i).m_localClock.tickTriggerClock(PERIOD_ROUTER_VA - EXECUTION_TIME_ROUTER_VA + 1);
+					m_westPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(PERIOD_ROUTER_VA - EXECUTION_TIME_ROUTER_VA + 1);
 					m_westPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 			}
@@ -2324,6 +2333,7 @@ void Router::allocateEastPortVirtualChannel()
 					}
 
 					m_eastPort.m_virtualChannels.at(i).m_localClock.tickTriggerClock(PERIOD_ROUTER_VA - EXECUTION_TIME_ROUTER_VA + 1);
+					m_eastPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(PERIOD_ROUTER_VA - EXECUTION_TIME_ROUTER_VA + 1);
 					m_eastPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 			}
@@ -2616,6 +2626,7 @@ void Router::allocateTerminalPortSwitch()
 				}
 
 				m_terminalPort.m_localClock.tickTriggerClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
+				m_terminalPort.m_localClock.tickExecutionClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
 				m_terminalPort.m_localClock.toggleWaitingForExecution();
 			}
 		}
@@ -2733,6 +2744,7 @@ void Router::allocateNorthPortSwitch()
 				{
 					m_northPort.m_outputPortSwitched = m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_outputPortRouted;
 					m_northPort.m_virtualChannels.at(i).m_localClock.tickTriggerClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
+					m_northPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
 					m_northPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 			}
@@ -2850,6 +2862,7 @@ void Router::allocateSouthPortSwitch()
 				{
 					m_southPort.m_outputPortSwitched = m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_outputPortRouted;
 					m_northPort.m_virtualChannels.at(i).m_localClock.tickTriggerClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
+					m_northPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
 					m_southPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 			}
@@ -2967,6 +2980,7 @@ void Router::allocateWestPortSwitch()
 				{
 					m_westPort.m_outputPortSwitched = m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_outputPortRouted;
 					m_westPort.m_virtualChannels.at(i).m_localClock.tickTriggerClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
+					m_westPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
 					m_westPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 			}
@@ -3084,6 +3098,7 @@ void Router::allocateEastPortSwitch()
 				{
 					m_eastPort.m_outputPortSwitched = m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_outputPortRouted;
 					m_eastPort.m_virtualChannels.at(i).m_localClock.tickTriggerClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
+					m_eastPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
 					m_eastPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 			}

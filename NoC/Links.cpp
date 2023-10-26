@@ -94,6 +94,7 @@ void Links::runOneStep()
 					}
 
 					connection.m_localClock.tickTriggerClock(PERIOD_LINK - EXECUTION_TIME_LINK + 1);
+					connection.m_localClock.tickExecutionClock(PERIOD_LINK - EXECUTION_TIME_LINK + 1);
 					connection.m_localClock.toggleWaitingForExecution();
 				}
 			}

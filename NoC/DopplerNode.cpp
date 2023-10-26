@@ -44,6 +44,7 @@ void DopplerNode::injectTraffic()
 				recordInputTime(m_localClock.s_globalClock + 1);
 
 				m_localClock.tickTriggerClock(PERIOD_DOPPLERNODE_INJECTTRAFFIC - EXECUTION_TIME_DOPPLERNODE_INJECTTRAFFIC + 1);
+				m_localClock.tickExecutionClock(PERIOD_DOPPLERNODE_INJECTTRAFFIC - EXECUTION_TIME_DOPPLERNODE_INJECTTRAFFIC + 1);
 				m_localClock.toggleWaitingForExecution();
 			}
 		}
