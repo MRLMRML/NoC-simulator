@@ -17,70 +17,70 @@ void customizeTraffic()
 		<< "Input_time" << ","
 		<< "Output_time" << ","
 		<< std::endl;
-	writePacketRecord
-		<< "1" << ","
-		<< "0" << ","
-		<< "0" << ","
-		<< "intact" << ","
-		<< "-" << ","
-		<< "-" << ","
-		<< std::endl;
-	writePacketRecord
-		<< "2" << ","
-		<< "0" << ","
-		<< "0" << ","
-		<< "intact" << ","
-		<< "-" << ","
-		<< "-" << ","
-		<< std::endl;
+	//writePacketRecord
+	//	<< "0" << ","
+	//	<< "0" << ","
+	//	<< "2" << ","
+	//	<< "intact" << ","
+	//	<< "-" << ","
+	//	<< "-" << ","
+	//	<< std::endl;
+	//writePacketRecord
+	//	<< "1" << ","
+	//	<< "0" << ","
+	//	<< "2" << ","
+	//	<< "intact" << ","
+	//	<< "-" << ","
+	//	<< "-" << ","
+	//	<< std::endl;
 	//writePacketRecord
 	//	<< "3" << ","
 	//	<< "0" << ","
-	//	<< "0" << ","
+	//	<< "2" << ","
 	//	<< "intact" << ","
 	//	<< "-" << ","
 	//	<< "-" << ","
 	//	<< std::endl;
-	//writePacketRecord
-	//	<< "4" << ","
-	//	<< "0" << ","
-	//	<< "0" << ","
-	//	<< "intact" << ","
-	//	<< "-" << ","
-	//	<< "-" << ","
-	//	<< std::endl;
-	//writePacketRecord
-	//	<< "5" << ","
-	//	<< "0" << ","
-	//	<< "0" << ","
-	//	<< "intact" << ","
-	//	<< "-" << ","
-	//	<< "-" << ","
-	//	<< std::endl;
-	//writePacketRecord
-	//	<< "6" << ","
-	//	<< "0" << ","
-	//	<< "0" << ","
-	//	<< "intact" << ","
-	//	<< "-" << ","
-	//	<< "-" << ","
-	//	<< std::endl;
-	//writePacketRecord
-	//	<< "7" << ","
-	//	<< "0" << ","
-	//	<< "0" << ","
-	//	<< "intact" << ","
-	//	<< "-" << ","
-	//	<< "-" << ","
-	//	<< std::endl;
-	//writePacketRecord
-	//	<< "8" << ","
-	//	<< "0" << ","
-	//	<< "0" << ","
-	//	<< "intact" << ","
-	//	<< "-" << ","
-	//	<< "-" << ","
-	//	<< std::endl;
+	writePacketRecord
+		<< "4" << ","
+		<< "0" << ","
+		<< "2" << ","
+		<< "intact" << ","
+		<< "-" << ","
+		<< "-" << ","
+		<< std::endl;
+	writePacketRecord
+		<< "5" << ","
+		<< "0" << ","
+		<< "2" << ","
+		<< "intact" << ","
+		<< "-" << ","
+		<< "-" << ","
+		<< std::endl;
+	writePacketRecord
+		<< "6" << ","
+		<< "0" << ","
+		<< "2" << ","
+		<< "intact" << ","
+		<< "-" << ","
+		<< "-" << ","
+		<< std::endl;
+	writePacketRecord
+		<< "7" << ","
+		<< "0" << ","
+		<< "2" << ","
+		<< "intact" << ","
+		<< "-" << ","
+		<< "-" << ","
+		<< std::endl;
+	writePacketRecord
+		<< "8" << ","
+		<< "0" << ","
+		<< "2" << ","
+		<< "intact" << ","
+		<< "-" << ","
+		<< "-" << ","
+		<< std::endl;
 	writePacketRecord.close();
 }
 
@@ -299,19 +299,50 @@ int main()
 	std::uniform_int_distribution<> dist(0, PERIOD_DOPPLERNODE_INJECTTRAFFIC - 1);
 	for (int i{}; i < ROUTER_NUMBER; ++i)
 	{
-		DopplerNode* node{ new DopplerNode{i, false/*, static_cast<float>(dist(gen))*/}};
+		DopplerNode* node{ new DopplerNode{i, false, static_cast<float>(dist(gen))}};
 		dopplerNodes.push_back(node);
 	}
-
-	// mount nodes on the network
+	
+	//DopplerNode* node0{ new DopplerNode{0, false, 3} };
+	//dopplerNodes.push_back(node0);
+	//DopplerNode* node1{ new DopplerNode{1, false, 7} };
+	//dopplerNodes.push_back(node1);
+	//DopplerNode* node2{ new DopplerNode{2} };
+	//dopplerNodes.push_back(node2);
+	//DopplerNode* node3{ new DopplerNode{3, false, 1} };
+	//dopplerNodes.push_back(node3);
+	//DopplerNode* node4{ new DopplerNode{4, false, 7} };
+	//dopplerNodes.push_back(node4);
+	//DopplerNode* node5{ new DopplerNode{5, false, 7} };
+	//dopplerNodes.push_back(node5);
+	//DopplerNode* node6{ new DopplerNode{6, false, 5} };
+	//dopplerNodes.push_back(node6);
+	//DopplerNode* node7{ new DopplerNode{7, false, 5} };
+	//dopplerNodes.push_back(node7);
+	//DopplerNode* node8{ new DopplerNode{8, false, 1} };
+	//dopplerNodes.push_back(node8);
+	
+	//mount nodes on the network
 	for (int i{}; i < ROUTER_NUMBER; ++i)
 	{
 		network->mountNode(network->m_routers.at(i).m_routerID, dopplerNodes.at(i));
 	}
+	
+	//network->mountNode({ 0, 0 }, node0);
+	//network->mountNode({ 0, 1 }, node1);
+	//network->mountNode({ 0, 2 }, node2);
+	//network->mountNode({ 1, 0 }, node3);
+	//network->mountNode({ 1, 1 }, node4);
+	//network->mountNode({ 1, 2 }, node5);
+	//network->mountNode({ 2, 0 }, node6);
+	//network->mountNode({ 2, 1 }, node7);
+	//network->mountNode({ 2, 2 }, node8);
+	
 	network->printNodeIDs();
 	network->viewMappingTable();
 	network->updateMappingTables();
 
+#if defined (DEBUG)
 	for (int i{}; i < SIMULATION_CYCLES; ++i)
 	{
 		// update enable signals
@@ -329,591 +360,591 @@ int main()
 		globalClock.tickGlobalClock();
 	}
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
 
-	network->updateEnable();
-	dopplerNodes.at(0)->updateEnable();
-	dopplerNodes.at(1)->updateEnable();
-	dopplerNodes.at(2)->updateEnable();
-	dopplerNodes.at(0)->runOneStep();
-	dopplerNodes.at(1)->runOneStep();
-	dopplerNodes.at(2)->runOneStep();
-	network->m_links.runOneStep();
-	network->m_routers.at(0).runOneStep();
-	network->m_routers.at(1).runOneStep();
-	network->m_routers.at(2).runOneStep();
-	globalClock.tickGlobalClock();
+	//network->updateEnable();
+	//dopplerNodes.at(0)->updateEnable();
+	//dopplerNodes.at(1)->updateEnable();
+	//dopplerNodes.at(2)->updateEnable();
+	//dopplerNodes.at(0)->runOneStep();
+	//dopplerNodes.at(1)->runOneStep();
+	//dopplerNodes.at(2)->runOneStep();
+	//network->m_links.runOneStep();
+	//network->m_routers.at(0).runOneStep();
+	//network->m_routers.at(1).runOneStep();
+	//network->m_routers.at(2).runOneStep();
+	//globalClock.tickGlobalClock();
+#endif
 
+#if defined (MEASURE)
+	log(" ------------------------------- ");
+	log(" Network starts warming up...... ");
+	for (int i{}; i < WARMUP_CYCLES; ++i)
+	{
+		// update enable signals
+		network->updateEnable();
+		for (auto& node : dopplerNodes)
+		{
+			node->updateEnable();
+		}
 
-	//log(" ------------------------------- ");
-	//log(" Network starts warming up...... ");
-	//for (int i{}; i < WARMUP_CYCLES; ++i)
-	//{
-	//	// update enable signals
-	//	network->updateEnable();
-	//	for (auto& node : dopplerNodes)
-	//	{
-	//		node->updateEnable();
-	//	}
+		for (auto& node : dopplerNodes)
+		{
+			node->runOneStep();
+		}
+		network->runOneStep();
+		globalClock.tickGlobalClock();
+	}
+	std::cout << " Network warmed up for " << WARMUP_CYCLES << " cycles " << std::endl;
 
-	//	for (auto& node : dopplerNodes)
-	//	{
-	//		node->runOneStep();
-	//	}
-	//	network->runOneStep();
-	//	globalClock.tickGlobalClock();
-	//}
-	//std::cout << " Network warmed up for " << WARMUP_CYCLES << " cycles " << std::endl;
+	log(" ------------------------------- ");
+	log(" Network starts measuring...... ");
+	for (int i{}; i < MEASUREMENT_CYCLES; ++i)
+	{
+		// update enable signals
+		network->updateEnable();
+		for (auto& node : dopplerNodes)
+		{
+			node->updateEnable();
+		}
 
-	//log(" ------------------------------- ");
-	//log(" Network starts measuring...... ");
-	//for (int i{}; i < MEASUREMENT_CYCLES; ++i)
-	//{
-	//	// update enable signals
-	//	network->updateEnable();
-	//	for (auto& node : dopplerNodes)
-	//	{
-	//		node->updateEnable();
-	//	}
+		for (auto& node : dopplerNodes)
+		{
+			node->runOneStep();
+		}
+		network->runOneStep();
+		globalClock.tickGlobalClock();
+	}
+	std::cout << " Network measured for " << MEASUREMENT_CYCLES << " cycles " << std::endl;
 
-	//	for (auto& node : dopplerNodes)
-	//	{
-	//		node->runOneStep();
-	//	}
-	//	network->runOneStep();
-	//	globalClock.tickGlobalClock();
-	//}
-	//std::cout << " Network measured for " << MEASUREMENT_CYCLES << " cycles " << std::endl;
+	log(" ------------------------------- ");
+	log(" Network starts draining...... ");
+	for (int i{}; i < DRAIN_CYCLES; ++i)
+	{
+		// update enable signals
+		network->updateEnable();
+		for (auto& node : dopplerNodes)
+		{
+			node->updateEnable();
+		}
 
-	//log(" ------------------------------- ");
-	//log(" Network starts draining...... ");
-	//for (int i{}; i < DRAIN_CYCLES; ++i)
-	//{
-	//	// update enable signals
-	//	network->updateEnable();
-	//	for (auto& node : dopplerNodes)
-	//	{
-	//		node->updateEnable();
-	//	}
-
-	//	for (auto& node : dopplerNodes)
-	//	{
-	//		node->runOneStep();
-	//	}
-	//	network->runOneStep();
-	//	globalClock.tickGlobalClock();
-	//}
-	//std::cout << " Network drained for " << DRAIN_CYCLES << " cycles " << std::endl;
+		for (auto& node : dopplerNodes)
+		{
+			node->runOneStep();
+		}
+		network->runOneStep();
+		globalClock.tickGlobalClock();
+	}
+	std::cout << " Network drained for " << DRAIN_CYCLES << " cycles " << std::endl;
 
 	log(" ------------------------------- ");
 	std::cout << " Simulation stopped at cycle: " << Clock::s_globalClock << std::endl;
 
-#if defined (MEASURE)
 	// collect data
 	collectData();
 

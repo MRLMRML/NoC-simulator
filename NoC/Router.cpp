@@ -591,6 +591,7 @@ void Router::routeEastPort()
 
 void Router::initiateVirtualChannelPriority()
 {
+#if defined (VIRTUAL_CHANNEL_PRIORITY_SEQUENCIAL)
 	int virtualChannelPriority{};
 
 	m_terminalPort.m_virtualChannel.m_virtualChannelPriority = virtualChannelPriority;
@@ -618,6 +619,36 @@ void Router::initiateVirtualChannelPriority()
 		virtualChannelPriority++;
 		m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority = virtualChannelPriority;
 	}
+#endif
+#if defined (VIRTUAL_CHANNEL_PRIORITY_SNAKE)
+	int virtualChannelPriority{};
+	m_terminalPort.m_virtualChannel.m_virtualChannelPriority = virtualChannelPriority;
+	int i{};
+	while (i < VC_NUMBER)
+	{
+		virtualChannelPriority++;
+		m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority = virtualChannelPriority;
+		virtualChannelPriority++;
+		m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority = virtualChannelPriority;
+		virtualChannelPriority++;
+		m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority = virtualChannelPriority;
+		virtualChannelPriority++;
+		m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority = virtualChannelPriority;
+
+		if (++i < VC_NUMBER)
+		{
+			virtualChannelPriority++;
+			m_eastPort.m_virtualChannels.at(i).m_virtualChannelPriority = virtualChannelPriority;
+			virtualChannelPriority++;
+			m_westPort.m_virtualChannels.at(i).m_virtualChannelPriority = virtualChannelPriority;
+			virtualChannelPriority++;
+			m_southPort.m_virtualChannels.at(i).m_virtualChannelPriority = virtualChannelPriority;
+			virtualChannelPriority++;
+			m_northPort.m_virtualChannels.at(i).m_virtualChannelPriority = virtualChannelPriority;
+			++i;
+		}
+	}
+#endif
 }
 
 void Router::allocateVirtualChannel()
