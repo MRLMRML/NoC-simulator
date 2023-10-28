@@ -89,7 +89,7 @@ public:
 
 	// RC
 	RouterID m_routerID{};
-	int m_NID{ -1 }; // not every router has valid m_NID!
+	int m_NID{ -1 }; // not every router has valid m_NID! Routers with node mounted have the NID of the node
 	std::vector<MappingTableLine> m_mappingTable{};
 
 	// VA

@@ -2742,7 +2742,31 @@ void Router::allocateNorthPortSwitch()
 
 				if (m_northPort.m_virtualChannels.at(i).m_localClock.executeLocalEvent())
 				{
-					m_northPort.m_outputPortSwitched = m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_outputPortRouted;
+					// if north port is routed to terminal port 
+					if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
+						m_northPort.m_outputPortSwitched = m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_outputPortRouted;
+
+					// if north port is routed to south port 
+					if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
+					{
+						if (m_southPort.m_credit.at(m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+							m_northPort.m_outputPortSwitched = m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_outputPortRouted;
+					}
+
+					// if north port is routed to west port 
+					if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
+					{
+						if (m_westPort.m_credit.at(m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+							m_northPort.m_outputPortSwitched = m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_outputPortRouted;
+					}
+
+					// if north port is routed to east port 
+					if (m_northPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
+					{
+						if (m_eastPort.m_credit.at(m_northPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+							m_northPort.m_outputPortSwitched = m_northPort.m_virtualChannels.at(m_northPort.m_virtualChannelSwitched).m_outputPortRouted;
+					}
+
 					m_northPort.m_virtualChannels.at(i).m_localClock.tickTriggerClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
 					m_northPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
 					m_northPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
@@ -2852,17 +2876,41 @@ void Router::allocateSouthPortSwitch()
 		{
 			if (m_southPort.m_virtualChannels.at(i).m_virtualChannelState == VirtualChannelState::A)
 			{
-				if (!m_northPort.m_virtualChannels.at(i).m_localClock.isWaitingForExecution())
+				if (!m_southPort.m_virtualChannels.at(i).m_localClock.isWaitingForExecution())
 				{
-					m_northPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(EXECUTION_TIME_ROUTER_SA - 1);
-					m_northPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
+					m_southPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(EXECUTION_TIME_ROUTER_SA - 1);
+					m_southPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 
-				if (m_northPort.m_virtualChannels.at(i).m_localClock.executeLocalEvent())
+				if (m_southPort.m_virtualChannels.at(i).m_localClock.executeLocalEvent())
 				{
-					m_southPort.m_outputPortSwitched = m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_outputPortRouted;
-					m_northPort.m_virtualChannels.at(i).m_localClock.tickTriggerClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
-					m_northPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
+					// if south port is routed to terminal port 
+					if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
+						m_southPort.m_outputPortSwitched = m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_outputPortRouted;
+
+					// if south port is routed to north port 
+					if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
+					{
+						if (m_northPort.m_credit.at(m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+							m_southPort.m_outputPortSwitched = m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_outputPortRouted;
+					}
+
+					// if south port is routed to west port 
+					if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
+					{
+						if (m_westPort.m_credit.at(m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+							m_southPort.m_outputPortSwitched = m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_outputPortRouted;
+					}
+
+					// if south port is routed to east port 
+					if (m_southPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
+					{
+						if (m_eastPort.m_credit.at(m_southPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+							m_southPort.m_outputPortSwitched = m_southPort.m_virtualChannels.at(m_southPort.m_virtualChannelSwitched).m_outputPortRouted;
+					}
+
+					m_southPort.m_virtualChannels.at(i).m_localClock.tickTriggerClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
+					m_southPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
 					m_southPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
 				}
 			}
@@ -2978,7 +3026,31 @@ void Router::allocateWestPortSwitch()
 
 				if (m_westPort.m_virtualChannels.at(i).m_localClock.executeLocalEvent())
 				{
-					m_westPort.m_outputPortSwitched = m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_outputPortRouted;
+					// if west port is routed to terminal port 
+					if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
+						m_westPort.m_outputPortSwitched = m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_outputPortRouted;
+
+					// if west port is routed to north port 
+					if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
+					{
+						if (m_northPort.m_credit.at(m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+							m_westPort.m_outputPortSwitched = m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_outputPortRouted;
+					}
+
+					// if west port is routed to south port 
+					if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
+					{
+						if (m_southPort.m_credit.at(m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+							m_westPort.m_outputPortSwitched = m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_outputPortRouted;
+					}
+
+					// if west port is routed to east port 
+					if (m_westPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::EastPort)
+					{
+						if (m_eastPort.m_credit.at(m_westPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+							m_westPort.m_outputPortSwitched = m_westPort.m_virtualChannels.at(m_westPort.m_virtualChannelSwitched).m_outputPortRouted;
+					}
+
 					m_westPort.m_virtualChannels.at(i).m_localClock.tickTriggerClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
 					m_westPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
 					m_westPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
@@ -3096,7 +3168,31 @@ void Router::allocateEastPortSwitch()
 
 				if (m_eastPort.m_virtualChannels.at(i).m_localClock.executeLocalEvent())
 				{
-					m_eastPort.m_outputPortSwitched = m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_outputPortRouted;
+					// if east port is routed to terminal port 
+					if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::TerminalPort)
+						m_eastPort.m_outputPortSwitched = m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_outputPortRouted;
+					
+					// if east port is routed to north port 
+					if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::NorthPort)
+					{
+						if (m_northPort.m_credit.at(m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+							m_eastPort.m_outputPortSwitched = m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_outputPortRouted;
+					}
+
+					// if east port is routed to south port 
+					if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::SouthPort)
+					{
+						if (m_southPort.m_credit.at(m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+							m_eastPort.m_outputPortSwitched = m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_outputPortRouted;
+					}
+
+					// if east port is routed to west port 
+					if (m_eastPort.m_virtualChannels.at(i).m_outputPortRouted == PortType::WestPort)
+					{
+						if (m_westPort.m_credit.at(m_eastPort.m_virtualChannels.at(i).m_outputVirtualChannelAllocated) > 0)
+							m_eastPort.m_outputPortSwitched = m_eastPort.m_virtualChannels.at(m_eastPort.m_virtualChannelSwitched).m_outputPortRouted;
+					}
+
 					m_eastPort.m_virtualChannels.at(i).m_localClock.tickTriggerClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
 					m_eastPort.m_virtualChannels.at(i).m_localClock.tickExecutionClock(PERIOD_ROUTER_SA - EXECUTION_TIME_ROUTER_SA + 1);
 					m_eastPort.m_virtualChannels.at(i).m_localClock.toggleWaitingForExecution();
