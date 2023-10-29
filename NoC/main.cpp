@@ -294,8 +294,8 @@ int main()
 	std::vector<DopplerNode*> dopplerNodes;
 	// random initial phase
 	std::random_device rd;
-	//std::mt19937 gen(rd());  // to seed mersenne twister
-	std::mt19937 gen(42);  // to reproduce random numbers
+	std::mt19937 gen(rd());  // to seed mersenne twister
+	//std::mt19937 gen(42);  // to reproduce random numbers
 	std::uniform_int_distribution<> dist(0, PERIOD_DOPPLERNODE_INJECTTRAFFIC - 1);
 	for (int i{}; i < ROUTER_NUMBER; ++i)
 	{
@@ -314,56 +314,56 @@ int main()
 	network->updateMappingTables();
 
 #if defined (DEBUG)
-	//for (int i{}; i < SIMULATION_CYCLES; ++i)
+	for (int i{}; i < SIMULATION_CYCLES; ++i)
+	{
+		// update enable signals
+		network->updateEnable();
+		for (auto& node : dopplerNodes)
+		{
+			node->updateEnable();
+		}
+
+		for (auto& node : dopplerNodes)
+		{
+			node->runOneStep();
+		}
+		network->runOneStep();
+		globalClock.tickGlobalClock();
+	}
+
+	//for (int i{}; i < 23; ++i)
 	//{
-	//	// update enable signals
 	//	network->updateEnable();
 	//	for (auto& node : dopplerNodes)
-	//	{
 	//		node->updateEnable();
-	//	}
-
 	//	for (auto& node : dopplerNodes)
-	//	{
 	//		node->runOneStep();
-	//	}
-	//	network->runOneStep();
+	//	network->m_links.runOneStep();
+	//	network->m_routers.at(2).runOneStep();
+	//	network->m_routers.at(4).runOneStep();
+	//	network->m_routers.at(5).runOneStep();
+	//	network->m_routers.at(6).runOneStep();
+	//	network->m_routers.at(7).runOneStep();
+	//	network->m_routers.at(8).runOneStep();
 	//	globalClock.tickGlobalClock();
+	//	std::cout << Clock::s_globalClock << std::endl;
 	//}
 
-	for (int i{}; i < 23; ++i)
-	{
-		network->updateEnable();
-		for (auto& node : dopplerNodes)
-			node->updateEnable();
-		for (auto& node : dopplerNodes)
-			node->runOneStep();
-		network->m_links.runOneStep();
-		network->m_routers.at(2).runOneStep();
-		network->m_routers.at(4).runOneStep();
-		network->m_routers.at(5).runOneStep();
-		network->m_routers.at(6).runOneStep();
-		network->m_routers.at(7).runOneStep();
-		network->m_routers.at(8).runOneStep();
-		globalClock.tickGlobalClock();
-		std::cout << Clock::s_globalClock << std::endl;
-	}
-
-	for (int i{}; i < 50; ++i)
-	{
-		network->updateEnable();
-		for (auto& node : dopplerNodes)
-			node->updateEnable();
-		for (auto& node : dopplerNodes)
-			node->runOneStep();
-		network->m_links.runOneStep();
-		network->m_routers.at(2).runOneStep();
-		network->m_routers.at(5).runOneStep();
-		network->m_routers.at(7).runOneStep();
-		network->m_routers.at(8).runOneStep();
-		globalClock.tickGlobalClock();
-		std::cout << Clock::s_globalClock << std::endl;
-	}
+	//for (int i{}; i < 50; ++i)
+	//{
+	//	network->updateEnable();
+	//	for (auto& node : dopplerNodes)
+	//		node->updateEnable();
+	//	for (auto& node : dopplerNodes)
+	//		node->runOneStep();
+	//	network->m_links.runOneStep();
+	//	network->m_routers.at(2).runOneStep();
+	//	network->m_routers.at(5).runOneStep();
+	//	network->m_routers.at(7).runOneStep();
+	//	network->m_routers.at(8).runOneStep();
+	//	globalClock.tickGlobalClock();
+	//	std::cout << Clock::s_globalClock << std::endl;
+	//}
 
 #endif
 

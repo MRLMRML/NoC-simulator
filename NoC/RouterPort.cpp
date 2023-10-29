@@ -42,7 +42,7 @@ bool RouterPort::receiveCredit()
 	{
 		if (m_inCreditEnable)
 		{
-			int credit{ ++m_credit.at(m_inCreditRegister.front().virtualChannel)};
+			++m_credit.at(m_inCreditRegister.front().virtualChannel);
 			logDebug(" Router port: credit received ");
 			return m_inCreditRegister.front().isTailFlit; // return true only when credit is for tail flit
 		}
