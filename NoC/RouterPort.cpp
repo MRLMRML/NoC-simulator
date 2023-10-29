@@ -4,7 +4,7 @@ void RouterPort::receiveFlit()
 {
 	if (!m_inFlitRegister.empty())
 	{
-		if (m_enable)
+		if (m_inFlitEnable)
 		{
 			if (m_inFlitRegister.front().flitType == FlitType::HeadFlit
 				|| m_inFlitRegister.front().flitType == FlitType::HeadTailFlit)
@@ -31,6 +31,7 @@ void RouterPort::receiveFlit()
 					}
 				}
 			}
+			m_inFlitEnable = false; // receive one flit at a time
 		}
 	}
 }
@@ -39,10 +40,14 @@ bool RouterPort::receiveCredit()
 {
 	if (!m_inCreditRegister.empty())
 	{
-		int credit{ ++m_credit.at(m_inCreditRegister.front().virtualChannel)};
-		logDebug(" Router port: credit received ");
-		if (credit == BUFFER_SIZE)
-			return true; // return true only when credit is refilled completely
+		if (m_inCreditEnable)
+		{
+			int credit{ ++m_credit.at(m_inCreditRegister.front().virtualChannel)};
+			logDebug(" Router port: credit received ");
+			m_inCreditEnable = false; // receive one credit at a time
+			if (credit == BUFFER_SIZE)
+				return true; // return true only when credit is refilled completely
+		}
 	}
 	return false;
 }

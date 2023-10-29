@@ -331,7 +331,7 @@ int main()
 	//	globalClock.tickGlobalClock();
 	//}
 
-	for (int i{}; i < 19; ++i)
+	for (int i{}; i < 21; ++i)
 	{
 		network->updateEnable();
 		for (auto& node : dopplerNodes)

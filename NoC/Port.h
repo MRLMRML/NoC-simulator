@@ -10,11 +10,15 @@ public:
 
 	void updateEnable() const
 	{
-		if (m_inFlitRegister.empty()
-			&& m_inCreditRegister.empty())
-			m_enable = false;
+		if (m_inFlitRegister.empty())
+			m_inFlitEnable = false;
 		else
-			m_enable = true;
+			m_inFlitEnable = true;
+
+		if (m_inCreditRegister.empty())
+			m_inCreditEnable = false;
+		else
+			m_inCreditEnable = true;
 	}
 
 	//bool isEmpty();
@@ -37,7 +41,8 @@ public:
 	int m_switchPriorityGlobal{};
 	PortType m_outputPortSwitched{}; // Unselected (default)
 
-	mutable bool m_enable{ false };
+	mutable bool m_inFlitEnable{ false };
+	mutable bool m_inCreditEnable{ false };
 
 private:
 };

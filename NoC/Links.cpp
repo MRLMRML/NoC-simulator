@@ -51,7 +51,10 @@ void Links::runOneStep()
 	{
 		if (connection.m_localClock.triggerLocalEvent())
 		{
-			if (connection.m_enable)
+			if (connection.m_firstOutFlitEnable
+				|| connection.m_firstOutCreditEnable
+				|| connection.m_secondOutFlitEnable
+				|| connection.m_secondOutCreditEnable)
 			{
 				if (!connection.m_localClock.isWaitingForExecution())
 				{
@@ -61,7 +64,7 @@ void Links::runOneStep()
 
 				if (connection.m_localClock.executeLocalEvent())
 				{
-					if (!connection.m_connection.first->m_outFlitRegister.empty()
+					if (connection.m_firstOutFlitEnable
 						&& connection.m_connection.second->m_inFlitRegister.size() < REGISTER_DEPTH)
 					{
 						connection.m_connection.second->m_inFlitRegister.push_back(connection.m_connection.first->m_outFlitRegister.front());
@@ -69,15 +72,15 @@ void Links::runOneStep()
 						logDebug(" Links: flit transferred (LHS -> RHS) ");
 					}
 
-					if (!connection.m_connection.second->m_outCreditRegister.empty()
-						&& connection.m_connection.first->m_inCreditRegister.size() < REGISTER_DEPTH)
+					if (connection.m_firstOutCreditEnable
+						&& connection.m_connection.second->m_inCreditRegister.size() < REGISTER_DEPTH)
 					{
-						connection.m_connection.first->m_inCreditRegister.push_back(connection.m_connection.second->m_outCreditRegister.front());
-						connection.m_connection.second->m_outCreditRegister.pop_front();
-						logDebug(" Links: credit transferred (LHS <- RHS) ");
+						connection.m_connection.second->m_inCreditRegister.push_back(connection.m_connection.first->m_outCreditRegister.front());
+						connection.m_connection.first->m_outCreditRegister.pop_front();
+						logDebug(" Links: credit transferred (LHS -> RHS) ");
 					}
 
-					if (!connection.m_connection.second->m_outFlitRegister.empty()
+					if (connection.m_secondOutFlitEnable
 						&& connection.m_connection.first->m_inFlitRegister.size() < REGISTER_DEPTH)
 					{
 						connection.m_connection.first->m_inFlitRegister.push_back(connection.m_connection.second->m_outFlitRegister.front());
@@ -85,12 +88,12 @@ void Links::runOneStep()
 						logDebug(" Links: flit transferred (LHS <- RHS) ");
 					}
 
-					if (!connection.m_connection.first->m_outCreditRegister.empty()
-						&& connection.m_connection.second->m_inCreditRegister.size() < REGISTER_DEPTH)
+					if (connection.m_secondOutCreditEnable
+						&& connection.m_connection.first->m_inCreditRegister.size() < REGISTER_DEPTH)
 					{
-						connection.m_connection.second->m_inCreditRegister.push_back(connection.m_connection.first->m_outCreditRegister.front());
-						connection.m_connection.first->m_outCreditRegister.pop_front();
-						logDebug(" Links: credit transferred (LHS -> RHS) ");
+						connection.m_connection.first->m_inCreditRegister.push_back(connection.m_connection.second->m_outCreditRegister.front());
+						connection.m_connection.second->m_outCreditRegister.pop_front();
+						logDebug(" Links: credit transferred (LHS <- RHS) ");
 					}
 
 					connection.m_localClock.tickTriggerClock(PERIOD_LINK - EXECUTION_TIME_LINK + 1);

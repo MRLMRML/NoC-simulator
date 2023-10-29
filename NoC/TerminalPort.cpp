@@ -4,7 +4,7 @@ void TerminalPort::receiveFlit()
 {
 	if (!m_inFlitRegister.empty())
 	{
-		if (m_enable)
+		if (m_inFlitEnable)
 		{
 			if (m_inFlitRegister.front().flitType == FlitType::HeadFlit
 				|| m_inFlitRegister.front().flitType == FlitType::HeadTailFlit)
@@ -31,6 +31,7 @@ void TerminalPort::receiveFlit()
 					}
 				}
 			}
+			m_inFlitEnable = false; // receive one flit at a time
 		}
 	}
 }
