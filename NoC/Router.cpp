@@ -3,6 +3,7 @@
 void Router::runOneStep()
 {
 	viewData(); // debug
+	receiveFlitAndCredit();
 	computeRoute();
 	allocateVirtualChannel();
 	traverseThisSwitchThenAllocateNextSwitch();
@@ -18,31 +19,35 @@ void Router::receiveFlitAndCredit()
 	m_northPort.receiveFlit();
 	if (m_northPort.receiveCredit())
 		m_northPort.m_downstreamVirtualChannelStates.at(m_northPort.m_inCreditRegister.front().virtualChannel) = VirtualChannelState::I;
-	if (!m_northPort.m_inCreditRegister.empty())
+	if (!m_northPort.m_inCreditRegister.empty()
+		&& m_northPort.m_inCreditEnable)
 		m_northPort.m_inCreditRegister.pop_front();
 
 	m_southPort.receiveFlit();
 	if (m_southPort.receiveCredit())
 		m_southPort.m_downstreamVirtualChannelStates.at(m_southPort.m_inCreditRegister.front().virtualChannel) = VirtualChannelState::I;
-	if (!m_southPort.m_inCreditRegister.empty())
+	if (!m_southPort.m_inCreditRegister.empty()
+		&& m_southPort.m_inCreditEnable)
 		m_southPort.m_inCreditRegister.pop_front();
 
 	m_westPort.receiveFlit();
 	if (m_westPort.receiveCredit())
 		m_westPort.m_downstreamVirtualChannelStates.at(m_westPort.m_inCreditRegister.front().virtualChannel) = VirtualChannelState::I;
-	if (!m_westPort.m_inCreditRegister.empty())
+	if (!m_westPort.m_inCreditRegister.empty()
+		&& m_westPort.m_inCreditEnable)
 		m_westPort.m_inCreditRegister.pop_front();
 
 	m_eastPort.receiveFlit();
 	if (m_eastPort.receiveCredit())
 		m_eastPort.m_downstreamVirtualChannelStates.at(m_eastPort.m_inCreditRegister.front().virtualChannel) = VirtualChannelState::I;
-	if (!m_eastPort.m_inCreditRegister.empty())
+	if (!m_eastPort.m_inCreditRegister.empty()
+		&& m_eastPort.m_inCreditEnable)
 		m_eastPort.m_inCreditRegister.pop_front();
 }
 
 void Router::computeRoute()
 {
-	receiveFlitAndCredit();
+	//receiveFlitAndCredit();
 
 	routeTerminalPort();
 	routeNorthPort();
@@ -653,7 +658,7 @@ void Router::initiateVirtualChannelPriority()
 
 void Router::allocateVirtualChannel()
 {
-	receiveFlitAndCredit();
+	//receiveFlitAndCredit();
 
 	// allocate terminal port
 	allocateTerminalPortVirtualChannel();
@@ -2585,7 +2590,7 @@ void Router::initiateSwitchPriority()
 
 void Router::allocateSwitch()
 {
-	receiveFlitAndCredit();
+	//receiveFlitAndCredit();
 
 	// allocate terminal port
 	allocateTerminalPortSwitch();
