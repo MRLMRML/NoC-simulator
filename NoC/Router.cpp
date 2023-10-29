@@ -3807,28 +3807,40 @@ void Router::transmitCredits()
 	{
 		if (connection.first->m_portType == PortType::NorthPort)
 		{
-			Credit credit{ m_northPort.m_virtualChannelSwitched };
+			Credit credit{ false, m_northPort.m_virtualChannelSwitched };
+			if (connection.second->m_outFlitRegister.front().flitType == FlitType::HeadTailFlit
+				|| connection.second->m_outFlitRegister.front().flitType == FlitType::TailFlit)
+				credit.isTailFlit = true;
 			m_northPort.m_outCreditRegister.push_back(credit);
 			logDebug(" Crossbar: credit sent in north port ");
 		}
 
 		if (connection.first->m_portType == PortType::SouthPort)
 		{
-			Credit credit{ m_southPort.m_virtualChannelSwitched };
+			Credit credit{ false, m_southPort.m_virtualChannelSwitched };
+			if (connection.second->m_outFlitRegister.front().flitType == FlitType::HeadTailFlit
+				|| connection.second->m_outFlitRegister.front().flitType == FlitType::TailFlit)
+				credit.isTailFlit = true; 
 			m_southPort.m_outCreditRegister.push_back(credit);
 			logDebug(" Crossbar: credit sent in south port ");
 		}
 
 		if (connection.first->m_portType == PortType::WestPort)
 		{
-			Credit credit{ m_westPort.m_virtualChannelSwitched };
+			Credit credit{ false, m_westPort.m_virtualChannelSwitched };
+			if (connection.second->m_outFlitRegister.front().flitType == FlitType::HeadTailFlit
+				|| connection.second->m_outFlitRegister.front().flitType == FlitType::TailFlit)
+				credit.isTailFlit = true; 
 			m_westPort.m_outCreditRegister.push_back(credit);
 			logDebug(" Crossbar: credit sent in west port ");
 		}
 
 		if (connection.first->m_portType == PortType::EastPort)
 		{
-			Credit credit{ m_eastPort.m_virtualChannelSwitched };
+			Credit credit{ false, m_eastPort.m_virtualChannelSwitched };
+			if (connection.second->m_outFlitRegister.front().flitType == FlitType::HeadTailFlit
+				|| connection.second->m_outFlitRegister.front().flitType == FlitType::TailFlit)
+				credit.isTailFlit = true;
 			m_eastPort.m_outCreditRegister.push_back(credit);
 			logDebug(" Crossbar: credit sent in east port ");
 		}

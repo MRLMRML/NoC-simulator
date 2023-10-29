@@ -210,6 +210,7 @@ std::ostream& operator<<(std::ostream& stream, const Flit& flit);
 
 struct Credit
 {
+	bool isTailFlit{};
 	int virtualChannel{};
 };
 

@@ -1,6 +1,6 @@
 Source,Packet_ID,Destination,Status,Input_time,Output_time,
 4,0,2,sent,8.000000,-,
-5,0,2,sent,8.000000,-,
+5,0,2,received,8.000000,65.000000,
 6,0,2,sent,6.000000,-,
 7,0,2,sent,6.000000,-,
-8,0,2,sent,2.000000,-,
+8,0,2,received,2.000000,53.000000,

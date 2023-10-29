@@ -44,8 +44,7 @@ bool RouterPort::receiveCredit()
 		{
 			int credit{ ++m_credit.at(m_inCreditRegister.front().virtualChannel)};
 			logDebug(" Router port: credit received ");
-			if (credit == BUFFER_SIZE)
-				return true; // return true only when credit is refilled completely
+			return m_inCreditRegister.front().isTailFlit; // return true only when credit is for tail flit
 		}
 	}
 	return false;
