@@ -44,7 +44,6 @@ bool RouterPort::receiveCredit()
 		{
 			int credit{ ++m_credit.at(m_inCreditRegister.front().virtualChannel)};
 			logDebug(" Router port: credit received ");
-			m_inCreditEnable = false; // receive one credit at a time
 			if (credit == BUFFER_SIZE)
 				return true; // return true only when credit is refilled completely
 		}

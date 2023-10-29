@@ -331,7 +331,7 @@ int main()
 	//	globalClock.tickGlobalClock();
 	//}
 
-	for (int i{}; i < 21; ++i)
+	for (int i{}; i < 23; ++i)
 	{
 		network->updateEnable();
 		for (auto& node : dopplerNodes)
@@ -358,9 +358,7 @@ int main()
 			node->runOneStep();
 		network->m_links.runOneStep();
 		network->m_routers.at(2).runOneStep();
-		network->m_routers.at(4).runOneStep();
 		network->m_routers.at(5).runOneStep();
-		network->m_routers.at(6).runOneStep();
 		network->m_routers.at(7).runOneStep();
 		network->m_routers.at(8).runOneStep();
 		globalClock.tickGlobalClock();
