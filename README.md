@@ -1,6 +1,10 @@
 # NoC simulator
 Version 1.0
 
+2023/10/30
+
+MRLMRML
+
 This is a cycle accurate simulator for conventional Network-on-Chip (NoC).
 
 ## Features
