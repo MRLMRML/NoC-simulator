@@ -21,7 +21,7 @@
 
 // Virtual channel
 #define VC_NUMBER 8
-#define BUFFER_SIZE 8 // credit stalls if less than MIN_BUFFER_SIZE
+#define BUFFER_SIZE 8 
 
 // Traffic pattern
 //#define CUSTOMIZE
