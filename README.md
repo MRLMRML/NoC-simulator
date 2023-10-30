@@ -67,15 +67,19 @@ And the result is shown in figure below:
 
 ## To use this simulator
 
+Clone this project and open it in Visual Studio 2022.
+
+**Change the C++ version to C++20.**
+
 Open the file Parameters.h and adjust parameters as you wish.
 
 Then compile and run the program.
 
-The average latency will be printed in the terminal.
+The average latency will be printed out in the terminal.
 
 The throughput is not accurate at the moment, please ignore it.
 
-To see the detailed informantion of each packets, open Data folder.
+To see the detailed informantion of each packets, open the Data folder.
 
 PacketRecord.csv records all the packets generated and their detailed information.
 
