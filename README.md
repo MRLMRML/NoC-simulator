@@ -32,24 +32,38 @@ For the algorithm details in the router and other critical design choices, pleas
 ## Performance test
 
 We ran the test with the following parameters:
+
 Topology: Mesh
+
 Dimension: 4x4
+
 Routing algorithm: XY-routing
+
 Virtual channel number: 8
+
 Buffer size: 8
+
 Flit number per packet: 20
+
 Traffic pattern: random uniform
+
 Injection process: periodic process
+
 Injection rate: FLIT_PER_CYCLE
+
 Packets to send: 30
+
 Simulation cycles: 1500
+
 Warm-up cycles: 100
+
 Measurement cycles: 400
+
 Draining cycles: 1000
 
 And the result is shown in figure below:
 
-![test](.\NoC\Test\test.png)
+![test](./NoC/Test/test.png)
 
 ## To use this simulator
 
