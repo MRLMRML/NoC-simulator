@@ -59,8 +59,6 @@ void Router::receiveFlitAndCredit()
 
 void Router::computeRoute()
 {
-	//receiveFlitAndCredit();
-
 	routeTerminalPort();
 	routeNorthPort();
 	routeSouthPort();
@@ -670,8 +668,6 @@ void Router::initiateVirtualChannelPriority()
 
 void Router::allocateVirtualChannel()
 {
-	//receiveFlitAndCredit();
-
 	// allocate terminal port
 	allocateTerminalPortVirtualChannel();
 
@@ -2602,8 +2598,6 @@ void Router::initiateSwitchPriority()
 
 void Router::allocateSwitch()
 {
-	//receiveFlitAndCredit();
-
 	// allocate terminal port
 	allocateTerminalPortSwitch();
 

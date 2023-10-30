@@ -23,7 +23,6 @@ public:
 	void viewMappingTable();
 	void updateMappingTables();
 	void terminateConnections();
-	//bool isQuiet();
 	void updateEnable();
 
 public:
