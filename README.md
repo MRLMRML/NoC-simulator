@@ -49,7 +49,7 @@ Draining cycles: 1000
 
 And the result is shown in figure below:
 
-![test](.\\NoC\\Test\\test.png)
+![test](.\NoC\Test\test.png)
 
 ## To use this simulator
 
