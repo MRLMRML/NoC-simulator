@@ -75,7 +75,9 @@ Clone this project and open it in Visual Studio 2022.
 
 **Change the C++ version to C++20.**
 
-Open the file Parameters.h and adjust parameters as you wish.
+Open Parameters.h and adjust parameters as you wish.
+
+Open main.cpp and change the global variable g_dataFolderPath to the path where the folder Data is.
 
 Then compile and run the program.
 
