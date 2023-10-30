@@ -27,16 +27,16 @@ In measurement, three phases, warm-up phase, measurement phase, and drain phase 
 
 The details of router algorithms implemented is shown in the following picture:
 
-![Router algorithm in one pic](.\\NoC\\Figures\\Router algorithms in one pic.png)
+![Router algorithm in one pic](./NoC/Figures/Router algorithms in one pic.png)
 
 The simulator used Clock class to support parallelism of the system, e.g., multiple VCs in one router.
 
-![Clock system supporting parallelism](.\\NoC\\Figures\\Clock system supporting parallelism.png)
+![Clock system supporting parallelism](./NoC/Figures/Clock system supporting parallelism.png)
 
 The simulator used enable and buffer to support system level pipelining:
 
-![Enable and buffer feature supporting system level pipelining](.\\NoC\\Figures\\Enable and buffer feature supporting system level pipelining.png)
+![Enable and buffer feature supporting system level pipelining](./NoC/Figures/Enable and buffer feature supporting system level pipelining.png)
 
 The measurement setup:
 
-![Measurement](.\\NoC\\Figures\\Measurement.png)
+![Measurement](./NoC/Figures/Measurement.png)
