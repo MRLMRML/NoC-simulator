@@ -1,7 +1,7 @@
 #pragma once
 //#define DEBUG
 #define MEASURE
-// Network.h
+// Network dimension
 #define NETWORK_DIMENSION_X 4
 #define NETWORK_DIMENSION_Y 4
 #define ROUTER_NUMBER NETWORK_DIMENSION_X * NETWORK_DIMENSION_Y
@@ -9,6 +9,9 @@
 #define MESH
 //#define TORUS
 
+// Virtual channel
+#define VC_NUMBER 8
+#define BUFFER_SIZE 8 
 #define VIRTUAL_CHANNEL_PRIORITY_SEQUENCIAL
 //#define VIRTUAL_CHANNEL_PRIORITY_SNAKE
 #define NETWORK_BANDWIDTH 1 // flit per cycle
@@ -19,9 +22,8 @@
 #define FLIT_SIZE 1 // bytes, link width
 #define FLIT_NUMBER_PER_PACKET PACKET_SIZE / FLIT_SIZE
 
-// Virtual channel
-#define VC_NUMBER 8
-#define BUFFER_SIZE 8 
+// Packet number to send in total
+#define PACKET_NUMBER 30
 
 // Traffic pattern
 //#define CUSTOMIZE
@@ -29,17 +31,10 @@
 #define DRAIN_NODE 2
 #define UNIFORM
 
-// Packet number to send in total
-#define PACKET_NUMBER 30
-
 // Injection rate
 //#define PACKET_PER_CYCLE
 #define FLIT_PER_CYCLE
 #define INJECTION_RATE 0.05f
-
-// PE.h
-#define DATA_PRECISION float // float(4B) / DATA_PRECISION(8B) / long DATA_PRECISION(8B)
-#define MAX_XID 16
 
 // Router timing, fixed, might support other values even though not tested yet
 #define EXECUTION_TIME_ROUTER_RC 1.0f
