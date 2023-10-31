@@ -248,32 +248,38 @@ void DopplerNode::assemblePacket()
 			m_packetReceived.AxADDR = m_flitReorderBuffer.back().AxADDR;
 			m_packetReceived.xDATA = m_flitReorderBuffer.back().xDATA;
 			viewPacket(m_packetReceived);
+			m_flitReorderBuffer.pop_back();
 			recordOutputTime(m_localClock.s_globalClock + 1);
 			return;
 		}
 
 		if (m_flitReorderBuffer.back().flitType == FlitType::TailFlit)
 		{
-			for (auto& headFlit : m_flitReorderBuffer) // find the headflit that has the same IDs
+			std::vector<Flit> t_flitReorderBuffer{ m_flitReorderBuffer };
+			for (auto& flit : t_flitReorderBuffer) // find the flits that have the same IDs and erase them from flit reorder buffer
 			{
-				if ((headFlit.flitType == FlitType::HeadFlit) &&
-					(headFlit.xID == m_flitReorderBuffer.back().xID) &&
-					(headFlit.MID == m_flitReorderBuffer.back().MID) &&
-					(headFlit.SEQID == m_flitReorderBuffer.back().SEQID))
+				if (flit.xID == m_flitReorderBuffer.back().xID &&
+					flit.MID == m_flitReorderBuffer.back().MID &&
+					flit.SEQID == m_flitReorderBuffer.back().SEQID)
 				{
-					m_packetReceived.destination = headFlit.destination;
-					m_packetReceived.xID = headFlit.xID;
-					m_packetReceived.RWQB = headFlit.RWQB;
-					m_packetReceived.MID = headFlit.MID;
-					m_packetReceived.SID = headFlit.SID;
-					m_packetReceived.SEQID = headFlit.SEQID;
-					m_packetReceived.AxADDR = m_flitReorderBuffer.back().AxADDR;
-					m_packetReceived.xDATA = m_flitReorderBuffer.back().xDATA;
-					viewPacket(m_packetReceived);
-					recordOutputTime(m_localClock.s_globalClock + 1);
-					return;
+					if (flit.flitType == FlitType::HeadFlit) // find the head flit and get the data
+					{
+						m_packetReceived.destination = flit.destination;
+						m_packetReceived.xID = flit.xID;
+						m_packetReceived.RWQB = flit.RWQB;
+						m_packetReceived.MID = flit.MID;
+						m_packetReceived.SID = flit.SID;
+						m_packetReceived.SEQID = flit.SEQID;
+						m_packetReceived.AxADDR = m_flitReorderBuffer.back().AxADDR;
+						m_packetReceived.xDATA = m_flitReorderBuffer.back().xDATA;
+						viewPacket(m_packetReceived);
+						recordOutputTime(m_localClock.s_globalClock + 1);
+					}
+					std::erase(m_flitReorderBuffer, flit); // C++20
+					//m_flitReorderBuffer.erase(std::remove(m_flitReorderBuffer.begin(), m_flitReorderBuffer.end(), flit), m_flitReorderBuffer.end());
 				}
 			}
+			return;
 		}
 	}
 }

@@ -82,6 +82,22 @@ std::ostream& operator<<(std::ostream& stream, const PacketType& packetType)
 	return stream;
 }
 
+bool Flit::operator==(const Flit& record) const
+{
+	return port == record.port
+		&& virtualChannel == record.virtualChannel
+		&& flitType == record.flitType
+		&& bodyFlitNo == record.bodyFlitNo
+		&& destination == record.destination
+		&& xID == record.xID
+		&& RWQB == record.RWQB
+		&& MID == record.MID
+		&& SID == record.SID
+		&& SEQID == record.SEQID
+		&& AxADDR == record.AxADDR
+		&& xDATA == record.xDATA;
+}
+
 std::ostream& operator<<(std::ostream& stream, const Packet& packet)
 {
 	stream << " "

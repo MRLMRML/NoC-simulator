@@ -116,6 +116,7 @@ std::ostream& operator<<(std::ostream& stream, const FlitType& flitType);
 struct Flit
 {
 	Flit() = default;
+	bool operator==(const Flit& record) const;
 
 	// HeadFlit
 	Flit(const PortType port,
