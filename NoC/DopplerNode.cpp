@@ -3,9 +3,7 @@
 void DopplerNode::runOneStep()
 {
 	if (!m_isSilent)
-	{
 		injectTraffic();
-	}
 	collectTraffic();
 	m_localClock.synchronizeTriggerClock();
 	m_localClock.synchronizeExecutionClock();
