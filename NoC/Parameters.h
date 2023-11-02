@@ -1,6 +1,9 @@
 #pragma once
 //#define DEBUG
 #define MEASURE
+
+#define DATA_PRECISION float
+
 // Network dimension
 #define NETWORK_DIMENSION_X 4
 #define NETWORK_DIMENSION_Y 4
