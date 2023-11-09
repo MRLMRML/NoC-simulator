@@ -8,10 +8,10 @@ void Network::setUpConnections()
 		for (int i{}; i < NETWORK_DIMENSION_X; ++i)
 		{
 			if (i != NETWORK_DIMENSION_X - 1)
-				m_links.setUpConnection(m_routers[i + j * NETWORK_DIMENSION_Y].m_eastPort, m_routers[(i + 1) + j * NETWORK_DIMENSION_Y].m_westPort);
+				m_links.setUpConnection(m_routers[i + j * NETWORK_DIMENSION_X].m_eastPort, m_routers[(i + 1) + j * NETWORK_DIMENSION_X].m_westPort);
 
 			if (j != NETWORK_DIMENSION_Y - 1)
-				m_links.setUpConnection(m_routers[i + j * NETWORK_DIMENSION_Y].m_southPort, m_routers[i + (j + 1) * NETWORK_DIMENSION_Y].m_northPort);
+				m_links.setUpConnection(m_routers[i + j * NETWORK_DIMENSION_X].m_southPort, m_routers[i + (j + 1) * NETWORK_DIMENSION_X].m_northPort);
 		}
 	}
 #endif
@@ -22,14 +22,14 @@ void Network::setUpConnections()
 		for (int i{}; i < NETWORK_DIMENSION_X; ++i)
 		{
 			if (i == NETWORK_DIMENSION_X - 1)
-				m_links.setUpConnection(m_routers[i + j * NETWORK_DIMENSION_Y].m_eastPort, m_routers[0 + j * NETWORK_DIMENSION_Y].m_westPort);
+				m_links.setUpConnection(m_routers[i + j * NETWORK_DIMENSION_X].m_eastPort, m_routers[0 + j * NETWORK_DIMENSION_X].m_westPort);
 			else
-				m_links.setUpConnection(m_routers[i + j * NETWORK_DIMENSION_Y].m_eastPort, m_routers[(i + 1) + j * NETWORK_DIMENSION_Y].m_westPort);
+				m_links.setUpConnection(m_routers[i + j * NETWORK_DIMENSION_X].m_eastPort, m_routers[(i + 1) + j * NETWORK_DIMENSION_X].m_westPort);
 
 			if (j == NETWORK_DIMENSION_Y - 1)
-				m_links.setUpConnection(m_routers[i + j * NETWORK_DIMENSION_Y].m_southPort, m_routers[i + 0 * NETWORK_DIMENSION_Y].m_northPort);
+				m_links.setUpConnection(m_routers[i + j * NETWORK_DIMENSION_X].m_southPort, m_routers[i + 0 * NETWORK_DIMENSION_X].m_northPort);
 			else
-				m_links.setUpConnection(m_routers[i + j * NETWORK_DIMENSION_Y].m_southPort, m_routers[i + (j + 1) * NETWORK_DIMENSION_Y].m_northPort);
+				m_links.setUpConnection(m_routers[i + j * NETWORK_DIMENSION_X].m_southPort, m_routers[i + (j + 1) * NETWORK_DIMENSION_X].m_northPort);
 		}
 	}
 #endif
@@ -44,7 +44,7 @@ void Network::printRouterIDs()
 	{
 		for (int i{}; i < NETWORK_DIMENSION_X; ++i)
 		{
-			std::cout << m_routers[i + j * NETWORK_DIMENSION_Y].m_routerID;
+			std::cout << m_routers[i + j * NETWORK_DIMENSION_X].m_routerID;
 		}
 		std::cout << std::endl;
 	}
@@ -65,8 +65,8 @@ void Network::printNodeIDs()
 	{
 		for (int i{}; i < NETWORK_DIMENSION_X; ++i)
 		{
-			if (m_routers[i + j * NETWORK_DIMENSION_Y].m_NID != -1)
-				std::cout << " " << m_routers[i + j * NETWORK_DIMENSION_Y].m_NID;
+			if (m_routers[i + j * NETWORK_DIMENSION_X].m_NID != -1)
+				std::cout << " " << m_routers[i + j * NETWORK_DIMENSION_X].m_NID;
 			else
 				std::cout << " -";
 		}
