@@ -1,7 +1,7 @@
 # NoC simulator
 Version 1.0
 
-2023/10/30
+2024/01/10
 
 MRLMRML
 
@@ -33,42 +33,6 @@ In measurement, three phases, warm-up phase, measurement phase, and drain phase 
 
 For the algorithm details in the router and other critical design choices, please check the figures under directory .\\NoC\\Design
 
-## Performance test
-
-We ran the test with the following parameters:
-
-Topology: Mesh
-
-Dimension: 4x4
-
-Routing algorithm: XY-routing
-
-Virtual channel number: 8
-
-Buffer size: 8
-
-Flit number per packet: 20
-
-Traffic pattern: random uniform
-
-Injection process: periodic process
-
-Injection rate: FLIT_PER_CYCLE
-
-Packets to send: 30
-
-Simulation cycles: 1500
-
-Warm-up cycles: 100
-
-Measurement cycles: 400
-
-Draining cycles: 1000
-
-And the result is shown in figure below:
-
-![test](./NoC/Test/test.png)
-
 ## To use this simulator
 
 Clone this project and open it in Visual Studio 2022.
@@ -81,9 +45,7 @@ Open main.cpp and change the global variable g_dataFolderPath to the path where 
 
 Then compile and run the program.
 
-The average latency will be printed out in the terminal.
-
-The throughput is not accurate at the moment, please ignore it.
+The average latency and throughput will be printed out in the terminal.
 
 To see the detailed informantion of each packets, open the Data folder.
 

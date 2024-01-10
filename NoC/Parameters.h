@@ -37,7 +37,7 @@
 // Injection rate
 //#define PACKET_PER_CYCLE
 #define FLIT_PER_CYCLE
-#define INJECTION_RATE 0.8f
+#define INJECTION_RATE 0.01f
 
 // Router timing, fixed, might support other values even though not tested yet
 #define EXECUTION_TIME_ROUTER_RC 1.0f
