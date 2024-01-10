@@ -5,6 +5,7 @@
 std::string g_dataFolderPath{ "C:\\Users\\Hubiao\\source\\repos\\NoC\\NoC\\Data\\" };
 std::string g_packetRecordPath{ "PacketRecord.csv" };
 std::string g_trafficDataPath{ "TrafficData.csv" };
+int g_deliveredPacket{};
 
 void customizeTraffic()
 {
@@ -212,6 +213,11 @@ void collectData()
 		// write it into TrafficData.csv if it is sent out in measurement phase
 		if (status != "intact")
 		{
+			if (status == "received")
+			{
+				if (std::stoi(outputTime) >= WARMUP_CYCLES && std::stoi(outputTime) < (WARMUP_CYCLES + MEASUREMENT_CYCLES))
+					g_deliveredPacket++;
+			}
 			if (std::stoi(inputTime) >= WARMUP_CYCLES && std::stoi(inputTime) < (WARMUP_CYCLES + MEASUREMENT_CYCLES))
 			{
 				if (status == "received")
@@ -267,13 +273,12 @@ NetworkPerformance calculatePerformance()
 		std::getline(lineInString, destination, ',');
 		std::getline(lineInString, status, ',');
 		std::getline(lineInString, latency, ',');
-		// calculate average latency, throughput
 		if (status == "received") accumulatedLatency += std::stof(latency);
 		if (status == "received") receivedPacketNumber++;
 	}
 	readTrafficData.close();
 	float averageLatency{ accumulatedLatency / receivedPacketNumber };
-	float throughput{ receivedPacketNumber * FLIT_NUMBER_PER_PACKET / (static_cast<float>(MEASUREMENT_CYCLES) * ROUTER_NUMBER) };
+	float throughput{ g_deliveredPacket * FLIT_NUMBER_PER_PACKET / (static_cast<float>(MEASUREMENT_CYCLES) * ROUTER_NUMBER) };
 	return { averageLatency, throughput };
 }
 

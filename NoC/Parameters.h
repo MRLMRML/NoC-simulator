@@ -14,7 +14,7 @@
 
 // Virtual channel
 #define VC_NUMBER 8
-#define BUFFER_SIZE 8 
+#define BUFFER_SIZE 8
 #define VIRTUAL_CHANNEL_PRIORITY_SEQUENCIAL
 //#define VIRTUAL_CHANNEL_PRIORITY_SNAKE
 #define NETWORK_BANDWIDTH 1 // flit per cycle
@@ -26,7 +26,7 @@
 #define FLIT_NUMBER_PER_PACKET PACKET_SIZE / FLIT_SIZE
 
 // Packet number to send in total
-#define PACKET_NUMBER 30
+#define PACKET_NUMBER 200
 
 // Traffic pattern
 //#define CUSTOMIZE
@@ -37,7 +37,7 @@
 // Injection rate
 //#define PACKET_PER_CYCLE
 #define FLIT_PER_CYCLE
-#define INJECTION_RATE 0.05f
+#define INJECTION_RATE 0.8f
 
 // Router timing, fixed, might support other values even though not tested yet
 #define EXECUTION_TIME_ROUTER_RC 1.0f
@@ -65,7 +65,7 @@
 #define PERIOD_DOPPLERNODE_COLLECTTRAFFIC EXECUTION_TIME_DOPPLERNODE_COLLECTTRAFFIC
 
 // Simulation cycles
-#define SIMULATION_CYCLES 1500
-#define WARMUP_CYCLES 100
-#define MEASUREMENT_CYCLES 400
+#define SIMULATION_CYCLES 5000
+#define WARMUP_CYCLES 1000
+#define MEASUREMENT_CYCLES 1000
 #define DRAIN_CYCLES SIMULATION_CYCLES - WARMUP_CYCLES - MEASUREMENT_CYCLES
