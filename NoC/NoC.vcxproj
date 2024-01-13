@@ -131,6 +131,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Benchmarking.h" />
     <ClInclude Include="Clock.h" />
     <ClInclude Include="Crossbar.h" />
     <ClInclude Include="DataStructures.h" />

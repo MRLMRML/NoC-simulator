@@ -9,8 +9,8 @@
 #define NETWORK_DIMENSION_Y 4
 #define ROUTER_NUMBER NETWORK_DIMENSION_X * NETWORK_DIMENSION_Y
 // choose network type:
-#define MESH
-//#define TORUS
+//#define MESH
+#define TORUS
 
 // Virtual channel
 #define VC_NUMBER 8

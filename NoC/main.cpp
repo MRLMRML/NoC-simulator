@@ -1,5 +1,6 @@
 #include <random>
 #include "Network.h"
+#include "Benchmarking.h"
 
 // global variables
 std::string g_dataFolderPath{ "C:\\Users\\Hubiao\\source\\repos\\NoC\\NoC\\Data\\" };
@@ -284,6 +285,9 @@ NetworkPerformance calculatePerformance()
 
 int main()
 {
+	// benchmarking the program
+	Timer timer{};
+
 	// generate traffic
 	generateTraffic();
 

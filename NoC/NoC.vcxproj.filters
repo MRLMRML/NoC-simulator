@@ -60,6 +60,9 @@
     <ClInclude Include="Link.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Benchmarking.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Router.cpp">
